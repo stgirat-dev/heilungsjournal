@@ -778,29 +778,18 @@ option { background: var(--surface2); color: var(--text); }
     </div>
   </div>
 
-  <!-- Medikamenten-Korrelation -->
+  <!-- Tagesschmerzverlauf + Medikamente -->
   <div class="card section-gap">
-    <div class="card-title">💊 Medikamenten-Wirkung</div>
-    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.25rem;">Zusammenhang zwischen Medikamenteneinnahme und Schmerzniveau</div>
-
-    <div class="g2" style="align-items:start; gap:1.25rem;">
-      <!-- Timeline -->
-      <div>
-        <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">📍 Zeitstrahl — Schmerz & Medikamente</div>
-        <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:0.5rem;">Linie = Schmerzniveau · Balken = Medikamenteneinnahme</div>
-        <div id="svg-med-timeline" style="width:100%;height:220px;"></div>
-        <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.6rem; font-size:0.72rem; color:var(--text-sub);"></div>
-      </div>
-
-      <!-- Before/After bars -->
-      <div>
-        <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">⚖️ Vorher / Nachher — Ø Schmerz (±3h)</div>
-        <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:0.5rem;">Ø Schmerzniveau 3h vor vs. 3h nach Einnahme</div>
-        <div id="svg-med-effect" style="width:100%;height:220px;"></div>
-        <div id="med-effect-empty" style="display:none; text-align:center; padding:2rem; font-size:0.82rem; color:var(--text-sub); font-style:italic;">
-          Für diese Auswertung werden Schmerzeinträge innerhalb von 3h vor/nach einer Medikamenteneinnahme benötigt.
-        </div>
-      </div>
+    <div class="card-title">💊 Tagesschmerzverlauf &amp; Medikamente</div>
+    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.5rem;">
+      Alle Schmerzeinträge chronologisch &nbsp;·&nbsp; ▼ Dreiecke = Medikamenteneinnahme
+    </div>
+    <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem; font-size:0.72rem; color:var(--text-sub);"></div>
+    <div id="med-timeline-scroll" style="overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;">
+      <div id="svg-med-timeline"></div>
+    </div>
+    <div id="med-timeline-empty" style="display:none; text-align:center; padding:2.5rem; font-size:0.85rem; color:var(--text-sub); font-style:italic;">
+      Noch keine Einträge vorhanden — trage Schmerzen und Medikamente im Tracker ein.
     </div>
   </div>
   <div class="card section-gap">
@@ -2749,9 +2738,12 @@ function toggleDayDetail(ds) {
 // Renders two medication-related charts as pure SVG (no Chart.js, no timing issues):
 // 1. Timeline: all individual pain measurements as colored dots + medication ▼ markers
 // 2. Before/After: grouped bar chart — Ø pain 3h before vs 3h after per medication
+// Renders the medication timeline chart as a pure SVG:
+// - X-axis: real timestamps, one day-label per day, vertical day separators
+// - Pain line: colored dots connected, color = pain level
+// - Med markers: ▼ triangles below x-axis at exact time position
+// - Scrollable when many days
 function renderMedCharts() {
-  if (!STATE.painLogs.length && !STATE.medLogs.length) return;
-
   const MED_COLORS = {
     'Tramadol':    '#9B7FD4',
     'Paracetamol': '#D4A84A',
@@ -2759,242 +2751,144 @@ function renderMedCharts() {
     'Anderes':     '#4A9FD4',
   };
 
-  function dtToNum(date, time) {
-    return new Date(date + 'T' + (time || '00:00') + ':00').getTime();
+  const wrap     = document.getElementById('svg-med-timeline');
+  const emptyEl  = document.getElementById('med-timeline-empty');
+  const legEl    = document.getElementById('med-timeline-legend');
+
+  if (!wrap) return;
+
+  // Show empty state if nothing to display
+  if (!STATE.painLogs.length && !STATE.medLogs.length) {
+    wrap.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = 'block';
+    if (legEl)   legEl.innerHTML = '';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  // ── Collect all unique days across pain + med logs ──────────
+  const allDays = [...new Set([
+    ...STATE.painLogs.map(l => l.date),
+    ...STATE.medLogs.map(l  => l.date),
+  ])].sort();
+
+  const DAY_MS    = 86400000;
+  const MIN_PX    = 80;   // minimum px per day
+  const H         = 240;
+  const PAD       = { top: 18, right: 24, bottom: 46, left: 34 };
+  const TRI_ZONE  = 22;   // px below x-axis reserved for triangles
+  const chartH    = H - PAD.top - PAD.bottom;   // pain plot area height
+  const MAX_Y     = 10;
+
+  // Day slot width: at least MIN_PX, fill container if fewer days
+  const containerW = (document.getElementById('med-timeline-scroll') || wrap).clientWidth || 700;
+  const dayW       = Math.max(MIN_PX, Math.floor((containerW - PAD.left - PAD.right) / allDays.length));
+  const chartW     = dayW * allDays.length;
+  const W          = chartW + PAD.left + PAD.right;
+
+  // Map date string to its left-edge x position (0 = first day)
+  const dayIndex = {};
+  allDays.forEach((d, i) => { dayIndex[d] = i; });
+
+  // Convert a date+time to x pixel coordinate
+  function xOf(date, time) {
+    const [h, m] = (time || '00:00').split(':').map(Number);
+    const frac   = (h * 60 + m) / (24 * 60);  // 0..1 within the day
+    return PAD.left + (dayIndex[date] + frac) * dayW;
   }
 
-  // ── SVG Zeitstrahl ────────────────────────────────────────────
-  (function renderTimeline() {
-    const wrap = document.getElementById('svg-med-timeline');
-    if (!wrap) return;
+  function yOf(level) {
+    return PAD.top + chartH - (level / MAX_Y) * chartH;
+  }
 
-    const W  = wrap.clientWidth || 560;
-    const H  = 220;
-    const PAD = { top: 14, right: 16, bottom: 36, left: 30 };
-    const chartW = W - PAD.left - PAD.right;
-    const chartH = H - PAD.top  - PAD.bottom;
-    const MAX_Y  = 10;
-    const TRI_Y  = H - PAD.bottom + 6; // triangle row below chart
+  let svg = '';
 
-    // Build sorted combined timeline
-    const allPts = [
-      ...STATE.painLogs.map(l => ({ ts: dtToNum(l.date, l.time), type: 'pain', level: l.level, date: l.date, time: l.time })),
-      ...STATE.medLogs.map(l  => ({ ts: dtToNum(l.date, l.time), type: 'med',  med: l.med,    date: l.date, time: l.time, dose: l.dose }))
-    ].sort((a, b) => a.ts - b.ts);
+  // ── Y-axis grid lines ────────────────────────────────────────
+  for (let v = 0; v <= MAX_Y; v += 2) {
+    const y = yOf(v);
+    svg += `<line x1="${PAD.left}" y1="${y.toFixed(1)}" x2="${PAD.left + chartW}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+    svg += `<text x="${PAD.left - 5}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" font-size="9" fill="#9AA5B8">${v}</text>`;
+  }
 
-    if (!allPts.length) {
-      wrap.innerHTML = `<div style="height:220px;display:flex;align-items:center;justify-content:center;font-size:0.82rem;color:#5A6476;font-style:italic;">Noch keine Daten vorhanden.</div>`;
-      return;
+  // ── Day separators + date labels ─────────────────────────────
+  allDays.forEach((ds, i) => {
+    const x      = PAD.left + i * dayW;
+    const [, m2, d2] = ds.split('-');
+    // vertical separator
+    if (i > 0) {
+      svg += `<line x1="${x}" y1="${PAD.top}" x2="${x}" y2="${PAD.top + chartH + TRI_ZONE}" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>`;
     }
+    // day label centred in its slot
+    const labelX = x + dayW / 2;
+    svg += `<text x="${labelX.toFixed(1)}" y="${(PAD.top + chartH + TRI_ZONE + 14).toFixed(1)}" text-anchor="middle" font-size="9" fill="#9AA5B8">${d2}.${m2}</text>`;
+  });
 
-    const tsMin = allPts[0].ts;
-    const tsMax = allPts[allPts.length - 1].ts;
-    const tsRange = Math.max(tsMax - tsMin, 1);
-
-    function xOf(ts) {
-      return PAD.left + ((ts - tsMin) / tsRange) * chartW;
-    }
-    function yOf(level) {
-      return PAD.top + chartH - (level / MAX_Y) * chartH;
-    }
-
-    // Grid lines
-    let svg = '';
-    for (let v = 0; v <= MAX_Y; v += 2) {
-      const y = yOf(v);
-      svg += `<line x1="${PAD.left}" y1="${y.toFixed(1)}" x2="${PAD.left + chartW}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-      svg += `<text x="${PAD.left - 4}" y="${(y + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="#9AA5B8">${v}</text>`;
-    }
-
-    // Pain line path
-    const painPts = STATE.painLogs
-      .map(l => ({ ts: dtToNum(l.date, l.time), level: l.level }))
-      .sort((a, b) => a.ts - b.ts);
-
-    if (painPts.length > 1) {
-      const d = painPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${xOf(p.ts).toFixed(1)},${yOf(p.level).toFixed(1)}`).join(' ');
-      svg += `<path d="${d}" fill="none" stroke="#E8714A" stroke-width="2" stroke-linejoin="round" opacity="0.7"/>`;
-      // Fill under line
-      const first = painPts[0], last = painPts[painPts.length - 1];
-      const fillD = d + ` L${xOf(last.ts).toFixed(1)},${(PAD.top + chartH).toFixed(1)} L${xOf(first.ts).toFixed(1)},${(PAD.top + chartH).toFixed(1)} Z`;
-      svg += `<path d="${fillD}" fill="rgba(232,113,74,0.07)"/>`;
-    }
-
-    // Pain dots
-    STATE.painLogs.forEach(l => {
-      const x = xOf(dtToNum(l.date, l.time));
-      const y = yOf(l.level);
-      const col = getPainColor(l.level);
-      svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="${col}" stroke="#0D1117" stroke-width="1.5">
-        <title>${l.date} ${l.time} — Schmerz ${l.level}/10${l.note ? ' · ' + l.note : ''}</title>
-      </circle>`;
+  // ── Pain line ────────────────────────────────────────────────
+  const sortedPain = [...STATE.painLogs]
+    .filter(l => l.date in dayIndex)
+    .sort((a, b) => {
+      const ta = a.date + (a.time || '00:00');
+      const tb = b.date + (b.time || '00:00');
+      return ta < tb ? -1 : ta > tb ? 1 : 0;
     });
 
-    // Med triangles (▼) below x-axis
-    STATE.medLogs.forEach(l => {
-      const x   = xOf(dtToNum(l.date, l.time));
+  if (sortedPain.length > 1) {
+    const pts = sortedPain.map(l => `${xOf(l.date, l.time).toFixed(1)},${yOf(l.level).toFixed(1)}`);
+    svg += `<polyline points="${pts.join(' ')}" fill="none" stroke="#E8714A" stroke-width="2" stroke-linejoin="round" opacity="0.65"/>`;
+    // subtle fill under the line
+    const first = sortedPain[0], last = sortedPain[sortedPain.length - 1];
+    const fillPts = pts.join(' ')
+      + ` ${xOf(last.date, last.time).toFixed(1)},${(PAD.top + chartH).toFixed(1)}`
+      + ` ${xOf(first.date, first.time).toFixed(1)},${(PAD.top + chartH).toFixed(1)}`;
+    svg += `<polygon points="${fillPts}" fill="rgba(232,113,74,0.07)"/>`;
+  }
+
+  // ── Pain dots ────────────────────────────────────────────────
+  sortedPain.forEach(l => {
+    const x   = xOf(l.date, l.time);
+    const y   = yOf(l.level);
+    const col = getPainColor(l.level);
+    const tip = `${l.date} ${l.time || ''} — Schmerz ${l.level}/10${l.note ? ' · ' + l.note : ''}`;
+    svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="${col}" stroke="#0D1117" stroke-width="1.5"><title>${tip}</title></circle>`;
+  });
+
+  // ── Med triangles (▼) below x-axis ───────────────────────────
+  const triY = PAD.top + chartH + 8;  // top of triangle zone
+  const S    = 7;                      // half-width of triangle base
+  STATE.medLogs
+    .filter(l => l.date in dayIndex)
+    .forEach(l => {
+      const x   = xOf(l.date, l.time);
       const col = MED_COLORS[l.med] || '#888';
-      const s   = 7; // triangle half-size
-      // Downward triangle: apex at bottom
-      svg += `<polygon points="${x.toFixed(1)},${TRI_Y + s} ${(x - s).toFixed(1)},${TRI_Y - 2} ${(x + s).toFixed(1)},${TRI_Y - 2}"
-        fill="${col}" opacity="0.9">
-        <title>💊 ${l.med} ${l.dose || ''} — ${l.date} ${l.time}</title>
-      </polygon>`;
+      // downward-pointing triangle: base on top, apex at bottom
+      const pts = `${(x - S).toFixed(1)},${triY} ${(x + S).toFixed(1)},${triY} ${x.toFixed(1)},${triY + S * 1.4}`;
+      const tip = `${l.med}${l.dose ? ' · ' + l.dose : ''} — ${l.date} ${l.time || ''}`;
+      svg += `<polygon points="${pts}" fill="${col}" opacity="0.9"><title>💊 ${tip}</title></polygon>`;
     });
 
-    // X-axis: date labels — show first of each day
-    const shownDays = new Set();
-    allPts.forEach(p => {
-      if (!shownDays.has(p.date)) {
-        shownDays.add(p.date);
-        const x   = xOf(dtToNum(p.date, p.time || '00:00'));
-        const [y2, m2, d2] = p.date.split('-');
-        svg += `<text x="${x.toFixed(1)}" y="${(PAD.top + chartH + 22).toFixed(1)}" text-anchor="middle" font-size="8" fill="#9AA5B8">${d2}.${m2}</text>`;
-        svg += `<line x1="${x.toFixed(1)}" y1="${PAD.top}" x2="${x.toFixed(1)}" y2="${(PAD.top + chartH).toFixed(1)}" stroke="rgba(255,255,255,0.03)" stroke-width="1" stroke-dasharray="3,3"/>`;
-      }
-    });
+  // ── Axes ─────────────────────────────────────────────────────
+  svg += `<line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top + chartH}" stroke="#2A3A50" stroke-width="1"/>`;
+  svg += `<line x1="${PAD.left}" y1="${PAD.top + chartH}" x2="${PAD.left + chartW}" y2="${PAD.top + chartH}" stroke="#2A3A50" stroke-width="1"/>`;
 
-    // Y-axis line
-    svg += `<line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top + chartH}" stroke="#2A3A50" stroke-width="1"/>`;
+  wrap.innerHTML = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="display:block;">${svg}</svg>`;
 
-    wrap.innerHTML = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">${svg}</svg>`;
-
-    // Legend
-    const leg = document.getElementById('med-timeline-legend');
-    if (leg) {
-      const usedMeds = [...new Set(STATE.medLogs.map(l => l.med))];
-      leg.innerHTML = [
-        `<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:16px;height:3px;background:#E8714A;border-radius:2px;"></div><span>Schmerzniveau</span></div>`,
-        ...usedMeds.map(m => {
-          const col = MED_COLORS[m] || '#888';
-          return `<div style="display:flex;align-items:center;gap:0.3rem;">
-            <svg width="12" height="10" xmlns="http://www.w3.org/2000/svg"><polygon points="6,10 0,0 12,0" fill="${col}"/></svg>
-            <span>${m}</span>
-          </div>`;
-        })
-      ].join('');
-    }
-  })();
-
-  // ── SVG Vorher / Nachher ──────────────────────────────────────
-  (function renderBeforeAfter() {
-    const wrap    = document.getElementById('svg-med-effect');
-    const emptyEl = document.getElementById('med-effect-empty');
-    if (!wrap) return;
-
-    function timeToMin(t) {
-      if (!t) return null;
-      const [h, m] = t.split(':').map(Number);
-      return h * 60 + m;
-    }
-
-    const WINDOW_MIN = 180;
-    const medNames   = [...new Set(STATE.medLogs.map(l => l.med))];
-    const results    = [];
-
-    medNames.forEach(medName => {
-      const intakes    = STATE.medLogs.filter(l => l.med === medName);
-      const beforeVals = [], afterVals = [];
-
-      intakes.forEach(intake => {
-        const intakeMin = timeToMin(intake.time);
-        if (intakeMin === null) return;
-        [-1, 0, 1].forEach(dayOff => {
-          const d2 = new Date(intake.date + 'T00:00:00');
-          d2.setDate(d2.getDate() + dayOff);
-          const ds2       = dateStr(d2);
-          const offsetMin = dayOff * 24 * 60;
-          STATE.painLogs.filter(l => l.date === ds2).forEach(pain => {
-            const painMin = timeToMin(pain.time);
-            if (painMin === null) return;
-            const diff = (painMin + offsetMin) - intakeMin;
-            if (diff >= -WINDOW_MIN && diff < 0) beforeVals.push(pain.level);
-            if (diff > 0 && diff <= WINDOW_MIN)  afterVals.push(pain.level);
-          });
-        });
-      });
-
-      if (beforeVals.length || afterVals.length) {
-        results.push({
-          med:    medName,
-          color:  MED_COLORS[medName] || '#888',
-          before: beforeVals.length ? parseFloat((beforeVals.reduce((a, b) => a + b, 0) / beforeVals.length).toFixed(1)) : null,
-          after:  afterVals.length  ? parseFloat((afterVals.reduce((a, b)  => a + b, 0) / afterVals.length).toFixed(1))  : null,
-        });
-      }
-    });
-
-    if (!results.length) {
-      wrap.style.display   = 'none';
-      if (emptyEl) emptyEl.style.display = 'block';
-      return;
-    }
-    wrap.style.display   = '';
-    if (emptyEl) emptyEl.style.display = 'none';
-
-    const W       = wrap.clientWidth || 400;
-    const H       = 220;
-    const PAD     = { top: 14, right: 16, bottom: 48, left: 36 };
-    const chartW  = W  - PAD.left - PAD.right;
-    const chartH  = H  - PAD.top  - PAD.bottom;
-    const MAX_Y   = 10;
-    const n       = results.length;
-    const groupW  = chartW / n;
-    const barW    = Math.max(10, Math.floor(groupW * 0.28));
-    const gap     = Math.max(3, Math.floor(groupW * 0.06));
-
-    function yOf(v) { return PAD.top + chartH - (v / MAX_Y) * chartH; }
-
-    let svg = '';
-
-    // Grid
-    for (let v = 0; v <= MAX_Y; v += 2) {
-      const y = yOf(v);
-      svg += `<line x1="${PAD.left}" y1="${y.toFixed(1)}" x2="${PAD.left + chartW}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-      svg += `<text x="${PAD.left - 4}" y="${(y + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="#9AA5B8">${v}</text>`;
-    }
-
-    // Bars
-    results.forEach((r, i) => {
-      const cx    = PAD.left + groupW * i + groupW / 2;
-      const bx1   = cx - gap / 2 - barW;
-      const bx2   = cx + gap / 2;
-
-      // Before bar
-      if (r.before !== null) {
-        const bh = Math.max(2, (r.before / MAX_Y) * chartH);
-        const by = yOf(r.before);
-        svg += `<rect x="${bx1.toFixed(1)}" y="${by.toFixed(1)}" width="${barW}" height="${bh.toFixed(1)}" rx="3" fill="${r.color}66" stroke="${r.color}" stroke-width="1"/>`;
-        svg += `<text x="${(bx1 + barW / 2).toFixed(1)}" y="${(by - 4).toFixed(1)}" text-anchor="middle" font-size="9" fill="${r.color}" font-weight="600">${r.before}</text>`;
-      }
-
-      // After bar
-      if (r.after !== null) {
-        const bh = Math.max(2, (r.after / MAX_Y) * chartH);
-        const by = yOf(r.after);
-        svg += `<rect x="${bx2.toFixed(1)}" y="${by.toFixed(1)}" width="${barW}" height="${bh.toFixed(1)}" rx="3" fill="${r.color}CC" stroke="${r.color}" stroke-width="1"/>`;
-        svg += `<text x="${(bx2 + barW / 2).toFixed(1)}" y="${(by - 4).toFixed(1)}" text-anchor="middle" font-size="9" fill="${r.color}" font-weight="600">${r.after}</text>`;
-      }
-
-      // Med name label
-      svg += `<text x="${cx.toFixed(1)}" y="${(PAD.top + chartH + 16).toFixed(1)}" text-anchor="middle" font-size="10" fill="#EEF0F5" font-weight="600">${r.med}</text>`;
-    });
-
-    // Y-axis + x-axis lines
-    svg += `<line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}" y2="${PAD.top + chartH}" stroke="#2A3A50" stroke-width="1"/>`;
-    svg += `<line x1="${PAD.left}" y1="${PAD.top + chartH}" x2="${PAD.left + chartW}" y2="${PAD.top + chartH}" stroke="#2A3A50" stroke-width="1"/>`;
-
-    // Legend
-    const legendY = PAD.top + chartH + 32;
-    const lx1 = PAD.left;
-    const lx2 = PAD.left + 80;
-    svg += `<rect x="${lx1}" y="${legendY}" width="12" height="10" rx="2" fill="#ffffff33" stroke="#9AA5B8" stroke-width="1"/>`;
-    svg += `<text x="${lx1 + 16}" y="${legendY + 9}" font-size="9" fill="#9AA5B8">Ø Vorher (3h)</text>`;
-    svg += `<rect x="${lx2}" y="${legendY}" width="12" height="10" rx="2" fill="#ffffffCC" stroke="#9AA5B8" stroke-width="1"/>`;
-    svg += `<text x="${lx2 + 16}" y="${legendY + 9}" font-size="9" fill="#9AA5B8">Ø Nachher (3h)</text>`;
-
-    wrap.innerHTML = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">${svg}</svg>`;
-  })();
+  // ── Legend ───────────────────────────────────────────────────
+  if (legEl) {
+    const usedMeds = [...new Set(STATE.medLogs.map(l => l.med))];
+    legEl.innerHTML = [
+      `<div style="display:flex;align-items:center;gap:0.35rem;">
+        <div style="width:18px;height:3px;background:#E8714A;border-radius:2px;"></div>
+        <span>Schmerzverlauf</span>
+      </div>`,
+      ...usedMeds.map(med => {
+        const col = MED_COLORS[med] || '#888';
+        return `<div style="display:flex;align-items:center;gap:0.35rem;">
+          <svg width="14" height="12" style="flex-shrink:0"><polygon points="0,0 14,0 7,12" fill="${col}"/></svg>
+          <span>${med}</span>
+        </div>`;
+      })
+    ].join('');
+  }
 }
 
 function formatDateDE(ds) {
