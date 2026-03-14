@@ -1398,8 +1398,15 @@ function showTab(name) {
   if (name === 'erfolge')    renderAchievements();
   if (name === 'schmerz')    renderPainTab();
   if (name === 'phasen')     renderPhasenTab();
-  if (name === 'auswertung') renderAuswertung();
   if (name === 'install')    checkSWStatus();
+  if (name === 'auswertung') {
+    // Wait for tab to be fully painted before rendering charts
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        renderAuswertung();
+      });
+    });
+  }
 }
 
 // ============================================================
@@ -2605,8 +2612,9 @@ function renderDailyStats() {
           plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.parsed.y!==null?ctx.parsed.y+'/10':'kein Eintrag'}} }
         }
       });
+      setTimeout(() => _charts['daily14']?.resize(), 100);
     }
-  }, 50);
+  }, 150);
 
   // Daily table
   const table = document.getElementById('daily-table');
@@ -2681,7 +2689,6 @@ function renderMedCharts() {
   setTimeout(() => {
     // ---- Zeitstrahl: kombinierte Linie + Medikament-Balken ----
     destroyChart('med-timeline');
-
     // Build sorted list of all unique dates with data
     const allDatesSet = new Set([
       ...STATE.painLogs.map(l=>l.date),
@@ -2719,8 +2726,7 @@ function renderMedCharts() {
 
     const ctxMT = document.getElementById('chart-med-timeline')?.getContext('2d');
     if (ctxMT) {
-      _charts['med-timeline'] = new Chart(ctxMT, {
-        type: 'line',
+      _charts['med-timeline'] = new Chart(ctxMT, {        type: 'line',
         data: {
           labels,
           datasets: [
@@ -2775,6 +2781,7 @@ function renderMedCharts() {
             <span>${it.label}</span>
           </div>`).join('');
       }
+      setTimeout(() => _charts['med-timeline']?.resize(), 100);
     }
 
     // ---- Vorher/Nachher: Ø Schmerz ±2h ----
@@ -2865,9 +2872,10 @@ function renderMedCharts() {
             }
           }
         });
+        setTimeout(() => _charts['med-effect']?.resize(), 100);
       }
     }
-  }, 80);
+  }, 200);
 }
 
 function formatDateDE(ds) {
