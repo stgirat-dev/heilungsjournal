@@ -2750,7 +2750,8 @@ function renderMedCharts() {
   const painData   = labels.map(lbl => painByLabel[lbl] != null ? painByLabel[lbl] : null);
   const painColors = labels.map(lbl => painByLabel[lbl] != null ? getPainColor(painByLabel[lbl]) : 'transparent');
 
-  // One scatter dataset per used medication
+  // Med datasets: line with showLine:false — no type:'scatter' inside a line chart
+  // (mixed type:'scatter' inside type:'line' causes Chart.js 4 render failures)
   const usedMeds = [...new Set(STATE.medLogs.map(l => l.med))];
   const medDatasets = usedMeds.map(medName => {
     const color = MED_COLORS[medName] || '#888888';
@@ -2763,7 +2764,8 @@ function renderMedCharts() {
     return {
       label: medName,
       data,
-      type: 'scatter',
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       pointStyle: 'triangle',
       rotation: 180,
       pointRadius: radii,
@@ -2771,6 +2773,7 @@ function renderMedCharts() {
       pointBackgroundColor: color,
       pointBorderColor: color,
       showLine: false,
+      spanGaps: false,
       order: 0,
     };
   });
