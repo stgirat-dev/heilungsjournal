@@ -797,7 +797,7 @@ option { background: var(--surface2); color: var(--text); }
 
     <!-- 14-day bar chart -->
     <div style="font-size:0.82rem; color:var(--text-sub); margin-bottom:0.75rem;">Tages-Durchschnitt — letzte 14 Tage</div>
-    <div id="svg-daily14" style="width:100%;height:160px;margin-bottom:1.25rem;"></div>
+    <div style="position:relative;height:160px;margin-bottom:1.25rem;"><canvas id="chart-daily14"></canvas></div>
 
     <!-- Daily table -->
     <div style="overflow-x:auto; max-height:400px; overflow-y:auto;">
@@ -2605,75 +2605,43 @@ function getTimeSlot(time) {
 
 // Renders 14-day bar chart and expandable per-day statistics table
 function renderDailyStats() {
-  // ── SVG: 14-Tage-Balkendiagramm ──────────────────────────────
-  const wrap = document.getElementById('svg-daily14');
-  if (wrap) {
-    const W = wrap.clientWidth || 600;
-    const H = 160;
-    const PAD = { top: 10, right: 12, bottom: 28, left: 32 };
-    const chartW = W - PAD.left - PAD.right;
-    const chartH = H - PAD.top  - PAD.bottom;
-    const MAX_Y  = 10;
+  // ── Chart.js: 14-Tage-Balkendiagramm ─────────────────────────
+  // Canvas is replaced before each render to clear Chart.js internal state
+  (function() {
+    const oldCanvas = document.getElementById('chart-daily14');
+    if (!oldCanvas) return;
+    const parent = oldCanvas.parentNode;
+    const fresh  = document.createElement('canvas');
+    fresh.id = 'chart-daily14';
+    parent.replaceChild(fresh, oldCanvas);
 
-    const days = [];
+    const labels14 = [], data14 = [], colors14 = [];
     for (let i = 13; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      const ds  = dateStr(d);
+      const d  = new Date(); d.setDate(d.getDate() - i);
+      const ds = dateStr(d);
       const avg = avgPainForDay(ds);
-      days.push({ label: ds.slice(5), avg });
+      labels14.push(ds.slice(5));
+      data14.push(avg !== null ? avg : null);
+      colors14.push(avg !== null ? getPainColor(Math.round(avg)) : 'rgba(255,255,255,0.08)');
     }
 
-    const n      = days.length;
-    const barW   = Math.max(4, Math.floor(chartW / n) - 3);
-    const slotW  = chartW / n;
-
-    // Y-axis grid lines
-    let gridLines = '';
-    for (let v = 0; v <= MAX_Y; v += 2) {
-      const y = PAD.top + chartH - (v / MAX_Y) * chartH;
-      gridLines += `<line x1="${PAD.left}" y1="${y}" x2="${PAD.left + chartW}" y2="${y}"
-        stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-      gridLines += `<text x="${PAD.left - 4}" y="${y + 3}" text-anchor="end"
-        font-size="9" fill="#9AA5B8">${v}</text>`;
-    }
-
-    // Bars + x-labels
-    let bars = '';
-    days.forEach((day, i) => {
-      const cx  = PAD.left + slotW * i + slotW / 2;
-      const bx  = cx - barW / 2;
-      if (day.avg !== null) {
-        const bh   = Math.max(3, (day.avg / MAX_Y) * chartH);
-        const by   = PAD.top + chartH - bh;
-        const col  = getPainColor(Math.round(day.avg));
-        bars += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}"
-          width="${barW}" height="${bh.toFixed(1)}"
-          rx="3" fill="${col}" opacity="0.85"/>`;
-        if (bh > 14) {
-          bars += `<text x="${cx.toFixed(1)}" y="${(by + bh - 4).toFixed(1)}"
-            text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.75)"
-            font-weight="600">${day.avg.toFixed(1)}</text>`;
-        }
-      } else {
-        // No data: faint placeholder
-        bars += `<rect x="${bx.toFixed(1)}" y="${(PAD.top + chartH - 3).toFixed(1)}"
-          width="${barW}" height="3" rx="1.5" fill="rgba(255,255,255,0.08)"/>`;
-      }
-      // X-label (every 2nd to avoid clutter)
-      if (i % 2 === 0 || n <= 7) {
-        bars += `<text x="${cx.toFixed(1)}" y="${(PAD.top + chartH + 14).toFixed(1)}"
-          text-anchor="middle" font-size="8" fill="#9AA5B8">${day.label}</text>`;
+    _charts['daily14'] = new Chart(fresh.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: labels14,
+        datasets: [{ label: 'Ø Schmerz', data: data14, backgroundColor: colors14, borderRadius: 5, borderWidth: 0 }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 9 }, color: '#9AA5B8' } },
+          x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#9AA5B8' } }
+        },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? ctx.parsed.y + '/10' : 'kein Eintrag' } } }
       }
     });
-
-    // Y-axis line
-    const axisLine = `<line x1="${PAD.left}" y1="${PAD.top}" x2="${PAD.left}"
-      y2="${PAD.top + chartH}" stroke="#2A3A50" stroke-width="1"/>`;
-
-    wrap.innerHTML = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
-      ${gridLines}${axisLine}${bars}
-    </svg>`;
-  }
+  })();
 
   // Daily table
   const table = document.getElementById('daily-table');
@@ -2754,20 +2722,25 @@ function renderMedCharts() {
     'Anderes':     '#4A9FD4',
   };
 
-  const canvasEl = document.getElementById('chart-med-timeline');
-  const emptyEl  = document.getElementById('med-timeline-empty');
-  const legEl    = document.getElementById('med-timeline-legend');
-
-  if (!canvasEl) return;
+  const emptyEl = document.getElementById('med-timeline-empty');
+  const legEl   = document.getElementById('med-timeline-legend');
 
   if (!STATE.painLogs.length && !STATE.medLogs.length) {
-    canvasEl.style.display = 'none';
+    const c = document.getElementById('chart-med-timeline');
+    if (c) c.style.display = 'none';
     if (emptyEl) emptyEl.style.display = 'block';
     if (legEl)   legEl.innerHTML = '';
     return;
   }
-  canvasEl.style.display = '';
   if (emptyEl) emptyEl.style.display = 'none';
+
+  // Replace canvas to fully clear Chart.js internal state before re-render
+  const oldCanvas = document.getElementById('chart-med-timeline');
+  if (!oldCanvas) return;
+  const fresh = document.createElement('canvas');
+  fresh.id = 'chart-med-timeline';
+  oldCanvas.parentNode.replaceChild(fresh, oldCanvas);
+  if (_charts['med-timeline']) { try { _charts['med-timeline'].destroy(); } catch(e){} delete _charts['med-timeline']; }
 
   // Build label: "DD.MM HH:MM"
   function toLabel(date, time) {
@@ -2816,8 +2789,7 @@ function renderMedCharts() {
     };
   });
 
-  destroyChart('med-timeline');
-  _charts['med-timeline'] = new Chart(canvasEl.getContext('2d'), {
+  _charts['med-timeline'] = new Chart(fresh.getContext('2d'), {
     type: 'line',
     data: {
       labels,
