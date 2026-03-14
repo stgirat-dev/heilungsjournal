@@ -794,22 +794,18 @@ option { background: var(--surface2); color: var(--text); }
       <!-- Timeline -->
       <div>
         <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">📍 Zeitstrahl — Schmerz & Medikamente</div>
-        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">Linie = Schmerzniveau · Markierungen ▼ = Medikamenteneinnahme</div>
-        <div style="position:relative; height:220px;">
-          <canvas id="chart-med-timeline"></canvas>
-        </div>
-        <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.6rem; font-size:0.72rem; color:var(--text-muted);"></div>
+        <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:0.5rem;">Linie = Schmerzniveau · Balken = Medikamenteneinnahme</div>
+        <canvas id="chart-med-timeline" height="220" style="width:100%;max-height:220px;"></canvas>
+        <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.6rem; font-size:0.72rem; color:var(--text-sub);"></div>
       </div>
 
       <!-- Before/After bars -->
       <div>
-        <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">⚖️ Vorher / Nachher — Ø Schmerz (±2h)</div>
-        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">Ø Schmerzniveau 2h vor vs. 2h nach Einnahme</div>
-        <div style="position:relative; height:220px;">
-          <canvas id="chart-med-effect"></canvas>
-        </div>
-        <div id="med-effect-empty" style="display:none; text-align:center; padding:2rem; font-size:0.82rem; color:var(--text-muted); font-style:italic;">
-          Für diese Auswertung werden Schmerzeinträge innerhalb von 2h vor/nach einer Medikamenteneinnahme benötigt.
+        <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">⚖️ Vorher / Nachher — Ø Schmerz (±3h)</div>
+        <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:0.5rem;">Ø Schmerzniveau 3h vor vs. 3h nach Einnahme</div>
+        <canvas id="chart-med-effect" height="220" style="width:100%;max-height:220px;"></canvas>
+        <div id="med-effect-empty" style="display:none; text-align:center; padding:2rem; font-size:0.82rem; color:var(--text-sub); font-style:italic;">
+          Für diese Auswertung werden Schmerzeinträge innerhalb von 3h vor/nach einer Medikamenteneinnahme benötigt.
         </div>
       </div>
     </div>
@@ -818,10 +814,8 @@ option { background: var(--surface2); color: var(--text); }
     <div class="card-title">📅 Tages-Statistiken</div>
 
     <!-- 14-day bar chart -->
-    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Tages-Durchschnitt — letzte 14 Tage</div>
-    <div style="position:relative; height:160px; margin-bottom:1.25rem;">
-      <canvas id="chart-daily14"></canvas>
-    </div>
+    <div style="font-size:0.82rem; color:var(--text-sub); margin-bottom:0.75rem;">Tages-Durchschnitt — letzte 14 Tage</div>
+    <canvas id="chart-daily14" height="160" style="width:100%;max-height:160px;margin-bottom:1.25rem;"></canvas>
 
     <!-- Daily table -->
     <div style="overflow-x:auto; max-height:400px; overflow-y:auto;">
