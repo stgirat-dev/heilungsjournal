@@ -15,816 +15,283 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+/* ─── DESIGN SYSTEM ──────────────────────────────── */
 :root {
-  --bg: #111827;
-  --paper: #1F2937;
-  --paper2: #1A2433;
-  --primary: #D4845A;
-  --primary-light: #8B5A3C;
-  --primary-pale: #2A1F18;
-  --sage: #6D9B74;
-  --sage-light: #3A6B42;
-  --sage-pale: #162318;
-  --text: #F1EDE8;
-  --text-muted: #8A9BB0;
-  --border: #2D3748;
-  --border-light: #243040;
+  --bg:           #0D1117;
+  --surface:      #161B27;
+  --surface2:     #1C2333;
+  --surface3:     #222B3E;
+  --primary:      #E8714A;
+  --primary-dim:  #3A1E14;
+  --primary-glow: rgba(232,113,74,0.15);
+  --green:        #3CB46E;
+  --green-dim:    #0E2418;
+  --blue:         #4A9FD4;
+  --blue-dim:     #0E2030;
+  --purple:       #9B7FD4;
+  --purple-dim:   #1A1530;
+  --gold:         #D4A84A;
+  --gold-dim:     #251C08;
+  --text:         #EEF0F5;
+  --text-sub:     #9AA5B8;
+  --text-dim:     #5A6476;
+  --border:       #1E2A3A;
+  --border-bright:#2A3A50;
+  --red:          #E05050;
+  --red-dim:      #2A1010;
 
-  --phase-op: #E08070;
-  --phase-op-bg: #2A1A18;
-  --phase-spital: #D4A850;
-  --phase-spital-bg: #2A2218;
-  --phase-early: #6D9B74;
-  --phase-early-bg: #162318;
-  --phase-active: #5A9FCA;
-  --phase-active-bg: #162030;
-  --phase-reha: #9882C8;
-  --phase-reha-bg: #1E1A2E;
-  --phase-full: #D4845A;
-  --phase-full-bg: #2A1F18;
+  /* aliases for compatibility */
+  --paper: #161B27;
+  --paper2: #1C2333;
+  --sage: #3CB46E;
+  --sage-light: #1A4A30;
+  --sage-pale: #0E2418;
+  --text-muted: #9AA5B8;
+  --border-light: #1A2030;
+
+  /* Phase colors */
+  --phase-op:  #E08070; --phase-op-bg:  #2A1810;
+  --phase-sp:  #D4A84A; --phase-sp-bg:  #251C08;
+  --phase-er:  #3CB46E; --phase-er-bg:  #0E2418;
+  --phase-za:  #4A9FD4; --phase-za-bg:  #0E2030;
+  --phase-re:  #9B7FD4; --phase-re-bg:  #1A1530;
+  --phase-vr:  #E8714A; --phase-vr-bg:  #3A1E14;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  font-size: 15px;
+  font-size: 14.5px;
+  -webkit-font-smoothing: antialiased;
 }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
 
 /* HEADER */
 header {
-  background: var(--paper);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  padding: 0.85rem 1.75rem;
+  display: flex; align-items: center; gap: 1rem;
+  position: sticky; top: 0; z-index: 40;
 }
-
-.header-logo {
-  font-size: 1.7rem;
-  line-height: 1;
-}
-
-.header-text h1 {
-  font-family: 'Lora', serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
-
-.header-text p {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-top: 0.1rem;
-}
-
-.header-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.day-counter {
-  background: var(--primary-pale);
-  border: 1px solid var(--primary-light);
-  color: var(--primary);
-  padding: 0.4rem 0.9rem;
-  border-radius: 20px;
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-
-.streak-badge {
-  background: linear-gradient(135deg, #FF8C3A, #FF5C1A);
-  color: white;
-  padding: 0.4rem 0.85rem;
-  border-radius: 20px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
+.header-logo { font-size: 1.6rem; line-height: 1; }
+.header-text h1 { font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.header-text p { font-size: 0.76rem; color: var(--text-sub); margin-top: 0.1rem; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 0.6rem; }
+.day-counter { background: var(--primary-dim); border: 1px solid var(--primary); color: var(--primary); padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; }
+.streak-badge { background: linear-gradient(135deg,#FF8C3A,#E85A10); color: white; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem; }
 
 /* NAV */
-nav {
-  background: var(--paper);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  padding: 0 2rem;
-  gap: 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.nav-btn {
-  padding: 0.85rem 1.2rem;
-  border: none;
-  background: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-bottom: 2.5px solid transparent;
-  white-space: nowrap;
-  transition: color 0.2s, border-color 0.2s;
-}
-.nav-btn:hover { color: var(--primary); }
+nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 1.75rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+nav::-webkit-scrollbar { height: 0; }
+.nav-btn { padding: 0.75rem 1rem; border: none; background: none; font-family: 'DM Sans',sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s,border-color 0.15s; }
+.nav-btn:hover { color: var(--text-sub); }
 .nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
 
 /* MAIN */
-main { max-width: 1060px; margin: 0 auto; padding: 1.75rem 2rem; }
-
+main { max-width: 1080px; margin: 0 auto; padding: 1.4rem 1.75rem; }
 .tab { display: none; }
 .tab.active { display: block; }
 
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.85rem; }
+
 /* CARDS */
-.card {
-  background: var(--paper);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.4rem;
-}
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+.card-label { font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-dim); margin-bottom: 0.5rem; }
+.card-title { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.8rem; }
 
-.card-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-muted);
-  margin-bottom: 0.6rem;
-}
+/* PROGRESS */
+.progress-wrap { margin: 0.3rem 0 0.15rem; }
+.progress-bar { background: var(--surface3); border-radius: 100px; height: 5px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 100px; transition: width 1s cubic-bezier(0.34,1.56,0.64,1); }
+.progress-label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-dim); margin-top: 0.25rem; }
 
-.card-title {
-  font-family: 'Lora', serif;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 0.9rem;
-}
-
-/* GRID */
-.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
-.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.1rem; }
-.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
-
-/* PROGRESS BAR */
-.progress-wrap { margin: 0.4rem 0 0.2rem; }
-.progress-bar {
-  background: var(--border);
-  border-radius: 100px;
-  height: 9px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  border-radius: 100px;
-  transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.35rem;
-}
-
-/* CHECK DAY BUTTON */
-.check-btn {
-  width: 100%;
-  padding: 1.1rem;
-  border-radius: 14px;
-  border: 2px dashed var(--border);
-  background: transparent;
-  font-family: 'Lora', serif;
-  font-size: 1rem;
-  font-style: italic;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-.check-btn:hover:not(.done) {
-  border-color: var(--sage);
-  color: var(--sage);
-  background: var(--sage-pale);
-}
-.check-btn.done {
-  border: 2px solid var(--sage);
-  background: var(--sage-pale);
-  color: var(--sage);
-  font-style: normal;
-  font-weight: 600;
-}
-.check-btn.pre-op {
-  opacity: 0.5;
-  pointer-events: none;
-}
+/* CHECK BTN */
+.check-btn { width: 100%; padding: 0.9rem; border-radius: 9px; border: 1.5px dashed var(--border-bright); background: transparent; font-family: 'DM Sans',sans-serif; font-size: 0.87rem; font-weight: 500; color: var(--text-dim); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.check-btn:hover:not(.done) { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.check-btn.done { border: 1.5px solid var(--green); background: var(--green-dim); color: var(--green); font-weight: 600; }
+.check-btn.pre-op { opacity: 0.4; pointer-events: none; }
 
 /* PHASE BADGE */
-.phase-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.35rem 0.85rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1px solid;
-}
+.phase-tag { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.28rem 0.7rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600; border: 1px solid; }
 
 /* LIST ITEMS */
-.list-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  padding: 0.4rem 0;
-  font-size: 0.87rem;
-  line-height: 1.4;
-  color: var(--text);
-  border-bottom: 1px solid var(--border-light);
-}
+.list-item { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.38rem 0; font-size: 0.82rem; line-height: 1.45; color: var(--text); border-bottom: 1px solid var(--border); }
 .list-item:last-child { border-bottom: none; }
-.list-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  margin-top: 0.35em;
-  flex-shrink: 0;
-}
+.list-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 0.4em; flex-shrink: 0; }
 
-/* QUOTE CARD */
-.quote-card {
-  background: linear-gradient(135deg, var(--primary-pale), var(--sage-pale));
-  border: 1px solid var(--primary-light);
-  border-radius: 16px;
-  padding: 1.4rem;
-  position: relative;
-  overflow: hidden;
-}
-.quote-card::before {
-  content: '"';
-  position: absolute;
-  top: -0.5rem;
-  left: 1rem;
-  font-family: 'Lora', serif;
-  font-size: 5rem;
-  color: var(--primary-light);
-  line-height: 1;
-  opacity: 0.6;
-}
-.quote-text {
-  font-family: 'Lora', serif;
-  font-size: 1rem;
-  font-style: italic;
-  color: var(--text);
-  line-height: 1.6;
-  position: relative;
-}
-.quote-author {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.6rem;
-  position: relative;
-}
+/* QUOTE */
+.quote-card { background: linear-gradient(135deg,var(--primary-dim),var(--green-dim)); border: 1px solid var(--border-bright); border-radius: 12px; padding: 1.2rem; position: relative; overflow: hidden; }
+.quote-card::before { content: '"'; position: absolute; top: -0.75rem; left: 0.75rem; font-family: 'Lora',serif; font-size: 4rem; color: var(--primary); line-height: 1; opacity: 0.2; }
+.quote-text { font-family: 'Lora',serif; font-size: 0.92rem; font-style: italic; color: var(--text); line-height: 1.65; position: relative; }
+.quote-author { font-size: 0.71rem; color: var(--text-sub); margin-top: 0.45rem; position: relative; }
 
 /* SLIDER */
 .slider-wrap { position: relative; padding: 0.5rem 0; }
-input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 8px;
-  border-radius: 100px;
-  outline: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: white;
-  border: 3px solid currentColor;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  transition: transform 0.15s;
-}
+input[type=range] { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 100px; outline: none; cursor: pointer; transition: background 0.2s; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 2.5px solid currentColor; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.4); transition: transform 0.15s; }
 input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
-.pain-display {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.2rem;
-  border-radius: 12px;
-  border: 1.5px solid var(--border);
-  margin-top: 1rem;
-  transition: all 0.3s;
-}
-.pain-number {
-  font-family: 'Lora', serif;
-  font-size: 2.2rem;
-  font-weight: 700;
-  line-height: 1;
-  width: 2.5rem;
-  text-align: center;
-}
-.pain-emoji { font-size: 1.8rem; line-height: 1; }
+.pain-display { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1rem; border-radius: 9px; border: 1px solid var(--border); margin-top: 0.8rem; transition: all 0.3s; background: var(--surface2); }
+.pain-number { font-family: 'Lora',serif; font-size: 1.9rem; font-weight: 700; line-height: 1; width: 2.2rem; text-align: center; }
+.pain-emoji { font-size: 1.5rem; line-height: 1; }
 .pain-label-text { flex: 1; }
-.pain-label-main { font-weight: 600; font-size: 1rem; }
-.pain-label-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem; }
-
-.pain-markers {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.25rem 0;
-}
-.pain-marker { font-size: 0.68rem; color: var(--text-muted); }
+.pain-label-main { font-weight: 600; font-size: 0.9rem; }
+.pain-label-sub { font-size: 0.75rem; color: var(--text-sub); margin-top: 0.1rem; }
+.pain-markers { display: flex; justify-content: space-between; padding: 0.2rem 0; }
+.pain-marker { font-size: 0.63rem; color: var(--text-dim); }
 
 /* PAIN ENTRIES */
-.pain-entry {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 0.7rem 1rem;
-  background: var(--bg);
-  border-radius: 10px;
-  margin-bottom: 0.45rem;
-}
-.pain-bubble {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: white;
-  flex-shrink: 0;
-}
+.pain-entry { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.85rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.35rem; }
+.pain-bubble { width: 34px; height: 34px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: white; flex-shrink: 0; }
 .pain-entry-meta { flex: 1; }
-.pain-entry-time { font-size: 0.78rem; color: var(--text-muted); }
-.pain-entry-label { font-size: 0.88rem; font-weight: 500; }
-.pain-entry-note { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; font-style: italic; }
+.pain-entry-time { font-size: 0.72rem; color: var(--text-dim); }
+.pain-entry-label { font-size: 0.83rem; font-weight: 500; }
+.pain-entry-note { font-size: 0.72rem; color: var(--text-sub); margin-top: 0.07rem; font-style: italic; }
 
-/* CHART */
-.chart-wrap { display: flex; align-items: flex-end; gap: 0.5rem; height: 80px; margin-top: 0.5rem; }
-.chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
-.chart-bar {
-  width: 100%;
-  border-radius: 6px 6px 0 0;
-  transition: height 0.5s ease;
-  min-height: 4px;
-}
-.chart-bar-label { font-size: 0.65rem; color: var(--text-muted); }
+/* 7-DAY CHART */
+.chart-wrap { display: flex; align-items: flex-end; gap: 0.4rem; height: 72px; margin-top: 0.5rem; }
+.chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.22rem; }
+.chart-bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; min-height: 3px; }
+.chart-bar-label { font-size: 0.6rem; color: var(--text-dim); }
 
 /* CALENDAR */
-.month-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-.month-title {
-  font-family: 'Lora', serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-.month-btn {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--paper);
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-  color: var(--text);
-}
-.month-btn:hover { background: var(--primary-pale); border-color: var(--primary-light); }
-
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.3rem; }
-.cal-header { text-align: center; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); padding: 0.4rem 0; }
-.cal-day {
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  font-size: 0.82rem;
-  cursor: pointer;
-  position: relative;
-  border: 1.5px solid transparent;
-  transition: all 0.15s;
-  user-select: none;
-}
+.month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+.month-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.month-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; transition: all 0.12s; color: var(--text); }
+.month-btn:hover { background: var(--surface3); border-color: var(--border-bright); }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 0.22rem; }
+.cal-header { text-align: center; font-size: 0.66rem; font-weight: 700; color: var(--text-dim); padding: 0.3rem 0; }
+.cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 7px; font-size: 0.76rem; cursor: pointer; position: relative; border: 1px solid transparent; transition: all 0.12s; user-select: none; color: var(--text); }
 .cal-day.empty { pointer-events: none; }
 .cal-day.outside { opacity: 0; pointer-events: none; }
 .cal-day.today { border-color: var(--primary) !important; }
-.cal-day.future { opacity: 0.55; cursor: default; pointer-events: none; }
-.cal-day.checked { font-weight: 600; }
-.cal-day .cal-check {
-  position: absolute;
-  top: 2px;
-  right: 3px;
-  font-size: 0.55rem;
-  font-weight: 700;
-}
-.cal-day .cal-pain-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  margin-top: 2px;
-}
-.cal-day:hover:not(.future) { opacity: 0.8; }
+.cal-day.future { opacity: 0.3; cursor: default; pointer-events: none; }
+.cal-day.checked { font-weight: 700; }
+.cal-day .cal-check { position: absolute; top: 1px; right: 2px; font-size: 0.48rem; font-weight: 700; color: var(--green); }
+.cal-day .cal-pain-dot { width: 4px; height: 4px; border-radius: 50%; margin-top: 2px; }
+.cal-day:hover:not(.future) { background: var(--surface3) !important; }
 
-/* PHASE LEGEND */
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
+/* LEGEND */
+.legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.73rem; color: var(--text-sub); }
+.legend-dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
 
-/* PHASE CARDS (Phasen tab) */
-.phase-timeline {
-  position: relative;
-  padding-left: 2.5rem;
-}
-.phase-timeline::before {
-  content: '';
-  position: absolute;
-  left: 0.9rem;
-  top: 1.5rem;
-  bottom: 1.5rem;
-  width: 2px;
-  background: var(--border);
-  border-radius: 2px;
-}
-.phase-item {
-  position: relative;
-  margin-bottom: 1.25rem;
-}
-.phase-item::before {
-  content: '';
-  position: absolute;
-  left: -1.7rem;
-  top: 1.35rem;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 0 0 3px var(--border);
-}
-.phase-item.current::before { box-shadow: 0 0 0 3px var(--primary); }
-
-.phase-card {
-  border-radius: 14px;
-  padding: 1.2rem;
-  border: 1.5px solid;
-}
-.phase-card.current { box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-
-.phase-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.9rem;
-}
-.phase-icon { font-size: 1.5rem; }
-.phase-card-name {
-  font-family: 'Lora', serif;
-  font-size: 1rem;
-  font-weight: 700;
-}
-.phase-card-dates { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
-.phase-card-week {
-  margin-left: auto;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 0.25rem 0.65rem;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.1);
-  color: var(--text);
-}
-
-.phase-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-}
-.phase-info-block {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 0.75rem;
-}
-.phase-info-block-title {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: 0.35rem;
-}
-.phase-info-block li {
-  font-size: 0.8rem;
-  list-style: none;
-  padding: 0.15rem 0;
-  padding-left: 0.8rem;
-  position: relative;
-  color: var(--text);
-}
-.phase-info-block li::before {
-  content: '·';
-  position: absolute;
-  left: 0;
-  font-weight: 700;
-  color: var(--primary);
-}
+/* PHASE TIMELINE */
+.phase-timeline { position: relative; padding-left: 2.2rem; }
+.phase-timeline::before { content: ''; position: absolute; left: 0.8rem; top: 1.5rem; bottom: 1.5rem; width: 1.5px; background: var(--border-bright); border-radius: 2px; }
+.phase-item { position: relative; margin-bottom: 1rem; }
+.phase-item::before { content: ''; position: absolute; left: -1.5rem; top: 1.1rem; width: 12px; height: 12px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--border-bright); }
+.phase-item.current::before { border-color: var(--primary); background: var(--primary-dim); }
+.phase-card { border-radius: 11px; padding: 1rem; border: 1px solid; }
+.phase-card.current { box-shadow: 0 0 0 1px var(--primary), 0 8px 32px rgba(232,113,74,0.1); }
+.phase-card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+.phase-icon { font-size: 1.35rem; }
+.phase-card-name { font-size: 0.92rem; font-weight: 700; }
+.phase-card-dates { font-size: 0.71rem; color: var(--text-sub); margin-top: 0.08rem; }
+.phase-card-week { margin-left: auto; font-size: 0.7rem; font-weight: 600; padding: 0.18rem 0.5rem; border-radius: 5px; background: rgba(255,255,255,0.07); color: var(--text-sub); }
+.phase-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 0.65rem; }
+.phase-info-block { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 0.65rem; }
+.phase-info-block-title { font-size: 0.63rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 0.32rem; }
+.phase-info-block li { font-size: 0.77rem; list-style: none; padding: 0.1rem 0 0.1rem 0.7rem; position: relative; color: var(--text); line-height: 1.4; }
+.phase-info-block li::before { content: '·'; position: absolute; left: 0; font-weight: 900; color: var(--primary); }
 
 /* ACHIEVEMENTS */
-.ach-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
-.ach-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.2rem 0.75rem;
-  background: var(--paper);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
-  text-align: center;
-  transition: all 0.25s;
-  position: relative;
-}
-.ach-card.earned {
-  border-color: #D4A840;
-  background: #252010;
-  box-shadow: 0 2px 12px rgba(212,168,64,0.2);
-}
-.ach-card.locked { opacity: 0.38; filter: grayscale(0.8); }
-.ach-icon { font-size: 2.2rem; line-height: 1; }
-.ach-name {
-  font-family: 'Lora', serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text);
-}
-.ach-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.3; }
-.ach-earned-badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: #D4A840;
-  color: white;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  font-size: 0.7rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+.ach-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.8rem; }
+.ach-card { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 1rem 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; text-align: center; transition: all 0.2s; position: relative; }
+.ach-card.earned { border-color: var(--gold); background: var(--gold-dim); box-shadow: 0 0 16px rgba(212,168,74,0.12); }
+.ach-card.locked { opacity: 0.28; filter: grayscale(1); }
+.ach-icon { font-size: 1.9rem; line-height: 1; }
+.ach-name { font-size: 0.74rem; font-weight: 600; color: var(--text); }
+.ach-desc { font-size: 0.66rem; color: var(--text-sub); line-height: 1.3; }
+.ach-earned-badge { position: absolute; top: -5px; right: -5px; background: var(--gold); color: white; width: 17px; height: 17px; border-radius: 50%; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; }
 
 /* BUTTONS */
-.btn {
-  padding: 0.6rem 1.25rem;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
+.btn { padding: 0.52rem 1.05rem; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans',sans-serif; font-weight: 600; font-size: 0.8rem; transition: all 0.15s; display: inline-flex; align-items: center; gap: 0.35rem; }
 .btn-primary { background: var(--primary); color: white; }
-.btn-primary:hover { background: #9E5E3A; }
-.btn-sage { background: var(--sage); color: white; }
-.btn-sage:hover { background: #5A8462; }
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid var(--border);
-  color: var(--text);
-}
+.btn-primary:hover { background: #D4603A; }
+.btn-sage { background: var(--green); color: white; }
+.btn-sage:hover { background: #2A9458; }
+.btn-outline { background: transparent; border: 1px solid var(--border-bright); color: var(--text-sub); }
 .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
-.btn-sm { padding: 0.4rem 0.85rem; font-size: 0.78rem; }
+.btn-sm { padding: 0.32rem 0.7rem; font-size: 0.73rem; }
 
-/* INPUT */
-textarea, input[type=text], input[type=time] {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.87rem;
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 0.65rem 0.85rem;
-  color: var(--text);
-  width: 100%;
-  outline: none;
-  transition: border-color 0.2s;
-  resize: none;
+/* INPUTS */
+textarea, input[type=text], input[type=time], input[type=date] {
+  font-family: 'DM Sans',sans-serif; font-size: 0.82rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.58rem 0.75rem;
+  color: var(--text); width: 100%; outline: none;
+  transition: border-color 0.15s; resize: none;
 }
-textarea:focus, input:focus { border-color: var(--primary); }
+textarea:focus, input:focus { border-color: var(--primary); background: var(--surface3); }
+select {
+  font-family: 'DM Sans',sans-serif; font-size: 0.82rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.58rem 0.75rem;
+  color: var(--text); width: 100%; outline: none; cursor: pointer;
+  transition: border-color 0.15s; -webkit-appearance: none;
+}
+select:focus { border-color: var(--primary); }
+option { background: var(--surface2); color: var(--text); }
 
-/* SECTION SPACING */
-.section-gap { margin-bottom: 1.25rem; }
-.mt1 { margin-top: 1rem; }
-.mt05 { margin-top: 0.5rem; }
+/* SPACING */
+.section-gap { margin-bottom: 1.05rem; }
+.mt1 { margin-top: 0.85rem; }
+.mt05 { margin-top: 0.42rem; }
+.divider { height: 1px; background: var(--border); margin: 0.85rem 0; }
 
-/* NOTIFICATION BANNER */
-#reminder-banner {
-  display: none;
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background: var(--paper);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  padding: 1.2rem 1.4rem;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.14);
-  z-index: 90;
-  max-width: 300px;
-  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-#reminder-banner h4 {
-  font-family: 'Lora', serif;
-  font-size: 0.95rem;
-  margin-bottom: 0.35rem;
-}
-#reminder-banner p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.85rem; }
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+/* NOTIFICATIONS */
+#reminder-banner { display: none; position: fixed; bottom: 1.2rem; right: 1.2rem; background: var(--surface); border: 1px solid var(--border-bright); border-radius: 12px; padding: 1rem 1.15rem; box-shadow: 0 16px 48px rgba(0,0,0,0.55); z-index: 90; max-width: 280px; animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+#reminder-banner h4 { font-size: 0.87rem; font-weight: 600; margin-bottom: 0.28rem; color: var(--text); }
+#reminder-banner p { font-size: 0.76rem; color: var(--text-sub); margin-bottom: 0.7rem; }
+@keyframes slideUp { from { transform: translateY(14px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+#toast { display: none; position: fixed; top: 1.2rem; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; z-index: 99; animation: fadeIn 0.2s ease; white-space: nowrap; box-shadow: 0 4px 20px rgba(232,113,74,0.35); }
+@keyframes fadeIn { from { opacity:0; transform: translateX(-50%) translateY(-5px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
 
-/* TOAST */
-#toast {
-  display: none;
-  position: fixed;
-  top: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--primary);
-  color: white;
-  padding: 0.65rem 1.25rem;
-  border-radius: 30px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  z-index: 99;
-  animation: fadeIn 0.25s ease;
-  white-space: nowrap;
-}
-@keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+.reminder-time-row { display: flex; align-items: center; gap: 0.42rem; margin-bottom: 0.32rem; }
 
-/* REMINDER SETTINGS */
-.reminder-time-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.4rem;
-}
-
-/* DIVIDER */
-.divider { height: 1px; background: var(--border); margin: 1rem 0; }
-
-/* EMERGENCY BOX */
-.emergency-box {
-  background: #2A1515;
-  border: 1.5px solid #6B2020;
-  border-radius: 14px;
-  padding: 1.2rem;
-}
-.emergency-box h4 {
-  font-family: 'Lora', serif;
-  font-size: 0.95rem;
-  color: #FF8080;
-  margin-bottom: 0.6rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-.emergency-box li {
-  list-style: none;
-  font-size: 0.82rem;
-  color: #FFB0B0;
-  padding: 0.2rem 0;
-  padding-left: 1rem;
-  position: relative;
-}
-.emergency-box li::before { content: '•'; position: absolute; left: 0; }
-.emergency-number {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #FF8080;
-  margin-top: 0.75rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid #6B2020;
-}
+/* EMERGENCY */
+.emergency-box { background: var(--red-dim); border: 1px solid #4A1818; border-radius: 10px; padding: 1rem; }
+.emergency-box h4 { font-size: 0.85rem; font-weight: 600; color: #FF8080; margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.32rem; }
+.emergency-box li { list-style: none; font-size: 0.76rem; color: #DDA0A0; padding: 0.12rem 0 0.12rem 0.85rem; position: relative; }
+.emergency-box li::before { content: '•'; position: absolute; left: 0; color: var(--red); }
+.emergency-number { font-size: 0.76rem; font-weight: 600; color: #FF8080; margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid #4A1818; }
 
 /* SPECIAL NOTE */
-.special-note {
-  background: #252010;
-  border: 1.5px solid #5A4A10;
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
-  font-size: 0.83rem;
-  color: #D4C070;
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-start;
-}
+.special-note { background: var(--gold-dim); border: 1px solid #3A2A08; border-radius: 9px; padding: 0.75rem 0.9rem; font-size: 0.78rem; color: #C8A84A; display: flex; gap: 0.45rem; align-items: flex-start; }
 
 /* EDIT MODAL */
-#edit-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  z-index: 100;
-  align-items: center;
-  justify-content: center;
-}
+#edit-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 100; align-items: center; justify-content: center; }
 #edit-modal.open { display: flex; }
-#edit-modal-box {
-  background: #1F2937;
-  border: 1.5px solid #2D3748;
-  border-radius: 18px;
-  padding: 1.75rem;
-  width: 90%;
-  max-width: 380px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-}
-#edit-modal-box h3 {
-  font-family: 'Lora', serif;
-  font-size: 1.05rem;
-  color: var(--text);
-  margin-bottom: 1.25rem;
-}
+#edit-modal-box { background: var(--surface); border: 1px solid var(--border-bright); border-radius: 13px; padding: 1.4rem; width: 90%; max-width: 350px; box-shadow: 0 24px 64px rgba(0,0,0,0.65); }
+#edit-modal-box h3 { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 1.05rem; }
+
+/* TOGGLE */
+.toggle-wrap { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+.toggle { width: 38px; height: 20px; background: var(--border-bright); border-radius: 10px; position: relative; transition: background 0.2s; cursor: pointer; border: none; flex-shrink: 0; }
+.toggle::after { content: ''; width: 14px; height: 14px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.35); }
+.toggle.on { background: var(--green); }
+.toggle.on::after { transform: translateX(18px); }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-  main { padding: 1rem; }
-  header { padding: 0.75rem 1rem; }
-  nav { padding: 0 1rem; }
+  main { padding: 0.85rem 0.9rem; }
+  header { padding: 0.7rem 0.9rem; }
+  nav { padding: 0 0.9rem; }
   .g2, .g3, .g4 { grid-template-columns: 1fr; }
-  .ach-grid { grid-template-columns: repeat(2, 1fr); }
+  .ach-grid { grid-template-columns: repeat(2,1fr); }
   .phase-info-grid { grid-template-columns: 1fr; }
-  .header-text h1 { font-size: 1rem; }
+  .header-text h1 { font-size: 0.92rem; }
 }
-
-/* TOGGLE SWITCH */
-.toggle-wrap { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
-.toggle {
-  width: 44px; height: 24px;
-  background: var(--border);
-  border-radius: 12px;
-  position: relative;
-  transition: background 0.2s;
-  cursor: pointer;
-  border: none;
-  flex-shrink: 0;
-}
-.toggle::after {
-  content: '';
-  width: 18px; height: 18px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 3px; left: 3px;
-  transition: transform 0.2s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-}
-.toggle.on { background: var(--sage); }
-.toggle.on::after { transform: translateX(20px); }
 </style>
 </head>
 <body>
@@ -983,12 +450,12 @@ textarea:focus, input:focus { border-color: var(--primary); }
         <div class="cal-grid" id="cal-grid"></div>
         <div class="divider"></div>
         <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
-          <div class="legend-item"><div class="legend-dot" style="background:#C4705A"></div>OP-Tag</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#C49A50"></div>Spital</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#6D9B74"></div>Frühe Erholung</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#5A8FAA"></div>Zunehmende Aktivität</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#8872A8"></div>Rehabilitation</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#B87049"></div>Volle Rückkehr</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#E08070"></div>OP-Tag</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#D4A84A"></div>Spital</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#3CB46E"></div>Frühe Erholung</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#4A9FD4"></div>Zunehmende Aktivität</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#9B7FD4"></div>Rehabilitation</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#E8714A"></div>Volle Rückkehr</div>
         </div>
       </div>
     </div>
@@ -1062,41 +529,39 @@ textarea:focus, input:focus { border-color: var(--primary); }
 
         <div class="card-label">Medikament</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.85rem;" id="med-selector">
-          <button class="med-btn" data-med="Tramadol" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">💧 Tramadol</button>
-          <button class="med-btn" data-med="Paracetamol" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">🟡 Paracetamol</button>
-          <button class="med-btn" data-med="Ibuprofen" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">🔴 Ibuprofen</button>
-          <button class="med-btn" data-med="Anderes" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">➕ Anderes</button>
+          <button class="med-btn" data-med="Tramadol" onclick="selectMed(this)" style="padding:0.6rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.84rem; cursor:pointer; transition:all 0.15s; color:var(--text-sub);">💧 Tramadol</button>
+          <button class="med-btn" data-med="Paracetamol" onclick="selectMed(this)" style="padding:0.6rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.84rem; cursor:pointer; transition:all 0.15s; color:var(--text-sub);">🟡 Paracetamol</button>
+          <button class="med-btn" data-med="Ibuprofen" onclick="selectMed(this)" style="padding:0.6rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.84rem; cursor:pointer; transition:all 0.15s; color:var(--text-sub);">🔴 Ibuprofen</button>
+          <button class="med-btn" data-med="Anderes" onclick="selectMed(this)" style="padding:0.6rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.84rem; cursor:pointer; transition:all 0.15s; color:var(--text-sub);">➕ Anderes</button>
         </div>
 
         <!-- Tramadol dose -->
         <div id="dose-tramadol" style="display:none; margin-bottom:0.75rem;">
           <div class="card-label">Anzahl Tropfen</div>
           <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-            <button onclick="selectDose('5 Tropfen')"  class="dose-btn" data-dose="5 Tropfen"  style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">5</button>
-            <button onclick="selectDose('10 Tropfen')" class="dose-btn" data-dose="10 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">10</button>
-            <button onclick="selectDose('15 Tropfen')" class="dose-btn" data-dose="15 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">15</button>
-            <button onclick="selectDose('20 Tropfen')" class="dose-btn" data-dose="20 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">20</button>
-            <button onclick="selectDose('25 Tropfen')" class="dose-btn" data-dose="25 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">25</button>
-            <button onclick="selectDose('30 Tropfen')" class="dose-btn" data-dose="30 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">30</button>
+            <button onclick="selectDose('5 Tropfen')"  class="dose-btn" data-dose="5 Tropfen"  style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">5</button>
+            <button onclick="selectDose('10 Tropfen')" class="dose-btn" data-dose="10 Tropfen" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">10</button>
+            <button onclick="selectDose('15 Tropfen')" class="dose-btn" data-dose="15 Tropfen" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">15</button>
+            <button onclick="selectDose('20 Tropfen')" class="dose-btn" data-dose="20 Tropfen" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">20</button>
+            <button onclick="selectDose('25 Tropfen')" class="dose-btn" data-dose="25 Tropfen" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">25</button>
+            <button onclick="selectDose('30 Tropfen')" class="dose-btn" data-dose="30 Tropfen" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">30</button>
           </div>
         </div>
-
         <!-- Paracetamol dose -->
         <div id="dose-paracetamol" style="display:none; margin-bottom:0.75rem;">
           <div class="card-label">Dosis</div>
           <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-            <button onclick="selectDose('500mg')"  class="dose-btn" data-dose="500mg"  style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">500mg</button>
-            <button onclick="selectDose('1000mg')" class="dose-btn" data-dose="1000mg" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">1000mg</button>
+            <button onclick="selectDose('500mg')"  class="dose-btn" data-dose="500mg"  style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">500mg</button>
+            <button onclick="selectDose('1000mg')" class="dose-btn" data-dose="1000mg" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">1000mg</button>
           </div>
         </div>
-
         <!-- Ibuprofen dose -->
         <div id="dose-ibuprofen" style="display:none; margin-bottom:0.75rem;">
           <div class="card-label">Dosis</div>
           <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-            <button onclick="selectDose('400mg')" class="dose-btn" data-dose="400mg" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">400mg</button>
-            <button onclick="selectDose('600mg')" class="dose-btn" data-dose="600mg" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">600mg</button>
-            <button onclick="selectDose('800mg')" class="dose-btn" data-dose="800mg" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">800mg</button>
+            <button onclick="selectDose('400mg')" class="dose-btn" data-dose="400mg" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">400mg</button>
+            <button onclick="selectDose('600mg')" class="dose-btn" data-dose="600mg" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">600mg</button>
+            <button onclick="selectDose('800mg')" class="dose-btn" data-dose="800mg" style="padding:0.32rem 0.7rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; color:var(--text);">800mg</button>
           </div>
         </div>
 
@@ -1106,12 +571,12 @@ textarea:focus, input:focus { border-color: var(--primary); }
           <input type="text" id="med-other-text" placeholder="z.B. Voltaren 50mg" style="margin-bottom:0.4rem;">
         </div>
 
-        <div id="med-selected-display" style="display:none; font-size:0.85rem; font-weight:600; color:#8872A8; margin-bottom:0.75rem; padding:0.5rem 0.75rem; background:#F2EEF8; border-radius:8px;"></div>
+        <div id="med-selected-display" style="display:none; font-size:0.83rem; font-weight:600; color:var(--purple); margin-bottom:0.7rem; padding:0.45rem 0.7rem; background:var(--purple-dim); border:1px solid var(--purple); border-radius:7px;"></div>
 
         <div class="card-label">Notiz (optional)</div>
-        <textarea id="med-note" rows="1" placeholder="z.B. auf leeren Magen, nach dem Aufstehen…" style="margin-bottom:0.75rem;"></textarea>
+        <textarea id="med-note" rows="1" placeholder="z.B. auf leeren Magen, nach dem Aufstehen…" style="margin-bottom:0.7rem;"></textarea>
 
-        <button class="btn mt05" onclick="addMedEntry()" style="width:100%; background:#8872A8; color:white; justify-content:center; padding:0.75rem;">
+        <button class="btn mt05" onclick="addMedEntry()" style="width:100%; background:var(--purple); color:white; justify-content:center; padding:0.7rem;">
           💊 Medikament speichern
         </button>
       </div>
@@ -1273,22 +738,30 @@ textarea:focus, input:focus { border-color: var(--primary); }
       </div>
       <div>
         <div class="card-label">Phase</div>
-        <select id="filter-phase" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+        <select id="filter-phase" onchange="renderLogTable()">
           <option value="">Alle Phasen</option>
           <option value="pre">Vor OP</option>
-          ${PHASES.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+          <option value="op">OP-Tag</option>
+          <option value="spital">Spital</option>
+          <option value="early">Frühe Erholung</option>
+          <option value="active">Zunehmende Aktivität</option>
+          <option value="reha">Rehabilitation</option>
+          <option value="full">Volle Rückkehr</option>
         </select>
       </div>
       <div>
         <div class="card-label">Schmerz ≥</div>
-        <select id="filter-level" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+        <select id="filter-level" onchange="renderLogTable()">
           <option value="0">Alle Level</option>
-          ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">≥ ${n}</option>`).join('')}
+          <option value="1">≥ 1</option><option value="2">≥ 2</option><option value="3">≥ 3</option>
+          <option value="4">≥ 4</option><option value="5">≥ 5</option><option value="6">≥ 6</option>
+          <option value="7">≥ 7</option><option value="8">≥ 8</option><option value="9">≥ 9</option>
+          <option value="10">≥ 10</option>
         </select>
       </div>
       <div>
         <div class="card-label">Tageszeit</div>
-        <select id="filter-time" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+        <select id="filter-time" onchange="renderLogTable()">
           <option value="">Alle Zeiten</option>
           <option value="nacht">Nacht (0–6h)</option>
           <option value="morgen">Morgen (6–11h)</option>
@@ -1553,7 +1026,7 @@ const PHASES = [
     start: '2026-03-19',
     end:   '2026-03-19',
     color: '#E08070',
-    bg:    '#2A1A18',
+    bg:    '#2A1810',
     border:'#5A2A20',
     icon: '🏥',
     painRange: '6–8/10',
@@ -2306,22 +1779,22 @@ function selectMed(btn) {
   _selectedMed  = btn.dataset.med;
   _selectedDose = null;
   document.querySelectorAll('.med-btn').forEach(b => {
-    b.style.background = 'var(--bg)';
+    b.style.background = 'var(--surface2)';
     b.style.borderColor = 'var(--border)';
-    b.style.fontWeight = '400';
-    b.style.color = 'var(--text)';
+    b.style.fontWeight = '500';
+    b.style.color = 'var(--text-sub)';
   });
-  btn.style.background = '#F2EEF8';
-  btn.style.borderColor = '#8872A8';
+  btn.style.background = 'var(--purple-dim)';
+  btn.style.borderColor = 'var(--purple)';
   btn.style.fontWeight = '600';
-  btn.style.color = '#8872A8';
+  btn.style.color = 'var(--purple)';
 
   ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
     document.getElementById('dose-'+m).style.display = 'none');
   document.getElementById('dose-'+_selectedMed.toLowerCase()).style.display = 'block';
   document.getElementById('med-selected-display').style.display = 'none';
   document.querySelectorAll('.dose-btn').forEach(b => {
-    b.style.background = 'var(--bg)'; b.style.borderColor = 'var(--border)'; b.style.fontWeight = '400';
+    b.style.background = 'var(--surface2)'; b.style.borderColor = 'var(--border)'; b.style.fontWeight = '400'; b.style.color = 'var(--text)';
   });
 }
 
@@ -2329,10 +1802,10 @@ function selectDose(dose) {
   _selectedDose = dose;
   document.querySelectorAll('.dose-btn').forEach(b => {
     const active = b.dataset.dose === dose;
-    b.style.background   = active ? '#F2EEF8' : 'var(--bg)';
-    b.style.borderColor  = active ? '#8872A8' : 'var(--border)';
+    b.style.background   = active ? 'var(--purple-dim)' : 'var(--surface2)';
+    b.style.borderColor  = active ? 'var(--purple)' : 'var(--border)';
     b.style.fontWeight   = active ? '700' : '400';
-    b.style.color        = active ? '#8872A8' : 'var(--text)';
+    b.style.color        = active ? 'var(--purple)' : 'var(--text)';
   });
   updateMedDisplay();
 }
