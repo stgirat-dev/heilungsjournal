@@ -812,10 +812,10 @@ textarea:focus, input:focus { border-color: var(--primary); }
 
 <nav>
   <button class="nav-btn active" onclick="showTab('heute')">🏠 Heute</button>
+  <button class="nav-btn" onclick="showTab('phasen')">🗺 Phasen</button>
   <button class="nav-btn" onclick="showTab('kalender')">📅 Kalender</button>
   <button class="nav-btn" onclick="showTab('schmerz')">📊 Schmerztracker</button>
   <button class="nav-btn" onclick="showTab('auswertung')">📈 Auswertung</button>
-  <button class="nav-btn" onclick="showTab('phasen')">🗺 Phasen</button>
   <button class="nav-btn" onclick="showTab('erfolge')">🏅 Erfolge</button>
   <button class="nav-btn" onclick="showTab('install')" id="install-nav-btn" style="color:var(--sage); font-weight:600;">📲 App installieren</button>
 </nav>
@@ -1024,6 +1024,59 @@ textarea:focus, input:focus { border-color: var(--primary); }
         </button>
       </div>
 
+      <!-- Medikamenten-Log -->
+      <div class="card section-gap" style="border-color:#C8B8E0;">
+        <div class="card-title">💊 Medikamenten-Log</div>
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">Medikament und Dosis erfassen — unabhängig vom Schmerzniveau.</div>
+
+        <div class="card-label">Medikament</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.85rem;" id="med-selector">
+          <button class="med-btn" data-med="Tramadol" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">💧 Tramadol</button>
+          <button class="med-btn" data-med="Paracetamol" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">🟡 Paracetamol</button>
+          <button class="med-btn" data-med="Ibuprofen" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">🔴 Ibuprofen</button>
+          <button class="med-btn" data-med="Anderes" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">➕ Anderes</button>
+        </div>
+
+        <!-- Tramadol dose -->
+        <div id="dose-tramadol" style="display:none; margin-bottom:0.75rem;">
+          <div class="card-label">Anzahl Tropfen</div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${[5,10,15,20,25,30].map(d=>`<button onclick="selectDose('${d} Tropfen')" class="dose-btn" data-dose="${d} Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Paracetamol dose -->
+        <div id="dose-paracetamol" style="display:none; margin-bottom:0.75rem;">
+          <div class="card-label">Dosis</div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${['500mg','1000mg'].map(d=>`<button onclick="selectDose('${d}')" class="dose-btn" data-dose="${d}" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Ibuprofen dose -->
+        <div id="dose-ibuprofen" style="display:none; margin-bottom:0.75rem;">
+          <div class="card-label">Dosis</div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${['400mg','600mg','800mg'].map(d=>`<button onclick="selectDose('${d}')" class="dose-btn" data-dose="${d}" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Other -->
+        <div id="dose-anderes" style="display:none; margin-bottom:0.75rem;">
+          <div class="card-label">Medikament & Dosis</div>
+          <input type="text" id="med-other-text" placeholder="z.B. Voltaren 50mg" style="margin-bottom:0.4rem;">
+        </div>
+
+        <div id="med-selected-display" style="display:none; font-size:0.85rem; font-weight:600; color:#8872A8; margin-bottom:0.75rem; padding:0.5rem 0.75rem; background:#F2EEF8; border-radius:8px;"></div>
+
+        <div class="card-label">Notiz (optional)</div>
+        <textarea id="med-note" rows="1" placeholder="z.B. auf leeren Magen, nach dem Aufstehen…" style="margin-bottom:0.75rem;"></textarea>
+
+        <button class="btn mt05" onclick="addMedEntry()" style="width:100%; background:#8872A8; color:white; justify-content:center; padding:0.75rem;">
+          💊 Medikament speichern
+        </button>
+      </div>
+
       <!-- Reminder Settings -->
       <div class="card section-gap">
         <div class="card-title">⏰ Erinnerungen</div>
@@ -1162,19 +1215,79 @@ textarea:focus, input:focus { border-color: var(--primary); }
   </div>
 
   <!-- All entries log -->
-  <div class="card">
+  <div class="card section-gap">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
       <div class="card-title" style="margin-bottom:0">📝 Alle Einträge</div>
-      <div style="display:flex; gap:0.5rem; align-items:center;">
-        <input type="text" id="log-filter" placeholder="Suchen…" style="width:160px; padding:0.35rem 0.65rem; font-size:0.8rem;" oninput="renderLogTable()">
-        <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV</button>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV</button>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.85rem;">
+      <div>
+        <div class="card-label">Datum von</div>
+        <input type="date" id="filter-date-from" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem;">
+      </div>
+      <div>
+        <div class="card-label">Datum bis</div>
+        <input type="date" id="filter-date-to" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem;">
+      </div>
+      <div>
+        <div class="card-label">Phase</div>
+        <select id="filter-phase" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+          <option value="">Alle Phasen</option>
+          <option value="pre">Vor OP</option>
+          ${PHASES.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <div class="card-label">Schmerz ≥</div>
+        <select id="filter-level" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+          <option value="0">Alle Level</option>
+          ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">≥ ${n}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <div class="card-label">Tageszeit</div>
+        <select id="filter-time" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+          <option value="">Alle Zeiten</option>
+          <option value="nacht">Nacht (0–6h)</option>
+          <option value="morgen">Morgen (6–11h)</option>
+          <option value="mittag">Mittag (11–15h)</option>
+          <option value="nachmittag">Nachmittag (15–18h)</option>
+          <option value="abend">Abend (18–22h)</option>
+          <option value="spaet">Spät (22–24h)</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:flex-end;">
+        <button class="btn btn-outline btn-sm" onclick="clearLogFilters()" style="width:100%;">✕ Filter zurücksetzen</button>
       </div>
     </div>
-    <div style="overflow-x:auto; max-height:340px; overflow-y:auto;">
+
+    <div id="log-filter-count" style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.5rem;"></div>
+    <div style="overflow-x:auto; max-height:380px; overflow-y:auto;">
       <table id="log-table" style="width:100%; border-collapse:collapse; font-size:0.82rem;"></table>
     </div>
     <div id="log-empty" style="display:none; text-align:center; padding:2rem; font-size:0.85rem; color:var(--text-muted); font-style:italic;">
       Noch keine Einträge vorhanden. Trage deinen ersten Schmerz im Tracker ein!
+    </div>
+  </div>
+
+  <!-- Daily Stats -->
+  <div class="card section-gap">
+    <div class="card-title">📅 Tages-Statistiken</div>
+
+    <!-- 14-day bar chart -->
+    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Tages-Durchschnitt — letzte 14 Tage</div>
+    <div style="position:relative; height:160px; margin-bottom:1.25rem;">
+      <canvas id="chart-daily14"></canvas>
+    </div>
+
+    <!-- Daily table -->
+    <div style="overflow-x:auto; max-height:400px; overflow-y:auto;">
+      <table id="daily-table" style="width:100%; border-collapse:collapse; font-size:0.82rem;"></table>
+    </div>
+    <div id="daily-empty" style="display:none; text-align:center; padding:2rem; font-size:0.85rem; color:var(--text-muted); font-style:italic;">
+      Noch keine Daten vorhanden.
     </div>
   </div>
 
@@ -1566,17 +1679,17 @@ const PHASES = [
 ];
 
 const PAIN_INFO = [
-  { emoji:'😊', label:'Kein Schmerz',    desc:'Vollständig schmerzfrei, normaler Alltag',            color:'#5A9068' },
-  { emoji:'🙂', label:'Minimal',          desc:'Kaum bemerkbar, keine Einschränkung',                  color:'#6EA870' },
-  { emoji:'🙂', label:'Sehr leicht',      desc:'Spürbar aber nicht störend',                           color:'#90B860' },
-  { emoji:'😐', label:'Leicht',           desc:'Leicht störend, Alltag gut möglich',                   color:'#C8C850' },
-  { emoji:'😐', label:'Mässig leicht',    desc:'Deutlich spürbar, leichte Einschränkung',              color:'#E0B040' },
-  { emoji:'😕', label:'Mässig',           desc:'Störend, Konzentration beeinträchtigt',                color:'#E09030' },
-  { emoji:'😟', label:'Mässig stark',     desc:'Deutliche Einschränkung, Ruhebedarf',                  color:'#D07020' },
-  { emoji:'😖', label:'Stark',            desc:'Schwer zu ignorieren, starke Einschränkung',           color:'#C05018' },
-  { emoji:'😣', label:'Sehr stark',       desc:'Dominiert den Alltag, kaum Aktivitäten möglich',       color:'#A83010' },
-  { emoji:'😩', label:'Extrem',           desc:'Unerträglich, sofortige Massnahmen nötig',             color:'#882010' },
-  { emoji:'🆘', label:'Maximum — NOTFALL',desc:'Schlimmster vorstellbarer Schmerz → sofort USZ!',     color:'#601008' },
+  { emoji:'😊', label:'Kein Schmerz',     desc:'Vollständig schmerzfrei, normaler Alltag',           example:'Kein Schmerz — volle Leistungsfähigkeit',                                         color:'#5A9068' },
+  { emoji:'🙂', label:'Minimal',           desc:'Kaum bemerkbar, keine Einschränkung',                example:'Wie ein leises Kribbeln oder Muskelzucken',                                        color:'#6EA870' },
+  { emoji:'🙂', label:'Sehr leicht',       desc:'Spürbar aber nicht störend',                         example:'Wie leichtes Druckgefühl nach längerem Sitzen',                                    color:'#90B860' },
+  { emoji:'😐', label:'Leicht',            desc:'Leicht störend, Alltag gut möglich',                 example:'Wie leichter Kopfschmerz oder Muskelkater',                                        color:'#C8C850' },
+  { emoji:'😐', label:'Mässig leicht',     desc:'Deutlich spürbar, leichte Einschränkung',            example:'Wie Spannungskopfschmerz nach langer Bildschirmarbeit',                            color:'#E0B040' },
+  { emoji:'😕', label:'Mässig',            desc:'Störend, Konzentration beeinträchtigt',              example:'Wie starke Menstruationsschmerzen oder heftiger Muskelkater',                      color:'#E09030' },
+  { emoji:'😟', label:'Mässig stark',      desc:'Deutliche Einschränkung, Ruhebedarf',               example:'Wie Grippe-Gliederschmerzen oder starke Zahnschmerzen',                            color:'#D07020' },
+  { emoji:'😖', label:'Stark',             desc:'Schwer zu ignorieren, starke Einschränkung',        example:'Wie Nierenkolik oder starke Migräne — kaum normal funktionieren',                  color:'#C05018' },
+  { emoji:'😣', label:'Sehr stark',        desc:'Dominiert den Alltag, kaum Aktivitäten möglich',    example:'Wie ein Knochenbruch — sofortige medizinische Hilfe erwünscht',                    color:'#A83010' },
+  { emoji:'😩', label:'Extrem',            desc:'Unerträglich, sofortige Massnahmen nötig',          example:'Wie Verbrennungen 2. Grades oder starke Wehen — kaum erträglich',                  color:'#882010' },
+  { emoji:'🆘', label:'Maximum — NOTFALL', desc:'Schlimmster vorstellbarer Schmerz → sofort USZ!',  example:'Schlimmster vorstellbarer Schmerz — sofortige Notfallversorgung zwingend',          color:'#601008' },
 ];
 
 const QUOTES = [
@@ -1613,6 +1726,7 @@ const ACHIEVEMENTS = [
 let STATE = {
   checkedDays: {},
   painLogs: [],
+  medLogs: [],
   reminderEnabled: false,
   reminderTimes: ['08:00', '12:00', '16:00', '20:00'],
 };
@@ -2019,19 +2133,22 @@ function addPainEntry() {
 
 function renderTodayEntries() {
   const entries = STATE.painLogs.filter(l => l.date === today()).reverse();
+  const meds    = STATE.medLogs.filter(l => l.date === today()).reverse();
   const wrap = document.getElementById('today-pain-entries');
   const avg  = document.getElementById('today-avg-pain');
 
-  if (!entries.length) {
+  if (!entries.length && !meds.length) {
     wrap.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted); font-style:italic; padding:1rem 0; text-align:center;">Noch keine Einträge heute.</div>';
     avg.textContent = '';
     return;
   }
 
-  const mean = (entries.reduce((a,b) => a+b.level, 0) / entries.length).toFixed(1);
-  avg.textContent = `Ø ${mean}/10 heute`;
+  if (entries.length) {
+    const mean = (entries.reduce((a,b) => a+b.level, 0) / entries.length).toFixed(1);
+    avg.textContent = `Ø ${mean}/10 heute`;
+  }
 
-  wrap.innerHTML = entries.map(e => `
+  const painHtml = entries.map(e => `
     <div class="pain-entry">
       <div class="pain-bubble" style="background:${getPainColor(e.level)}">${e.level}</div>
       <div class="pain-entry-meta">
@@ -2040,6 +2157,18 @@ function renderTodayEntries() {
         ${e.note ? `<div class="pain-entry-note">${e.note}</div>` : ''}
       </div>
     </div>`).join('');
+
+  const medHtml = meds.map(m => `
+    <div class="pain-entry" style="background:#F2EEF8;">
+      <div class="pain-bubble" style="background:#8872A8; font-size:0.75rem;">💊</div>
+      <div class="pain-entry-meta">
+        <div class="pain-entry-label" style="color:#8872A8;">${m.med} · ${m.dose}</div>
+        <div class="pain-entry-time">${m.time}</div>
+        ${m.note ? `<div class="pain-entry-note">${m.note}</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  wrap.innerHTML = painHtml + (medHtml ? `<div style="font-size:0.72rem; font-weight:600; color:#8872A8; margin:0.6rem 0 0.3rem; text-transform:uppercase; letter-spacing:0.05em;">Medikamente</div>${medHtml}` : '');
 }
 
 function renderPainChart() {
@@ -2065,10 +2194,114 @@ function renderPainChart() {
 function renderPainReference() {
   const ref = document.getElementById('pain-reference');
   ref.innerHTML = PAIN_INFO.map((p, i) => `
-    <div style="display:flex; align-items:center; gap:0.65rem; padding:0.35rem 0; border-bottom:1px solid var(--border-light);">
-      <div style="width:28px; height:28px; border-radius:50%; background:${p.color}; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; color:white; flex-shrink:0;">${i}</div>
-      <div style="font-size:0.82rem;">${p.emoji} <strong>${p.label}</strong> — ${p.desc}</div>
+    <div style="border-bottom:1px solid var(--border-light); padding:0.45rem 0;">
+      <div style="display:flex; align-items:center; gap:0.65rem;">
+        <div style="width:28px; height:28px; border-radius:50%; background:${p.color}; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; color:white; flex-shrink:0;">${i}</div>
+        <div>
+          <div style="font-size:0.82rem;">${p.emoji} <strong>${p.label}</strong> — ${p.desc}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); font-style:italic; margin-top:0.1rem;">z.B. ${p.example}</div>
+        </div>
+      </div>
     </div>`).join('');
+}
+
+// ============================================================
+// MEDIKAMENTEN-LOG
+// ============================================================
+let _selectedMed  = null;
+let _selectedDose = null;
+
+function selectMed(btn) {
+  _selectedMed  = btn.dataset.med;
+  _selectedDose = null;
+  document.querySelectorAll('.med-btn').forEach(b => {
+    b.style.background = 'var(--bg)';
+    b.style.borderColor = 'var(--border)';
+    b.style.fontWeight = '400';
+    b.style.color = 'var(--text)';
+  });
+  btn.style.background = '#F2EEF8';
+  btn.style.borderColor = '#8872A8';
+  btn.style.fontWeight = '600';
+  btn.style.color = '#8872A8';
+
+  ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
+    document.getElementById('dose-'+m).style.display = 'none');
+  document.getElementById('dose-'+_selectedMed.toLowerCase()).style.display = 'block';
+  document.getElementById('med-selected-display').style.display = 'none';
+  document.querySelectorAll('.dose-btn').forEach(b => {
+    b.style.background = 'var(--bg)'; b.style.borderColor = 'var(--border)'; b.style.fontWeight = '400';
+  });
+}
+
+function selectDose(dose) {
+  _selectedDose = dose;
+  document.querySelectorAll('.dose-btn').forEach(b => {
+    const active = b.dataset.dose === dose;
+    b.style.background   = active ? '#F2EEF8' : 'var(--bg)';
+    b.style.borderColor  = active ? '#8872A8' : 'var(--border)';
+    b.style.fontWeight   = active ? '700' : '400';
+    b.style.color        = active ? '#8872A8' : 'var(--text)';
+  });
+  updateMedDisplay();
+}
+
+function updateMedDisplay() {
+  const el = document.getElementById('med-selected-display');
+  if (_selectedMed && _selectedDose) {
+    el.textContent = `💊 ${_selectedMed} · ${_selectedDose}`;
+    el.style.display = 'block';
+  }
+}
+
+function addMedEntry() {
+  if (!_selectedMed) { showToast('⚠️ Bitte zuerst ein Medikament auswählen'); return; }
+  let dose = _selectedDose;
+  if (_selectedMed === 'Anderes') {
+    dose = document.getElementById('med-other-text').value.trim();
+    if (!dose) { showToast('⚠️ Bitte Medikament & Dosis eingeben'); return; }
+  }
+  if (!dose) { showToast('⚠️ Bitte Dosis auswählen'); return; }
+  const note = document.getElementById('med-note').value.trim();
+  const entry = { date: today(), time: nowTime(), med: _selectedMed, dose, note };
+  STATE.medLogs.push(entry);
+  saveState();
+  showToast(`💊 ${_selectedMed} ${dose} gespeichert`);
+  document.getElementById('med-note').value = '';
+  document.getElementById('med-other-text').value = '';
+  document.getElementById('med-selected-display').style.display = 'none';
+  document.querySelectorAll('.med-btn').forEach(b => {
+    b.style.background='var(--bg)'; b.style.borderColor='var(--border)'; b.style.fontWeight='400'; b.style.color='var(--text)';
+  });
+  ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
+    document.getElementById('dose-'+m).style.display = 'none');
+  _selectedMed = null; _selectedDose = null;
+  renderTodayEntries();
+}
+
+// ============================================================
+// STATISTICS HELPERS
+// ============================================================
+function calcStats(values) {
+  if (!values.length) return null;
+  const n    = values.length;
+  const sorted = [...values].sort((a,b)=>a-b);
+  const mean = values.reduce((a,b)=>a+b,0) / n;
+  const median = n % 2 === 0
+    ? (sorted[n/2-1] + sorted[n/2]) / 2
+    : sorted[Math.floor(n/2)];
+  const variance = values.reduce((a,b)=>a+Math.pow(b-mean,2),0) / n;
+  const sd   = Math.sqrt(variance);
+  const p25  = sorted[Math.floor(n*0.25)];
+  const p75  = sorted[Math.floor(n*0.75)];
+  const p95  = sorted[Math.floor(n*0.95)];
+  const iqr  = p75 - p25;
+  return {
+    n, mean: +mean.toFixed(2), median: +median.toFixed(1),
+    min: sorted[0], max: sorted[n-1],
+    sd: +sd.toFixed(2), variance: +variance.toFixed(2),
+    p25, p75, p95, iqr: +iqr.toFixed(1)
+  };
 }
 
 // ============================================================
@@ -2239,12 +2472,10 @@ function destroyChart(id) {
 
 function renderAuswertung() {
   const logs = STATE.painLogs;
-
-  // ---- KPIs ----
   const kpiWrap = document.getElementById('auswertung-kpis');
-  const totalEntries = logs.length;
   const allLevels = logs.map(l => l.level);
-  const avg = allLevels.length ? (allLevels.reduce((a,b)=>a+b,0)/allLevels.length).toFixed(1) : '–';
+  const stats = calcStats(allLevels);
+  const avg = stats ? stats.mean.toFixed(1) : '–';
   const dayN = getDayPostOP();
   const pct  = getProgress();
 
@@ -2263,11 +2494,45 @@ function renderAuswertung() {
     </div>`;
   }
 
+  // Extended stats row
+  const statsHtml = stats ? `
+    <div class="card section-gap" style="background:var(--paper2);">
+      <div class="card-label">📐 Erweiterte Statistik — alle Einträge (n=${stats.n})</div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; margin-top:0.5rem; flex-wrap:wrap;">
+        ${[
+          ['Median',    stats.median+'/10', '#5A8FAA'],
+          ['Ø Mean',    stats.mean+'/10',   'var(--primary)'],
+          ['σ Std.abw.',stats.sd,           '#8872A8'],
+          ['Varianz',   stats.variance,     '#C49A50'],
+          ['Min',       stats.min+'/10',    '#5A9068'],
+          ['Max',       stats.max+'/10',    '#C05018'],
+          ['P25',       stats.p25+'/10',    '#6D9B74'],
+          ['P75',       stats.p75+'/10',    '#C49A50'],
+          ['P95',       stats.p95+'/10',    '#C4705A'],
+          ['IQR',       stats.iqr,          '#5A8FAA'],
+          ['Vor OP Ø',  avgPre!==null?avgPre+'/10':'–', '#5A8FAA'],
+          ['Nach OP Ø', avgPost!==null?avgPost+'/10':'–','#6D9B74'],
+        ].map(([l,v,c])=>`
+          <div style="text-align:center; padding:0.6rem 0.4rem; background:var(--bg); border-radius:10px;">
+            <div style="font-size:1.1rem; font-weight:700; color:${c}; font-family:'Lora',serif;">${v}</div>
+            <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.15rem;">${l}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
   kpiWrap.innerHTML =
-    kpi('📝', totalEntries, 'Einträge gesamt', `${preOPLogs.length} vor OP · ${postOPLogs.length} nach OP`) +
-    kpi('🎯', avg + '/10', 'Ø Schmerz gesamt', 'Alle Einträge') +
-    kpi('🕐', avgPre  !== null ? avgPre+'/10'  : '–', 'Ø Vor OP',   preOPLogs.length  ? preOPLogs.length+' Einträge'  : 'Noch keine Daten', '#5A8FAA') +
-    kpi('💊', avgPost !== null ? avgPost+'/10' : '–', 'Ø Nach OP',  postOPLogs.length ? postOPLogs.length+' Einträge' : 'Noch keine Daten', '#6D9B74');
+    kpi('📝', logs.length, 'Einträge gesamt', `${preOPLogs.length} vor OP · ${postOPLogs.length} nach OP`) +
+    kpi('🎯', avg+'/10', 'Ø Schmerz', 'Gesamtdurchschnitt') +
+    kpi('📐', stats ? stats.median+'/10' : '–', 'Median', 'Robuster Mittelwert', '#5A8FAA') +
+    kpi('📊', stats ? stats.sd : '–', 'Std.abweichung σ', 'Streuung der Werte', '#8872A8');
+
+  // Insert extended stats after kpis
+  const existingStats = document.getElementById('extended-stats-wrap');
+  if (existingStats) existingStats.remove();
+  const wrap = document.createElement('div');
+  wrap.id = 'extended-stats-wrap';
+  wrap.innerHTML = statsHtml;
+  kpiWrap.after(wrap);
 
   // ---- Vor/Nach Vergleich Banner ----
   const compWrap = document.getElementById('prepost-comparison');
@@ -2488,6 +2753,7 @@ function renderAuswertung() {
   // ---- Weekly stats table ----
   renderWeeklyTable();
   renderLogTable();
+  renderDailyStats();
 }
 
 function renderWeeklyTable() {
@@ -2571,44 +2837,189 @@ function getISOWeek(date) {
   return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
 }
 
+function clearLogFilters() {
+  ['filter-date-from','filter-date-to'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['filter-phase','filter-level','filter-time'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  renderLogTable();
+}
+
+function getTimeSlot(time) {
+  const h = parseInt(time?.split(':')[0] || 12);
+  if (h < 6)  return 'nacht';
+  if (h < 11) return 'morgen';
+  if (h < 15) return 'mittag';
+  if (h < 18) return 'nachmittag';
+  if (h < 22) return 'abend';
+  return 'spaet';
+}
+
 function renderLogTable() {
-  const filter = (document.getElementById('log-filter')?.value || '').toLowerCase();
-  const logs = [...STATE.painLogs]
-    .filter(l => !filter || l.note?.toLowerCase().includes(filter) || String(l.level).includes(filter) || l.date.includes(filter))
-    .reverse();
+  const dateFrom  = document.getElementById('filter-date-from')?.value  || '';
+  const dateTo    = document.getElementById('filter-date-to')?.value    || '';
+  const phaseF    = document.getElementById('filter-phase')?.value      || '';
+  const levelF    = parseInt(document.getElementById('filter-level')?.value || '0');
+  const timeF     = document.getElementById('filter-time')?.value       || '';
 
   const empty = document.getElementById('log-empty');
   const table = document.getElementById('log-table');
+  const countEl = document.getElementById('log-filter-count');
 
   if (!STATE.painLogs.length) {
     table.style.display = 'none';
     empty.style.display = 'block';
+    if (countEl) countEl.textContent = '';
     return;
   }
+
+  const filtered = [...STATE.painLogs]
+    .map((l, origIdx) => ({ ...l, origIdx }))
+    .filter(l => {
+      if (dateFrom && l.date < dateFrom) return false;
+      if (dateTo   && l.date > dateTo)   return false;
+      if (levelF   && l.level < levelF)  return false;
+      if (timeF    && getTimeSlot(l.time) !== timeF) return false;
+      if (phaseF) {
+        if (phaseF === 'pre') { if (l.date >= '2026-03-19') return false; }
+        else {
+          const ph = getCurrentPhase(parseDate(l.date));
+          if (!ph || ph.id !== phaseF) return false;
+        }
+      }
+      return true;
+    })
+    .reverse();
+
   table.style.display = '';
   empty.style.display = 'none';
+  if (countEl) countEl.textContent = `${filtered.length} von ${STATE.painLogs.length} Einträgen`;
 
-  const TH = s => `<th style="text-align:left;padding:0.45rem 0.75rem;font-size:0.75rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);position:sticky;top:0;background:var(--paper);">${s}</th>`;
-  let html = `<thead><tr>${TH('Datum')}${TH('Zeit')}${TH('Phase')}${TH('Stufe')}${TH('Beschreibung')}${TH('Notiz')}</tr></thead><tbody>`;
+  const TH = s => `<th style="text-align:left;padding:0.45rem 0.6rem;font-size:0.73rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);position:sticky;top:0;background:var(--paper);white-space:nowrap;">${s}</th>`;
+  let html = `<thead><tr>${TH('Datum')}${TH('Zeit')}${TH('Phase')}${TH('Stufe')}${TH('Beschreibung')}${TH('Notiz')}${TH('')}</tr></thead><tbody>`;
 
-  logs.forEach(l => {
-    const ph = getCurrentPhase(parseDate(l.date));
-    const col = getPainColor(l.level);
+  filtered.forEach(l => {
+    const ph   = getCurrentPhase(parseDate(l.date));
+    const col  = getPainColor(l.level);
     const info = PAIN_INFO[l.level];
     html += `<tr style="border-bottom:1px solid var(--border-light);">
-      <td style="padding:0.4rem 0.75rem;font-size:0.8rem;">${formatDateDE(l.date)}</td>
-      <td style="padding:0.4rem 0.75rem;font-size:0.8rem;color:var(--text-muted);">${l.time||'–'}</td>
-      <td style="padding:0.4rem 0.75rem;font-size:0.78rem;color:${ph?ph.color:'#999'};">${ph?ph.icon+' '+ph.name:'–'}</td>
-      <td style="padding:0.4rem 0.75rem;">
-        <span style="background:${col};color:white;padding:0.15rem 0.55rem;border-radius:20px;font-size:0.78rem;font-weight:700;">${l.level}</span>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;white-space:nowrap;">${formatDateDE(l.date)}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;color:var(--text-muted);">${l.time||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:${ph?ph.color:'#999'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+      <td style="padding:0.4rem 0.6rem;">
+        <span style="background:${col};color:white;padding:0.15rem 0.5rem;border-radius:20px;font-size:0.78rem;font-weight:700;">${l.level}</span>
       </td>
-      <td style="padding:0.4rem 0.75rem;font-size:0.8rem;">${info?.emoji||''} ${info?.label||''}</td>
-      <td style="padding:0.4rem 0.75rem;font-size:0.78rem;color:var(--text-muted);font-style:${l.note?'italic':'normal'};">${l.note||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;">${info?.emoji||''} ${info?.label||''}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:var(--text-muted);font-style:${l.note?'italic':'normal'};">${l.note||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;">
+        <button onclick="deletePainEntry(${l.origIdx})" title="Löschen" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#C05018;padding:0.1rem 0.3rem;border-radius:6px;" onmouseover="this.style.background='#FFF0EC'" onmouseout="this.style.background='none'">🗑</button>
+      </td>
     </tr>`;
   });
 
   html += '</tbody>';
   table.innerHTML = html;
+}
+
+function deletePainEntry(idx) {
+  const entry = STATE.painLogs[idx];
+  if (!entry) return;
+  if (!confirm(`Eintrag löschen?\n${formatDateDE(entry.date)} ${entry.time} — Schmerz ${entry.level}/10`)) return;
+  STATE.painLogs.splice(idx, 1);
+  saveState();
+  renderLogTable();
+  renderTodayEntries();
+  renderPainChart();
+  showToast('🗑 Eintrag gelöscht');
+}
+
+function renderDailyStats() {
+  // 14-day bar chart
+  destroyChart('daily14');
+  const labels14 = [], data14 = [], colors14 = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const ds = dateStr(d);
+    const avg = avgPainForDay(ds);
+    labels14.push(ds.slice(5));
+    data14.push(avg);
+    colors14.push(avg !== null ? getPainColor(Math.round(avg)) : 'var(--border)');
+  }
+  const ctxD = document.getElementById('chart-daily14')?.getContext('2d');
+  if (ctxD) {
+    _charts['daily14'] = new Chart(ctxD, {
+      type: 'bar',
+      data: {
+        labels: labels14,
+        datasets: [{ label:'Ø Schmerz', data: data14, backgroundColor: colors14, borderRadius: 5, borderWidth: 0 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          y: { min:0, max:10, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:9},color:'#9A8070'} },
+          x: { grid:{display:false}, ticks:{font:{size:8},color:'#9A8070'} }
+        },
+        plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.parsed.y!==null?ctx.parsed.y+'/10':'–'}} }
+      }
+    });
+  }
+
+  // Daily table — all days with data
+  const table = document.getElementById('daily-table');
+  const emptyEl = document.getElementById('daily-empty');
+  if (!STATE.painLogs.length) {
+    if (table) table.style.display='none';
+    if (emptyEl) emptyEl.style.display='block';
+    return;
+  }
+  if (table) table.style.display='';
+  if (emptyEl) emptyEl.style.display='none';
+
+  const allDates = [...new Set(STATE.painLogs.map(l=>l.date))].sort().reverse();
+  const TH = s => `<th style="text-align:left;padding:0.4rem 0.6rem;font-size:0.72rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);white-space:nowrap;">${s}</th>`;
+
+  let html = `<thead><tr>${TH('Datum')}${TH('Phase')}${TH('n')}${TH('Ø')}${TH('Median')}${TH('σ')}${TH('Min')}${TH('Max')}${TH('')}</tr></thead><tbody>`;
+
+  allDates.forEach(ds => {
+    const dayLogs = STATE.painLogs.filter(l=>l.date===ds);
+    const levels  = dayLogs.map(l=>l.level);
+    const s = calcStats(levels);
+    const ph = getCurrentPhase(parseDate(ds));
+    const isToday = ds === today();
+    const bg = isToday ? 'background:var(--primary-pale);' : '';
+    const medToday = STATE.medLogs.filter(l=>l.date===ds);
+
+    html += `
+      <tr style="${bg} cursor:pointer;" onclick="toggleDayDetail('${ds}')">
+        <td style="padding:0.4rem 0.6rem;font-size:0.8rem;font-weight:${isToday?'700':'400'};">${formatDateDE(ds)}${isToday?' 🔵':''}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'#5A8FAA'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;">${s.n}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;font-weight:600;color:${getPainColor(Math.round(s.mean))};">${s.mean}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#5A8FAA;">${s.median}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#8872A8;">${s.sd}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#5A9068;">${s.min}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#C05018;">${s.max}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:var(--text-muted);">▾</td>
+      </tr>
+      <tr id="detail-${ds}" style="display:none;">
+        <td colspan="9" style="padding:0.5rem 1rem 0.75rem; background:var(--bg);">
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:600;">Alle Messungen:</div>
+          ${dayLogs.map(l=>`
+            <div style="display:inline-flex; align-items:center; gap:0.4rem; margin:0.15rem 0.25rem 0.15rem 0; padding:0.25rem 0.6rem; background:${getPainColor(l.level)}18; border:1px solid ${getPainColor(l.level)}40; border-radius:20px; font-size:0.78rem;">
+              <span style="font-weight:700;color:${getPainColor(l.level)}">${l.level}/10</span>
+              <span style="color:var(--text-muted)">${l.time}</span>
+              ${l.note?`<span style="font-style:italic">${l.note}</span>`:''}
+            </div>`).join('')}
+          ${medToday.length ? `<div style="margin-top:0.5rem; font-size:0.78rem; color:#8872A8;">💊 ${medToday.map(m=>`${m.med} ${m.dose}`).join(' · ')}</div>` : ''}
+        </td>
+      </tr>`;
+  });
+
+  html += '</tbody>';
+  if (table) table.innerHTML = html;
+}
+
+function toggleDayDetail(ds) {
+  const row = document.getElementById('detail-'+ds);
+  if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
 }
 
 function formatDateDE(ds) {
@@ -2747,6 +3158,7 @@ function restoreFromJSON(input) {
       // Restore
       STATE.checkedDays      = parsed.checkedDays      || {};
       STATE.painLogs         = parsed.painLogs         || [];
+      STATE.medLogs          = parsed.medLogs          || [];
       STATE.reminderEnabled  = parsed.reminderEnabled  || false;
       STATE.reminderTimes    = parsed.reminderTimes    || ['08:00','12:00','16:00','20:00'];
       STATE.lastBackup       = parsed.lastBackup       || null;
