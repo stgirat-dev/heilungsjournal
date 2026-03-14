@@ -1005,6 +1005,8 @@ const OP_DATE = new Date('2026-03-19T00:00:00');
 const END_DATE = new Date('2026-09-18T00:00:00');
 const TOTAL_DAYS = Math.round((END_DATE - OP_DATE) / 86400000);
 
+// Healing phases: each defines date range, allowed/forbidden activities,
+// hints, medication, orthosis and milestones
 const PHASES = [
   {
     id: 'op',
@@ -1228,6 +1230,7 @@ const PHASES = [
   },
 ];
 
+// Pain level reference: emoji, label, description and example per level 0–10
 const PAIN_INFO = [
   { emoji:'😊', label:'Kein Schmerz',     desc:'Vollständig schmerzfrei, normaler Alltag',           example:'Kein Schmerz — volle Leistungsfähigkeit',                                         color:'#5A9068' },
   { emoji:'🙂', label:'Minimal',           desc:'Kaum bemerkbar, keine Einschränkung',                example:'Wie ein leises Kribbeln oder Muskelzucken',                                        color:'#6EA870' },
@@ -1273,6 +1276,12 @@ const ACHIEVEMENTS = [
 // ============================================================
 // STATE
 // ============================================================
+// ============================================================
+// GLOBAL STATE — persisted to localStorage as "heilungsjournal_v1"
+// checkedDays: map of date-string → true for each completed day
+// painLogs:    array of {date, time, level 0-10, note}
+// medLogs:     array of {date, time, med, dose, note}
+// ============================================================
 let STATE = {
   checkedDays: {},
   painLogs: [],
@@ -1281,6 +1290,7 @@ let STATE = {
   reminderTimes: ['08:00', '12:00', '16:00', '20:00'],
 };
 
+// Load state from localStorage; ensure medLogs exists for backward compatibility
 function loadState() {
   try {
     const raw = localStorage.getItem('heilungsjournal_v1');
@@ -1290,6 +1300,7 @@ function loadState() {
   } catch(e) {}
 }
 
+// Persist full STATE object to localStorage
 function saveState() {
   try {
     localStorage.setItem('heilungsjournal_v1', JSON.stringify(STATE));
@@ -1311,18 +1322,21 @@ function parseDate(str) {
   return new Date(str + 'T00:00:00');
 }
 
+// Returns number of days since OP date (negative = before OP)
 function getDayPostOP(dateArg) {
   const d = dateArg instanceof Date ? dateArg : new Date();
   const diff = Math.floor((d - OP_DATE) / 86400000);
   return diff;
 }
 
+// Returns overall healing progress as percentage (0–100)
 function getProgress() {
   const day = getDayPostOP();
   if (day < 0) return 0;
   return Math.min(100, Math.round((day / TOTAL_DAYS) * 100));
 }
 
+// Returns the PHASES entry that covers the given date, or null
 function getCurrentPhase(dateArg) {
   const d = dateArg ? parseDate(dateStr(dateArg)) : parseDate(today());
   for (const ph of PHASES) {
@@ -1400,6 +1414,7 @@ function showTab(name) {
 // ============================================================
 // TODAY TAB
 // ============================================================
+// Renders the "Heute" tab: phase badge, progress bars, phase content, quote
 function renderToday() {
   const dayN   = getDayPostOP();
   const phase  = getCurrentPhase();
@@ -1545,6 +1560,7 @@ function quickPainEntry() {
 let calYear  = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 
+// Renders the monthly calendar with phase colours and pain dots
 function renderCalendar() {
   const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const DAYS   = ['Mo','Di','Mi','Do','Fr','Sa','So'];
@@ -1654,6 +1670,7 @@ function nextMonth() {
 // ============================================================
 // PAIN TRACKER
 // ============================================================
+// Renders the pain tracker tab: slider, today entries, 7-day chart, reference
 function renderPainTab() {
   updatePainSlider(document.getElementById('pain-slider').value);
   renderTodayEntries();
@@ -1677,6 +1694,7 @@ function updatePainSlider(val) {
   disp.style.background  = info.color + '0A';
 }
 
+// Saves a new pain log entry from the tracker slider
 function addPainEntry() {
   const level = parseInt(document.getElementById('pain-slider').value);
   const note  = document.getElementById('pain-note').value.trim();
@@ -1690,6 +1708,7 @@ function addPainEntry() {
   updateAchievements();
 }
 
+// Renders today's pain + medication entries in the right column of Schmerztracker
 function renderTodayEntries() {
   const entries = STATE.painLogs.filter(l => l.date === today()).reverse();
   const meds    = STATE.medLogs.filter(l => l.date === today()).reverse();
@@ -1813,6 +1832,7 @@ function updateMedDisplay() {
   }
 }
 
+// Saves a new medication log entry
 function addMedEntry() {
   if (!_selectedMed) { showToast('⚠️ Bitte zuerst ein Medikament auswählen'); return; }
   let dose = _selectedDose;
@@ -1841,6 +1861,8 @@ function addMedEntry() {
 // ============================================================
 // STATISTICS HELPERS
 // ============================================================
+// Statistical summary: mean, median, σ, variance, min, max, IQR
+// Returns null if values array is empty
 function calcStats(values) {
   if (!values.length) return null;
   const n    = values.length;
@@ -2029,6 +2051,8 @@ function destroyChart(id) {
   if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
 }
 
+// Main analytics renderer: KPIs, extended stats, all charts, tables
+// Called with double requestAnimationFrame to ensure canvas dimensions are ready
 function renderAuswertung() {
   const logs = STATE.painLogs;
   const kpiWrap = document.getElementById('auswertung-kpis');
@@ -2318,6 +2342,7 @@ function renderAuswertung() {
   renderMedCharts();
 }
 
+// Renders weekly statistics table starting from first log entry
 function renderWeeklyTable() {
   const table = document.getElementById('weekly-table');
   const TH = s => `<th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.78rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);white-space:nowrap;">${s}</th>`;
@@ -2399,6 +2424,8 @@ function getISOWeek(date) {
   return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
 }
 
+// Renders the combined journal table (pain + medication logs)
+// with filters, edit (✏️) and delete (🗑) buttons per row
 function renderLogTable() {
   // Pre-fill date filters if empty
   const allDates = [
@@ -2575,6 +2602,7 @@ function getTimeSlot(time) {
 // deletePainEntry kept for any legacy references
 function deletePainEntry(idx) { deleteEntry('pain', idx); }
 
+// Renders 14-day bar chart and expandable per-day statistics table
 function renderDailyStats() {
   // Defer to ensure canvas is visible
   setTimeout(() => {
@@ -2670,6 +2698,9 @@ function toggleDayDetail(ds) {
   if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
 }
 
+// Renders two medication-related charts:
+// 1. Timeline: all individual pain measurements + medication markers (▼)
+// 2. Before/After: average pain 3h before vs 3h after each medication intake
 function renderMedCharts() {
   if (!STATE.painLogs.length && !STATE.medLogs.length) return;
 
@@ -2920,6 +2951,7 @@ function formatDateDE(ds) {
   return `${d}.${m}.${y}`;
 }
 
+// Exports all pain logs as semicolon-separated CSV (UTF-8 BOM for Excel)
 function exportCSV() {
   if (!STATE.painLogs.length) { showToast('⚠️ Keine Daten vorhanden'); return; }
   const BOM = '\uFEFF';
@@ -2975,6 +3007,7 @@ function renderLastBackupInfo() {
 }
 
 // Android Share → Google Drive
+// Triggers Android Share Sheet with full STATE as JSON → user selects Google Drive
 async function backupToGoogleDrive() {
   const data = getBackupData();
   const json = JSON.stringify(data, null, 2);
@@ -3024,6 +3057,7 @@ function exportBackupJSON() {
 }
 
 // Restore from JSON file
+// Reads a backup JSON file, validates it and restores STATE with confirmation dialog
 function restoreFromJSON(input) {
   const file = input.files[0];
   if (!file) return;
@@ -3090,6 +3124,7 @@ function showToast(msg) {
 // ============================================================
 // INIT
 // ============================================================
+// App entry point: load state, render initial view, start reminder interval
 function init() {
   loadState();
   updateAchievements();
@@ -3275,6 +3310,7 @@ function updateInstallStatus(state) {
   desc.textContent  = s.d;
 }
 
+// PWA setup: injects manifest, registers service worker, detects install state
 function initPWA() {
   injectManifest();
   registerServiceWorker();
