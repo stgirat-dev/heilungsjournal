@@ -508,7 +508,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   padding: 1.2rem;
   border: 1.5px solid;
 }
-.phase-card.current { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.phase-card.current { box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 
 .phase-card-header {
   display: flex;
@@ -529,7 +529,8 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   font-weight: 600;
   padding: 0.25rem 0.65rem;
   border-radius: 10px;
-  background: rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
 }
 
 .phase-info-grid {
@@ -539,7 +540,8 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   margin-top: 0.75rem;
 }
 .phase-info-block {
-  background: rgba(0,0,0,0.04);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   padding: 0.75rem;
 }
@@ -548,7 +550,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  opacity: 0.6;
+  color: var(--text-muted);
   margin-bottom: 0.35rem;
 }
 .phase-info-block li {
@@ -557,12 +559,14 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
   padding: 0.15rem 0;
   padding-left: 0.8rem;
   position: relative;
+  color: var(--text);
 }
 .phase-info-block li::before {
   content: '·';
   position: absolute;
   left: 0;
   font-weight: 700;
+  color: var(--primary);
 }
 
 /* ACHIEVEMENTS */
@@ -582,8 +586,8 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 }
 .ach-card.earned {
   border-color: #D4A840;
-  background: #FEFDF2;
-  box-shadow: 0 2px 12px rgba(212,168,64,0.15);
+  background: #252010;
+  box-shadow: 0 2px 12px rgba(212,168,64,0.2);
 }
 .ach-card.locked { opacity: 0.38; filter: grayscale(0.8); }
 .ach-icon { font-size: 2.2rem; line-height: 1; }
@@ -689,7 +693,7 @@ textarea:focus, input:focus { border-color: var(--primary); }
   top: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--text);
+  background: var(--primary);
   color: white;
   padding: 0.65rem 1.25rem;
   border-radius: 30px;
@@ -996,8 +1000,8 @@ textarea:focus, input:focus { border-color: var(--primary); }
       </div>
 
       <div class="card special-note" style="display:flex; flex-direction:column; gap:0;">
-        <div style="font-size:0.88rem; font-weight:600; color:#7A5A00; margin-bottom:0.4rem;">🌿 Ferien Meran — ab 25. April</div>
-        <div style="font-size:0.8rem; color:#6A5A10;">
+        <div style="font-size:0.88rem; font-weight:600; color:#D4C070; margin-bottom:0.4rem;">🌿 Ferien Meran — ab 25. April</div>
+        <div style="font-size:0.8rem; color:#A09050;">
           Wellness & Spaziergänge ✓ &nbsp;·&nbsp; Als Beifahrer ✓<br>
           Sauna: erst nach 6-Wochen-Kontrolle &amp; Freigabe Dr. Mica<br>
           Thermalbad (bis 38°C): möglich wenn Wunde verheilt ✓
@@ -1205,7 +1209,7 @@ textarea:focus, input:focus { border-color: var(--primary); }
   <div class="g4 section-gap" id="auswertung-kpis"></div>
 
   <!-- Vor / Nach OP Vergleich -->
-  <div id="prepost-comparison" style="display:none; margin-bottom:1.25rem; background:linear-gradient(135deg, #EBF3F8, #EDF4EF); border:1.5px solid #A8CCE0; border-radius:14px; padding:1.1rem 1.4rem;">
+  <div id="prepost-comparison" style="display:none; margin-bottom:1.25rem; background:linear-gradient(135deg, #162030, #162318); border:1.5px solid #2A4A5A; border-radius:14px; padding:1.1rem 1.4rem;">
     <div style="font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-muted); margin-bottom:0.5rem;">⚖️ Vor / Nach OP Vergleich</div>
   </div>
 
@@ -1820,6 +1824,8 @@ function loadState() {
   try {
     const raw = localStorage.getItem('heilungsjournal_v1');
     if (raw) STATE = { ...STATE, ...JSON.parse(raw) };
+    // Always ensure medLogs exists (backward compat)
+    if (!STATE.medLogs) STATE.medLogs = [];
   } catch(e) {}
 }
 
@@ -2244,10 +2250,10 @@ function renderTodayEntries() {
     </div>`).join('');
 
   const medHtml = meds.map(m => `
-    <div class="pain-entry" style="background:#F2EEF8;">
-      <div class="pain-bubble" style="background:#8872A8; font-size:0.75rem;">💊</div>
+    <div class="pain-entry" style="background:rgba(152,130,200,0.15); border:1px solid rgba(152,130,200,0.25);">
+      <div class="pain-bubble" style="background:#9882C8; font-size:0.75rem;">💊</div>
       <div class="pain-entry-meta">
-        <div class="pain-entry-label" style="color:#8872A8;">${m.med} · ${m.dose}</div>
+        <div class="pain-entry-label" style="color:#B8A0E8;">${m.med} · ${m.dose}</div>
         <div class="pain-entry-time">${m.time}</div>
         ${m.note ? `<div class="pain-entry-note">${m.note}</div>` : ''}
       </div>
@@ -2407,17 +2413,17 @@ function renderPhasenTab() {
           <div class="phase-icon">${ph.icon}</div>
           <div>
             <div class="phase-card-name" style="color:${ph.color}">${ph.name}</div>
-            <div class="phase-card-dates">${ph.dates}</div>
+            <div class="phase-card-dates" style="color:var(--text-muted);">${ph.dates}</div>
           </div>
-          <div class="phase-card-week" style="color:${ph.color}">${ph.week}</div>
+          <div class="phase-card-week" style="color:var(--text);">${ph.week}</div>
           ${isCurrent ? `<span style="margin-left:0.5rem; font-size:0.75rem; font-weight:700; background:${ph.color}; color:white; padding:0.2rem 0.55rem; border-radius:10px;">● Aktiv</span>` : ''}
           ${isPast ? '<span style="font-size:1.2rem; margin-left:0.5rem;">✅</span>' : ''}
         </div>
         <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
-          <span style="font-size:0.78rem; padding:0.2rem 0.6rem; border-radius:8px; background:${ph.color}18; color:${ph.color}; font-weight:600;">
+          <span style="font-size:0.78rem; padding:0.2rem 0.6rem; border-radius:8px; background:${ph.color}30; color:${ph.color}; font-weight:600; border:1px solid ${ph.color}40;">
             🌡 Schmerz: ${ph.painRange}
           </span>
-          <span style="font-size:0.78rem; padding:0.2rem 0.6rem; border-radius:8px; background:${ph.color}18; color:${ph.color};">
+          <span style="font-size:0.78rem; padding:0.2rem 0.6rem; border-radius:8px; background:${ph.color}20; color:${ph.color}; border:1px solid ${ph.color}30;">
             💊 ${ph.medication}
           </span>
         </div>
@@ -2437,7 +2443,7 @@ function renderPhasenTab() {
           <div class="phase-info-block">
             <div class="phase-info-block-title">📋 Meilensteine</div>
             <ul>${ph.milestones.map(m=>`<li>${m}</li>`).join('')}</ul>
-            <div style="margin-top:0.5rem; font-size:0.75rem; opacity:0.8; padding-left:0.8rem;">🦺 ${ph.orthesis}</div>
+            <div style="margin-top:0.5rem; font-size:0.75rem; color:var(--text-muted); padding-left:0.8rem;">🦺 ${ph.orthesis}</div>
           </div>
         </div>
       </div>
