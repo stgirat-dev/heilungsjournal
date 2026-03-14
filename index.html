@@ -1280,7 +1280,35 @@ textarea:focus, input:focus { border-color: var(--primary); }
     </div>
   </div>
 
-  <!-- Daily Stats -->
+  <!-- Medikamenten-Korrelation -->
+  <div class="card section-gap">
+    <div class="card-title">💊 Medikamenten-Wirkung</div>
+    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.25rem;">Zusammenhang zwischen Medikamenteneinnahme und Schmerzniveau</div>
+
+    <div class="g2" style="align-items:start; gap:1.25rem;">
+      <!-- Timeline -->
+      <div>
+        <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">📍 Zeitstrahl — Schmerz & Medikamente</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">Linie = Schmerzniveau · Markierungen ▼ = Medikamenteneinnahme</div>
+        <div style="position:relative; height:220px;">
+          <canvas id="chart-med-timeline"></canvas>
+        </div>
+        <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.6rem; font-size:0.72rem; color:var(--text-muted);"></div>
+      </div>
+
+      <!-- Before/After bars -->
+      <div>
+        <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">⚖️ Vorher / Nachher — Ø Schmerz (±2h)</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">Ø Schmerzniveau 2h vor vs. 2h nach Einnahme</div>
+        <div style="position:relative; height:220px;">
+          <canvas id="chart-med-effect"></canvas>
+        </div>
+        <div id="med-effect-empty" style="display:none; text-align:center; padding:2rem; font-size:0.82rem; color:var(--text-muted); font-style:italic;">
+          Für diese Auswertung werden Schmerzeinträge innerhalb von 2h vor/nach einer Medikamenteneinnahme benötigt.
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="card section-gap">
     <div class="card-title">📅 Tages-Statistiken</div>
 
@@ -2759,6 +2787,7 @@ function renderAuswertung() {
   renderWeeklyTable();
   renderLogTable();
   renderDailyStats();
+  renderMedCharts();
 }
 
 function renderWeeklyTable() {
@@ -2843,7 +2872,13 @@ function getISOWeek(date) {
 }
 
 function clearLogFilters() {
-  ['filter-date-from','filter-date-to'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  const firstDate = STATE.painLogs.length
+    ? [...STATE.painLogs].sort((a,b)=>a.date.localeCompare(b.date))[0].date
+    : today();
+  const fromEl = document.getElementById('filter-date-from');
+  const toEl   = document.getElementById('filter-date-to');
+  if (fromEl) fromEl.value = firstDate;
+  if (toEl)   toEl.value   = today();
   ['filter-phase','filter-level','filter-time'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   renderLogTable();
 }
@@ -2859,8 +2894,17 @@ function getTimeSlot(time) {
 }
 
 function renderLogTable() {
-  const dateFrom  = document.getElementById('filter-date-from')?.value  || '';
-  const dateTo    = document.getElementById('filter-date-to')?.value    || '';
+  // Pre-fill date filters if empty
+  const firstDate = STATE.painLogs.length
+    ? [...STATE.painLogs].sort((a,b)=>a.date.localeCompare(b.date))[0].date
+    : today();
+  const fromEl = document.getElementById('filter-date-from');
+  const toEl   = document.getElementById('filter-date-to');
+  if (fromEl && !fromEl.value) fromEl.value = firstDate;
+  if (toEl   && !toEl.value)   toEl.value   = today();
+
+  const dateFrom  = fromEl?.value  || '';
+  const dateTo    = toEl?.value    || '';
   const phaseF    = document.getElementById('filter-phase')?.value      || '';
   const levelF    = parseInt(document.getElementById('filter-level')?.value || '0');
   const timeF     = document.getElementById('filter-time')?.value       || '';
@@ -3025,6 +3069,202 @@ function renderDailyStats() {
 function toggleDayDetail(ds) {
   const row = document.getElementById('detail-'+ds);
   if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+function renderMedCharts() {
+  const MED_COLORS = {
+    'Tramadol':    '#8872A8',
+    'Paracetamol': '#C49A50',
+    'Ibuprofen':   '#C4705A',
+    'Anderes':     '#5A8FAA',
+  };
+
+  // ---- Zeitstrahl: Schmerz + Medikament-Markierungen ----
+  destroyChart('med-timeline');
+  const allDates = [...new Set([
+    ...STATE.painLogs.map(l=>l.date),
+    ...STATE.medLogs.map(l=>l.date)
+  ])].sort();
+
+  const timelineLabels = [], timelineData = [], timelineColors = [];
+  const medAnnotations = {}; // date → [{med, color}]
+
+  allDates.forEach(ds => {
+    const avg = avgPainForDay(ds);
+    if (avg !== null) {
+      timelineLabels.push(ds === '2026-03-19' ? '🔴 OP' : ds.slice(5));
+      timelineData.push(avg);
+      timelineColors.push(getPainColor(Math.round(avg)));
+    }
+    const medsOnDay = STATE.medLogs.filter(l=>l.date===ds);
+    if (medsOnDay.length) medAnnotations[ds] = medsOnDay;
+  });
+
+  // Build annotation points for med intake (shown as scatter on same axis)
+  const medDatasets = Object.entries(MED_COLORS).map(([medName, color]) => {
+    const points = [];
+    STATE.medLogs.filter(l=>l.med===medName).forEach(ml => {
+      const idx = timelineLabels.indexOf(ml.date === '2026-03-19' ? '🔴 OP' : ml.date.slice(5));
+      if (idx !== -1) {
+        points.push({ x: idx, y: 10.3 });
+      }
+    });
+    return {
+      label: medName,
+      data: points.map(p => ({ x: timelineLabels[p.x], y: p.y })),
+      type: 'scatter',
+      pointStyle: 'triangle',
+      pointRadius: 8,
+      pointBackgroundColor: color,
+      pointBorderColor: color,
+      showLine: false,
+    };
+  }).filter(ds => ds.data.length > 0);
+
+  const ctxMT = document.getElementById('chart-med-timeline')?.getContext('2d');
+  if (ctxMT) {
+    _charts['med-timeline'] = new Chart(ctxMT, {
+      type: 'line',
+      data: {
+        labels: timelineLabels,
+        datasets: [
+          {
+            label: 'Schmerzniveau',
+            data: timelineData,
+            borderColor: '#B87049',
+            backgroundColor: 'rgba(184,112,73,0.07)',
+            pointBackgroundColor: timelineColors,
+            pointRadius: 3,
+            tension: 0.4,
+            fill: true,
+            borderWidth: 2,
+            yAxisID: 'y',
+          },
+          ...medDatasets.map(ds => ({ ...ds, yAxisID: 'y' }))
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          y: { min:0, max:11, grid:{color:'rgba(0,0,0,0.05)'},
+               ticks:{ font:{size:9}, color:'#9A8070',
+                 callback: v => v <= 10 ? v : '' } },
+          x: { grid:{display:false}, ticks:{font:{size:8},color:'#9A8070',maxTicksLimit:14} }
+        },
+        plugins: {
+          legend:{ display:false },
+          tooltip:{ callbacks:{ label: ctx => ctx.dataset.label === 'Schmerzniveau'
+            ? `${ctx.parsed.y}/10` : `💊 ${ctx.dataset.label}` } }
+        }
+      }
+    });
+
+    // Legend
+    const leg = document.getElementById('med-timeline-legend');
+    if (leg) {
+      const items = [{ label:'Schmerzniveau', color:'#B87049', shape:'line' },
+        ...Object.entries(MED_COLORS)
+          .filter(([m]) => STATE.medLogs.some(l=>l.med===m))
+          .map(([m,c]) => ({ label:m, color:c, shape:'triangle' }))];
+      leg.innerHTML = items.map(it => `
+        <div style="display:flex;align-items:center;gap:0.3rem;">
+          <div style="width:${it.shape==='line'?'16px':'0'}; height:${it.shape==='line'?'2px':'0'};
+            border-left:${it.shape==='triangle'?'6px solid transparent':''};
+            border-right:${it.shape==='triangle'?'6px solid transparent':''};
+            border-bottom:${it.shape==='triangle'?'10px solid '+it.color:''};
+            background:${it.shape==='line'?it.color:''}; flex-shrink:0;"></div>
+          <span>${it.label}</span>
+        </div>`).join('');
+    }
+  }
+
+  // ---- Vorher/Nachher: Ø Schmerz ±2h pro Medikament ----
+  destroyChart('med-effect');
+  const WINDOW_MIN = 120; // 2h in minutes
+
+  function timeToMin(t) {
+    if (!t) return null;
+    const [h,m] = t.split(':').map(Number);
+    return h*60 + m;
+  }
+
+  const medNames = [...new Set(STATE.medLogs.map(l=>l.med))];
+  const beforeAvgs = [], afterAvgs = [], effectLabels = [];
+
+  medNames.forEach(medName => {
+    const intakes = STATE.medLogs.filter(l=>l.med===medName);
+    const beforeVals = [], afterVals = [];
+
+    intakes.forEach(intake => {
+      const intakeMin = timeToMin(intake.time);
+      if (intakeMin === null) return;
+      STATE.painLogs
+        .filter(l => l.date === intake.date)
+        .forEach(pain => {
+          const painMin = timeToMin(pain.time);
+          if (painMin === null) return;
+          const diff = painMin - intakeMin;
+          if (diff >= -WINDOW_MIN && diff < 0)  beforeVals.push(pain.level);
+          if (diff >  0 && diff <= WINDOW_MIN)  afterVals.push(pain.level);
+        });
+    });
+
+    if (beforeVals.length || afterVals.length) {
+      effectLabels.push(medName);
+      beforeAvgs.push(beforeVals.length ? parseFloat((beforeVals.reduce((a,b)=>a+b,0)/beforeVals.length).toFixed(1)) : null);
+      afterAvgs.push(afterVals.length  ? parseFloat((afterVals.reduce((a,b)=>a+b,0)/afterVals.length).toFixed(1))  : null);
+    }
+  });
+
+  const ctxME = document.getElementById('chart-med-effect')?.getContext('2d');
+  const emptyEl = document.getElementById('med-effect-empty');
+
+  if (!effectLabels.length) {
+    if (ctxME?.canvas) ctxME.canvas.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if (ctxME?.canvas) ctxME.canvas.style.display = '';
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  if (ctxME) {
+    _charts['med-effect'] = new Chart(ctxME, {
+      type: 'bar',
+      data: {
+        labels: effectLabels,
+        datasets: [
+          {
+            label: 'Ø Vorher (2h)',
+            data: beforeAvgs,
+            backgroundColor: effectLabels.map(m => (MED_COLORS[m]||'#999') + '99'),
+            borderColor:     effectLabels.map(m => MED_COLORS[m]||'#999'),
+            borderWidth: 1.5,
+            borderRadius: 5,
+          },
+          {
+            label: 'Ø Nachher (2h)',
+            data: afterAvgs,
+            backgroundColor: effectLabels.map(m => (MED_COLORS[m]||'#999') + 'DD'),
+            borderColor:     effectLabels.map(m => MED_COLORS[m]||'#999'),
+            borderWidth: 1.5,
+            borderRadius: 5,
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          y: { min:0, max:10, grid:{color:'rgba(0,0,0,0.05)'},
+               ticks:{font:{size:10},color:'#9A8070'} },
+          x: { grid:{display:false}, ticks:{font:{size:10},color:'#9A8070'} }
+        },
+        plugins: {
+          legend:{ display:true, labels:{ font:{size:11}, color:'#3A2A1C', padding:12 } },
+          tooltip:{ callbacks:{ label: ctx => ctx.parsed.y !== null ? `${ctx.dataset.label}: ${ctx.parsed.y}/10` : 'Keine Daten' } }
+        }
+      }
+    });
+  }
 }
 
 function formatDateDE(ds) {
