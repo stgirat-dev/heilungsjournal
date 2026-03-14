@@ -1,0 +1,3406 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Heilungsjournal · Andreia</title>
+<meta name="description" content="Persönliches Heilungsjournal nach Densschrauben-OP">
+<meta name="theme-color" content="#B87049">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Heilungsjournal">
+<meta name="application-name" content="Heilungsjournal">
+<meta name="msapplication-TileColor" content="#B87049">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #F9F5EF;
+  --paper: #FFFDF9;
+  --paper2: #FDF9F3;
+  --primary: #B87049;
+  --primary-light: #E8C4A0;
+  --primary-pale: #FAF0E8;
+  --sage: #6D9B74;
+  --sage-light: #C0D9C4;
+  --sage-pale: #EDF4EF;
+  --text: #3A2A1C;
+  --text-muted: #9A8070;
+  --border: #E4D8CA;
+  --border-light: #F0E8DC;
+
+  --phase-op: #C4705A;
+  --phase-op-bg: #FBF0EC;
+  --phase-spital: #C49A50;
+  --phase-spital-bg: #FBF6EC;
+  --phase-early: #6D9B74;
+  --phase-early-bg: #EDF4EF;
+  --phase-active: #5A8FAA;
+  --phase-active-bg: #EBF3F8;
+  --phase-reha: #8872A8;
+  --phase-reha-bg: #F2EEF8;
+  --phase-full: #B87049;
+  --phase-full-bg: #FAF0E8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+}
+
+/* HEADER */
+header {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-logo {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.header-text h1 {
+  font-family: 'Lora', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.header-text p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.day-counter {
+  background: var(--primary-pale);
+  border: 1px solid var(--primary-light);
+  color: var(--primary);
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.streak-badge {
+  background: linear-gradient(135deg, #FF8C3A, #FF5C1A);
+  color: white;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* NAV */
+nav {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 0 2rem;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-btn {
+  padding: 0.85rem 1.2rem;
+  border: none;
+  background: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.nav-btn:hover { color: var(--primary); }
+.nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+/* MAIN */
+main { max-width: 1060px; margin: 0 auto; padding: 1.75rem 2rem; }
+
+.tab { display: none; }
+.tab.active { display: block; }
+
+/* CARDS */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.4rem;
+}
+
+.card-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.card-title {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.9rem;
+}
+
+/* GRID */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.1rem; }
+.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+/* PROGRESS BAR */
+.progress-wrap { margin: 0.4rem 0 0.2rem; }
+.progress-bar {
+  background: var(--border);
+  border-radius: 100px;
+  height: 9px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
+/* CHECK DAY BUTTON */
+.check-btn {
+  width: 100%;
+  padding: 1.1rem;
+  border-radius: 14px;
+  border: 2px dashed var(--border);
+  background: transparent;
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.check-btn:hover:not(.done) {
+  border-color: var(--sage);
+  color: var(--sage);
+  background: var(--sage-pale);
+}
+.check-btn.done {
+  border: 2px solid var(--sage);
+  background: var(--sage-pale);
+  color: var(--sage);
+  font-style: normal;
+  font-weight: 600;
+}
+.check-btn.pre-op {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* PHASE BADGE */
+.phase-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+/* LIST ITEMS */
+.list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  font-size: 0.87rem;
+  line-height: 1.4;
+  color: var(--text);
+  border-bottom: 1px solid var(--border-light);
+}
+.list-item:last-child { border-bottom: none; }
+.list-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-top: 0.35em;
+  flex-shrink: 0;
+}
+
+/* QUOTE CARD */
+.quote-card {
+  background: linear-gradient(135deg, var(--primary-pale), var(--sage-pale));
+  border: 1px solid var(--primary-light);
+  border-radius: 16px;
+  padding: 1.4rem;
+  position: relative;
+  overflow: hidden;
+}
+.quote-card::before {
+  content: '"';
+  position: absolute;
+  top: -0.5rem;
+  left: 1rem;
+  font-family: 'Lora', serif;
+  font-size: 5rem;
+  color: var(--primary-light);
+  line-height: 1;
+  opacity: 0.6;
+}
+.quote-text {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.6;
+  position: relative;
+}
+.quote-author {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.6rem;
+  position: relative;
+}
+
+/* SLIDER */
+.slider-wrap { position: relative; padding: 0.5rem 0; }
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 100px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid currentColor;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: transform 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+.pain-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  margin-top: 1rem;
+  transition: all 0.3s;
+}
+.pain-number {
+  font-family: 'Lora', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  width: 2.5rem;
+  text-align: center;
+}
+.pain-emoji { font-size: 1.8rem; line-height: 1; }
+.pain-label-text { flex: 1; }
+.pain-label-main { font-weight: 600; font-size: 1rem; }
+.pain-label-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+.pain-markers {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+.pain-marker { font-size: 0.68rem; color: var(--text-muted); }
+
+/* PAIN ENTRIES */
+.pain-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 1rem;
+  background: var(--bg);
+  border-radius: 10px;
+  margin-bottom: 0.45rem;
+}
+.pain-bubble {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: white;
+  flex-shrink: 0;
+}
+.pain-entry-meta { flex: 1; }
+.pain-entry-time { font-size: 0.78rem; color: var(--text-muted); }
+.pain-entry-label { font-size: 0.88rem; font-weight: 500; }
+.pain-entry-note { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; font-style: italic; }
+
+/* CHART */
+.chart-wrap { display: flex; align-items: flex-end; gap: 0.5rem; height: 80px; margin-top: 0.5rem; }
+.chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+.chart-bar {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.5s ease;
+  min-height: 4px;
+}
+.chart-bar-label { font-size: 0.65rem; color: var(--text-muted); }
+
+/* CALENDAR */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.month-title {
+  font-family: 'Lora', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.month-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  color: var(--text);
+}
+.month-btn:hover { background: var(--primary-pale); border-color: var(--primary-light); }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.3rem; }
+.cal-header { text-align: center; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); padding: 0.4rem 0; }
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  position: relative;
+  border: 1.5px solid transparent;
+  transition: all 0.15s;
+  user-select: none;
+}
+.cal-day.empty { pointer-events: none; }
+.cal-day.outside { opacity: 0; pointer-events: none; }
+.cal-day.today { border-color: var(--primary) !important; }
+.cal-day.future { opacity: 0.55; cursor: default; pointer-events: none; }
+.cal-day.checked { font-weight: 600; }
+.cal-day .cal-check {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  font-size: 0.55rem;
+  font-weight: 700;
+}
+.cal-day .cal-pain-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-top: 2px;
+}
+.cal-day:hover:not(.future) { opacity: 0.8; }
+
+/* PHASE LEGEND */
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* PHASE CARDS (Phasen tab) */
+.phase-timeline {
+  position: relative;
+  padding-left: 2.5rem;
+}
+.phase-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.9rem;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 2px;
+  background: var(--border);
+  border-radius: 2px;
+}
+.phase-item {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+.phase-item::before {
+  content: '';
+  position: absolute;
+  left: -1.7rem;
+  top: 1.35rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 3px var(--border);
+}
+.phase-item.current::before { box-shadow: 0 0 0 3px var(--primary); }
+
+.phase-card {
+  border-radius: 14px;
+  padding: 1.2rem;
+  border: 1.5px solid;
+}
+.phase-card.current { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+.phase-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+.phase-icon { font-size: 1.5rem; }
+.phase-card-name {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.phase-card-dates { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
+.phase-card-week {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.06);
+}
+
+.phase-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.phase-info-block {
+  background: rgba(0,0,0,0.04);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+.phase-info-block-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin-bottom: 0.35rem;
+}
+.phase-info-block li {
+  font-size: 0.8rem;
+  list-style: none;
+  padding: 0.15rem 0;
+  padding-left: 0.8rem;
+  position: relative;
+}
+.phase-info-block li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+
+/* ACHIEVEMENTS */
+.ach-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.ach-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.2rem 0.75rem;
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  text-align: center;
+  transition: all 0.25s;
+  position: relative;
+}
+.ach-card.earned {
+  border-color: #D4A840;
+  background: #FEFDF2;
+  box-shadow: 0 2px 12px rgba(212,168,64,0.15);
+}
+.ach-card.locked { opacity: 0.38; filter: grayscale(0.8); }
+.ach-icon { font-size: 2.2rem; line-height: 1; }
+.ach-name {
+  font-family: 'Lora', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.ach-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.3; }
+.ach-earned-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #D4A840;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #9E5E3A; }
+.btn-sage { background: var(--sage); color: white; }
+.btn-sage:hover { background: #5A8462; }
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm { padding: 0.4rem 0.85rem; font-size: 0.78rem; }
+
+/* INPUT */
+textarea, input[type=text], input[type=time] {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.87rem;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+}
+textarea:focus, input:focus { border-color: var(--primary); }
+
+/* SECTION SPACING */
+.section-gap { margin-bottom: 1.25rem; }
+.mt1 { margin-top: 1rem; }
+.mt05 { margin-top: 0.5rem; }
+
+/* NOTIFICATION BANNER */
+#reminder-banner {
+  display: none;
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 1.2rem 1.4rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.14);
+  z-index: 90;
+  max-width: 300px;
+  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#reminder-banner h4 {
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+#reminder-banner p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.85rem; }
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* TOAST */
+#toast {
+  display: none;
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: white;
+  padding: 0.65rem 1.25rem;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  z-index: 99;
+  animation: fadeIn 0.25s ease;
+  white-space: nowrap;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* REMINDER SETTINGS */
+.reminder-time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+/* EMERGENCY BOX */
+.emergency-box {
+  background: #FFF5F5;
+  border: 1.5px solid #F8C4C4;
+  border-radius: 14px;
+  padding: 1.2rem;
+}
+.emergency-box h4 {
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  color: #B02020;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.emergency-box li {
+  list-style: none;
+  font-size: 0.82rem;
+  color: #6A1010;
+  padding: 0.2rem 0;
+  padding-left: 1rem;
+  position: relative;
+}
+.emergency-box li::before { content: '•'; position: absolute; left: 0; }
+.emergency-number {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #B02020;
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #F8C4C4;
+}
+
+/* SPECIAL NOTE */
+.special-note {
+  background: #FFFBEC;
+  border: 1.5px solid #F0D870;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  font-size: 0.83rem;
+  color: #6A5A10;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  main { padding: 1rem; }
+  header { padding: 0.75rem 1rem; }
+  nav { padding: 0 1rem; }
+  .g2, .g3, .g4 { grid-template-columns: 1fr; }
+  .ach-grid { grid-template-columns: repeat(2, 1fr); }
+  .phase-info-grid { grid-template-columns: 1fr; }
+  .header-text h1 { font-size: 1rem; }
+}
+
+/* TOGGLE SWITCH */
+.toggle-wrap { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+.toggle {
+  width: 44px; height: 24px;
+  background: var(--border);
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.2s;
+  cursor: pointer;
+  border: none;
+  flex-shrink: 0;
+}
+.toggle::after {
+  content: '';
+  width: 18px; height: 18px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px; left: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle.on { background: var(--sage); }
+.toggle.on::after { transform: translateX(20px); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">🌿</div>
+  <div class="header-text">
+    <h1>Heilungsjournal · Andreia</h1>
+    <p id="header-sub">Anteriore Densschrauben-Fixation · Dr. Mica, USZ Zürich</p>
+  </div>
+  <div class="header-right">
+    <div class="streak-badge" id="streak-badge" style="display:none">🔥 <span id="streak-num">0</span> Tage</div>
+    <div class="day-counter" id="day-counter">Vor der OP</div>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showTab('heute')">🏠 Heute</button>
+  <button class="nav-btn" onclick="showTab('phasen')">🗺 Phasen</button>
+  <button class="nav-btn" onclick="showTab('kalender')">📅 Kalender</button>
+  <button class="nav-btn" onclick="showTab('schmerz')">📊 Schmerztracker</button>
+  <button class="nav-btn" onclick="showTab('auswertung')">📈 Auswertung</button>
+  <button class="nav-btn" onclick="showTab('erfolge')">🏅 Erfolge</button>
+  <button class="nav-btn" onclick="showTab('install')" id="install-nav-btn" style="color:var(--sage); font-weight:600;">📲 App installieren</button>
+</nav>
+
+<main>
+
+<!-- ======================== HEUTE ======================== -->
+<div class="tab active" id="tab-heute">
+
+  <div class="g2 section-gap" style="align-items:start">
+    <!-- LEFT COLUMN -->
+    <div>
+      <!-- Phase + Check Day -->
+      <div class="card section-gap">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+          <div class="card-label">Heutige Phase</div>
+          <span id="today-phase-tag" class="phase-tag"></span>
+        </div>
+
+        <button class="check-btn" id="check-btn" onclick="toggleCheckDay()">
+          <span id="check-icon">○</span>
+          <span id="check-text">Heute als erledigt markieren</span>
+        </button>
+
+        <div class="divider"></div>
+
+        <!-- Healing Progress -->
+        <div class="card-label">Gesamtfortschritt</div>
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width:0%; background: linear-gradient(to right, #B87049, #6D9B74);"></div>
+          </div>
+          <div class="progress-label">
+            <span>OP-Tag (19. März)</span>
+            <span id="progress-pct" style="font-weight:600; color:var(--primary)">0%</span>
+            <span>Volle Rückkehr</span>
+          </div>
+        </div>
+
+        <div class="mt05" style="margin-top:0.75rem;">
+          <div class="card-label">Phasenfortschritt</div>
+          <div class="progress-wrap">
+            <div class="progress-bar">
+              <div class="progress-fill" id="phase-progress-fill" style="width:0%;"></div>
+            </div>
+            <div class="progress-label">
+              <span id="phase-progress-label">–</span>
+              <span id="phase-progress-pct" style="font-weight:600;">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's info: Erlaubt & Verboten -->
+      <div class="card section-gap">
+        <div class="card-title">✅ Heute erlaubt</div>
+        <div id="today-allowed"></div>
+      </div>
+
+      <div class="card section-gap">
+        <div class="card-title">🚫 Eingeschränkt / Verboten</div>
+        <div id="today-forbidden"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+      <!-- Quote -->
+      <div class="quote-card section-gap">
+        <div class="card-label" style="position:relative">Gedanke des Tages</div>
+        <div class="quote-text" id="today-quote"></div>
+        <div class="quote-author" id="today-quote-author"></div>
+      </div>
+
+      <!-- Medication + Orthesis -->
+      <div class="card section-gap">
+        <div class="card-title">💊 Medikation & Orthese</div>
+        <div id="today-med"></div>
+      </div>
+
+      <!-- Milestones -->
+      <div class="card section-gap">
+        <div class="card-title">🎯 Meilensteine & Kontrollen</div>
+        <div id="today-milestones"></div>
+      </div>
+
+      <!-- Hints -->
+      <div class="card section-gap">
+        <div class="card-title">💡 Besondere Hinweise</div>
+        <div id="today-hints"></div>
+      </div>
+
+      <!-- Quick pain entry -->
+      <div class="card section-gap">
+        <div class="card-title">⚡ Schnell-Schmerzeintrag</div>
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Wie ist dein Schmerzniveau gerade?</div>
+        <input type="range" id="quick-slider" min="0" max="10" value="3" oninput="updateQuickSlider(this.value)" style="margin-bottom:0.5rem;">
+        <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom:0.75rem;">
+          <span>0 – kein Schmerz</span><span>10 – Maximum</span>
+        </div>
+        <div id="quick-pain-label" style="font-size:0.9rem; font-weight:600; margin-bottom:0.75rem; color:var(--primary)"></div>
+        <button class="btn btn-primary" onclick="quickPainEntry()" style="width:100%">Eintragen</button>
+      </div>
+
+      <!-- Emergency -->
+      <div class="emergency-box">
+        <h4>⚠️ Sofort zum Arzt wenn…</h4>
+        <ul>
+          <li>Plötzliche starke Nacken- oder Kopfschmerzen</li>
+          <li>Taubheit / Kribbeln in Armen oder Händen</li>
+          <li>Fieber über 38.5°C</li>
+          <li>Rötung, Eiter oder Nässen an der Wunde</li>
+          <li>Schluckprobleme nach 2 Wochen</li>
+          <li>Schwindel, Gangunsicherheit</li>
+        </ul>
+        <div class="emergency-number">
+          🏥 USZ Notfall: +41 44 255 11 11 &nbsp;|&nbsp; Notfall Europa: 112
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== KALENDER ======================== -->
+<div class="tab" id="tab-kalender">
+  <div class="g2" style="align-items:start; gap:1.5rem;">
+    <div>
+      <div class="card">
+        <div class="month-nav">
+          <button class="month-btn" onclick="prevMonth()">‹</button>
+          <div class="month-title" id="cal-month-title"></div>
+          <button class="month-btn" onclick="nextMonth()">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="divider"></div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
+          <div class="legend-item"><div class="legend-dot" style="background:#C4705A"></div>OP-Tag</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#C49A50"></div>Spital</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6D9B74"></div>Frühe Erholung</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#5A8FAA"></div>Zunehmende Aktivität</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#8872A8"></div>Rehabilitation</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#B87049"></div>Volle Rückkehr</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card section-gap">
+        <div class="card-title">📋 Phasenübersicht</div>
+        <div id="phase-summary-list"></div>
+      </div>
+
+      <div class="card special-note" style="display:flex; flex-direction:column; gap:0;">
+        <div style="font-size:0.88rem; font-weight:600; color:#7A5A00; margin-bottom:0.4rem;">🌿 Ferien Meran — ab 25. April</div>
+        <div style="font-size:0.8rem; color:#6A5A10;">
+          Wellness & Spaziergänge ✓ &nbsp;·&nbsp; Als Beifahrer ✓<br>
+          Sauna: erst nach 6-Wochen-Kontrolle &amp; Freigabe Dr. Mica<br>
+          Thermalbad (bis 38°C): möglich wenn Wunde verheilt ✓
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== SCHMERZTRACKER ======================== -->
+<div class="tab" id="tab-schmerz">
+  <div class="g2" style="align-items:start; gap:1.5rem;">
+    <div>
+      <div class="card section-gap">
+        <div class="card-title">🎚 Schmerzniveau erfassen</div>
+
+        <div class="slider-wrap">
+          <input type="range" id="pain-slider" min="0" max="10" value="3"
+            oninput="updatePainSlider(this.value)">
+          <div class="pain-markers">
+            <span class="pain-marker">0</span>
+            <span class="pain-marker">1</span>
+            <span class="pain-marker">2</span>
+            <span class="pain-marker">3</span>
+            <span class="pain-marker">4</span>
+            <span class="pain-marker">5</span>
+            <span class="pain-marker">6</span>
+            <span class="pain-marker">7</span>
+            <span class="pain-marker">8</span>
+            <span class="pain-marker">9</span>
+            <span class="pain-marker">10</span>
+          </div>
+        </div>
+
+        <div class="pain-display" id="pain-display">
+          <div class="pain-emoji" id="slider-emoji">😐</div>
+          <div class="pain-number" id="slider-number" style="color: var(--primary)">3</div>
+          <div class="pain-label-text">
+            <div class="pain-label-main" id="slider-label">Leicht</div>
+            <div class="pain-label-sub" id="slider-desc">Leicht störend, Alltag gut möglich</div>
+          </div>
+        </div>
+
+        <div class="mt1">
+          <div class="card-label">Notiz (optional)</div>
+          <textarea id="pain-note" rows="2" placeholder="z.B. nach dem Spaziergang, morgens beim Aufstehen…"></textarea>
+        </div>
+
+        <button class="btn btn-primary mt1" onclick="addPainEntry()" style="width:100%">
+          💾 Eintrag speichern
+        </button>
+      </div>
+
+      <!-- Medikamenten-Log -->
+      <div class="card section-gap" style="border-color:#C8B8E0;">
+        <div class="card-title">💊 Medikamenten-Log</div>
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">Medikament und Dosis erfassen — unabhängig vom Schmerzniveau.</div>
+
+        <div class="card-label">Medikament</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.85rem;" id="med-selector">
+          <button class="med-btn" data-med="Tramadol" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">💧 Tramadol</button>
+          <button class="med-btn" data-med="Paracetamol" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">🟡 Paracetamol</button>
+          <button class="med-btn" data-med="Ibuprofen" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">🔴 Ibuprofen</button>
+          <button class="med-btn" data-med="Anderes" onclick="selectMed(this)" style="padding:0.6rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.15s;">➕ Anderes</button>
+        </div>
+
+        <!-- Tramadol dose -->
+        <div id="dose-tramadol" style="display:none; margin-bottom:0.75rem;">
+          <div class="card-label">Anzahl Tropfen</div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${[5,10,15,20,25,30].map(d=>`<button onclick="selectDose('${d} Tropfen')" class="dose-btn" data-dose="${d} Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Paracetamol dose -->
+        <div id="dose-paracetamol" style="display:none; margin-bottom:0.75rem;">
+          <div class="card-label">Dosis</div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${['500mg','1000mg'].map(d=>`<button onclick="selectDose('${d}')" class="dose-btn" data-dose="${d}" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Ibuprofen dose -->
+        <div id="dose-ibuprofen" style="display:none; margin-bottom:0.75rem;">
+          <div class="card-label">Dosis</div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${['400mg','600mg','800mg'].map(d=>`<button onclick="selectDose('${d}')" class="dose-btn" data-dose="${d}" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Other -->
+        <div id="dose-anderes" style="display:none; margin-bottom:0.75rem;">
+          <div class="card-label">Medikament & Dosis</div>
+          <input type="text" id="med-other-text" placeholder="z.B. Voltaren 50mg" style="margin-bottom:0.4rem;">
+        </div>
+
+        <div id="med-selected-display" style="display:none; font-size:0.85rem; font-weight:600; color:#8872A8; margin-bottom:0.75rem; padding:0.5rem 0.75rem; background:#F2EEF8; border-radius:8px;"></div>
+
+        <div class="card-label">Notiz (optional)</div>
+        <textarea id="med-note" rows="1" placeholder="z.B. auf leeren Magen, nach dem Aufstehen…" style="margin-bottom:0.75rem;"></textarea>
+
+        <button class="btn mt05" onclick="addMedEntry()" style="width:100%; background:#8872A8; color:white; justify-content:center; padding:0.75rem;">
+          💊 Medikament speichern
+        </button>
+      </div>
+
+      <!-- Reminder Settings -->
+      <div class="card section-gap">
+        <div class="card-title">⏰ Erinnerungen</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+          <div style="font-size:0.87rem;">Schmerztracker-Erinnerungen</div>
+          <button class="toggle" id="reminder-toggle" onclick="toggleReminders()"></button>
+        </div>
+        <div id="reminder-times-wrap">
+          <div class="card-label">Erinnerungszeiten (3–5x/Tag)</div>
+          <div id="reminder-times-list"></div>
+          <button class="btn btn-outline btn-sm mt05" onclick="addReminderTime()">+ Zeit hinzufügen</button>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.5;">
+          ℹ️ Erinnerungen erscheinen als Banner, während diese Seite im Browser geöffnet ist. Für Benachrichtigungen auch bei geschlossenem Tab: Browser-Benachrichtigungen erlauben.
+        </div>
+        <button class="btn btn-outline btn-sm mt05" onclick="requestNotifPermission()">🔔 Browser-Benachrichtigungen erlauben</button>
+      </div>
+
+      <!-- Backup & Restore -->
+      <div class="card section-gap" style="border-color: var(--sage-light);">
+        <div class="card-title">☁️ Backup & Wiederherstellen</div>
+
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">
+          Alle Daten (Schmerzlogs, abgehakte Tage, Einstellungen) als JSON-Datei sichern — direkt in Google Drive speichern via Android Share-Funktion.
+        </div>
+
+        <!-- Backup buttons -->
+        <button class="btn btn-sage" onclick="backupToGoogleDrive()" style="width:100%; margin-bottom:0.6rem; justify-content:center; font-size:0.9rem; padding:0.8rem;">
+          ☁️ Backup → Google Drive
+        </button>
+        <button class="btn btn-outline" onclick="exportBackupJSON()" style="width:100%; margin-bottom:1rem; justify-content:center;">
+          ⬇ Backup als Datei herunterladen
+        </button>
+
+        <div class="divider"></div>
+
+        <!-- Restore -->
+        <div class="card-label" style="margin-top:0.75rem;">Daten wiederherstellen</div>
+        <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.6rem;">
+          Backup-JSON-Datei auswählen — alle bestehenden Daten werden überschrieben!
+        </div>
+        <label style="display:block; cursor:pointer;">
+          <input type="file" id="restore-file-input" accept=".json" onchange="restoreFromJSON(this)" style="display:none;">
+          <div class="btn btn-outline" style="width:100%; justify-content:center; text-align:center;">
+            📂 Backup-Datei auswählen & wiederherstellen
+          </div>
+        </label>
+
+        <!-- Last backup info -->
+        <div id="last-backup-info" style="margin-top:0.85rem; font-size:0.75rem; color:var(--text-muted); text-align:center;"></div>
+      </div>
+    </div>
+
+    <div>
+      <!-- Today's entries -->
+      <div class="card section-gap">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.9rem;">
+          <div class="card-title" style="margin-bottom:0">📋 Heutige Einträge</div>
+          <div id="today-avg-pain" style="font-size:0.82rem; color:var(--text-muted);"></div>
+        </div>
+        <div id="today-pain-entries">
+          <div style="font-size:0.85rem; color:var(--text-muted); font-style:italic; padding:1rem 0; text-align:center;">Noch keine Einträge heute.</div>
+        </div>
+      </div>
+
+      <!-- 7-day chart -->
+      <div class="card section-gap">
+        <div class="card-title">📈 Verlauf (letzte 7 Tage)</div>
+        <div class="chart-wrap" id="pain-chart"></div>
+      </div>
+
+      <!-- Pain level reference -->
+      <div class="card">
+        <div class="card-title">ℹ️ Schmerzskala Referenz</div>
+        <div id="pain-reference"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PHASEN ======================== -->
+<div class="tab" id="tab-phasen">
+  <div class="phase-timeline" id="phase-timeline"></div>
+</div>
+
+<!-- ======================== AUSWERTUNG ======================== -->
+<div class="tab" id="tab-auswertung">
+
+  <!-- Summary KPIs -->
+  <div class="g4 section-gap" id="auswertung-kpis"></div>
+
+  <!-- Vor / Nach OP Vergleich -->
+  <div id="prepost-comparison" style="display:none; margin-bottom:1.25rem; background:linear-gradient(135deg, #EBF3F8, #EDF4EF); border:1.5px solid #A8CCE0; border-radius:14px; padding:1.1rem 1.4rem;">
+    <div style="font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-muted); margin-bottom:0.5rem;">⚖️ Vor / Nach OP Vergleich</div>
+  </div>
+
+  <!-- Line chart: Verlauf über alle Wochen -->
+  <div class="card section-gap">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <div class="card-title" style="margin-bottom:0">📈 Schmerzverauf — alle Wochen</div>
+      <div style="font-size:0.78rem; color:var(--text-muted);">Tages-Durchschnitt</div>
+    </div>
+    <div style="position:relative; height:220px;">
+      <canvas id="chart-verlauf"></canvas>
+    </div>
+  </div>
+
+  <div class="g2 section-gap" style="align-items:start;">
+    <!-- Phase comparison -->
+    <div class="card">
+      <div class="card-title">🗂 Schmerz pro Phase</div>
+      <div style="position:relative; height:200px;">
+        <canvas id="chart-phase"></canvas>
+      </div>
+    </div>
+    <!-- Time of day -->
+    <div class="card">
+      <div class="card-title">🕐 Tageszeit-Muster</div>
+      <div style="position:relative; height:200px;">
+        <canvas id="chart-tageszeit"></canvas>
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem; display:flex; gap:1rem; flex-wrap:wrap;" id="tageszeit-legend"></div>
+    </div>
+  </div>
+
+  <!-- Weekly stats table -->
+  <div class="card section-gap">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <div class="card-title" style="margin-bottom:0">📋 Wöchentliche Statistik</div>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV-Export</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="weekly-table" style="width:100%; border-collapse:collapse; font-size:0.83rem;"></table>
+    </div>
+  </div>
+
+  <!-- All entries log -->
+  <div class="card section-gap">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <div class="card-title" style="margin-bottom:0">📝 Alle Einträge</div>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV</button>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.85rem;">
+      <div>
+        <div class="card-label">Datum von</div>
+        <input type="date" id="filter-date-from" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem;">
+      </div>
+      <div>
+        <div class="card-label">Datum bis</div>
+        <input type="date" id="filter-date-to" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem;">
+      </div>
+      <div>
+        <div class="card-label">Phase</div>
+        <select id="filter-phase" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+          <option value="">Alle Phasen</option>
+          <option value="pre">Vor OP</option>
+          ${PHASES.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <div class="card-label">Schmerz ≥</div>
+        <select id="filter-level" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+          <option value="0">Alle Level</option>
+          ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">≥ ${n}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <div class="card-label">Tageszeit</div>
+        <select id="filter-time" onchange="renderLogTable()" style="width:100%; padding:0.35rem 0.5rem; font-size:0.8rem; border:1.5px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif;">
+          <option value="">Alle Zeiten</option>
+          <option value="nacht">Nacht (0–6h)</option>
+          <option value="morgen">Morgen (6–11h)</option>
+          <option value="mittag">Mittag (11–15h)</option>
+          <option value="nachmittag">Nachmittag (15–18h)</option>
+          <option value="abend">Abend (18–22h)</option>
+          <option value="spaet">Spät (22–24h)</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:flex-end;">
+        <button class="btn btn-outline btn-sm" onclick="clearLogFilters()" style="width:100%;">✕ Filter zurücksetzen</button>
+      </div>
+    </div>
+
+    <div id="log-filter-count" style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.5rem;"></div>
+    <div style="overflow-x:auto; max-height:380px; overflow-y:auto;">
+      <table id="log-table" style="width:100%; border-collapse:collapse; font-size:0.82rem;"></table>
+    </div>
+    <div id="log-empty" style="display:none; text-align:center; padding:2rem; font-size:0.85rem; color:var(--text-muted); font-style:italic;">
+      Noch keine Einträge vorhanden. Trage deinen ersten Schmerz im Tracker ein!
+    </div>
+  </div>
+
+  <!-- Daily Stats -->
+  <div class="card section-gap">
+    <div class="card-title">📅 Tages-Statistiken</div>
+
+    <!-- 14-day bar chart -->
+    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Tages-Durchschnitt — letzte 14 Tage</div>
+    <div style="position:relative; height:160px; margin-bottom:1.25rem;">
+      <canvas id="chart-daily14"></canvas>
+    </div>
+
+    <!-- Daily table -->
+    <div style="overflow-x:auto; max-height:400px; overflow-y:auto;">
+      <table id="daily-table" style="width:100%; border-collapse:collapse; font-size:0.82rem;"></table>
+    </div>
+    <div id="daily-empty" style="display:none; text-align:center; padding:2rem; font-size:0.85rem; color:var(--text-muted); font-style:italic;">
+      Noch keine Daten vorhanden.
+    </div>
+  </div>
+
+</div>
+
+<!-- ======================== ERFOLGE ======================== -->
+<div class="tab" id="tab-erfolge">
+  <div class="card section-gap">
+    <div class="card-title">🏅 Deine Erfolge</div>
+    <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+      Schalte Achievements frei, indem du Tage abhakst, Schmerzen loggst und Meilensteine erreichst.
+    </div>
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;">
+      <div style="font-size:2rem; font-weight:700; font-family:'Lora',serif; color:var(--primary);" id="earned-count">0</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);">von <span id="total-count">12</span> Achievements freigeschaltet</div>
+      <div class="progress-bar" style="flex:1; height:8px;">
+        <div class="progress-fill" id="ach-progress-fill" style="width:0%; background:linear-gradient(to right, #D4A840, #E8C858);"></div>
+      </div>
+    </div>
+    <div class="ach-grid" id="ach-grid"></div>
+  </div>
+</div>
+
+<!-- ======================== INSTALL ======================== -->
+<div class="tab" id="tab-install">
+
+  <!-- PWA Install Banner (shown when prompt available) -->
+  <div id="pwa-install-banner" style="display:none; margin-bottom:1.25rem; background:linear-gradient(135deg, #EDF4EF, #FAF0E8); border:2px solid var(--sage-light); border-radius:16px; padding:1.4rem;">
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <div style="font-size:3rem; line-height:1;">🌿</div>
+      <div style="flex:1;">
+        <div style="font-family:'Lora',serif; font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:0.3rem;">App installieren</div>
+        <div style="font-size:0.85rem; color:var(--text-muted);">Chrome hat die App erkannt — direkt installieren!</div>
+      </div>
+    </div>
+    <button id="pwa-install-btn" class="btn btn-sage" onclick="triggerPWAInstall()" style="width:100%; margin-top:1rem; justify-content:center; padding:0.9rem; font-size:1rem;">
+      📲 Jetzt als App installieren
+    </button>
+  </div>
+
+  <!-- Status -->
+  <div id="install-status" class="card section-gap" style="text-align:center; padding:1.5rem;">
+    <div style="font-size:3rem; margin-bottom:0.75rem;" id="install-status-icon">⏳</div>
+    <div style="font-family:'Lora',serif; font-size:1.05rem; font-weight:600; margin-bottom:0.4rem;" id="install-status-title">Wird geprüft…</div>
+    <div style="font-size:0.85rem; color:var(--text-muted);" id="install-status-desc"></div>
+  </div>
+
+  <!-- Step-by-step guide -->
+  <div class="card section-gap">
+    <div class="card-title">📋 Schritt-für-Schritt Anleitung</div>
+    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.25rem;">Android-Tablet · Google Chrome</div>
+
+    <!-- Step 1 -->
+    <div style="display:flex; gap:1rem; margin-bottom:1.25rem; align-items:flex-start;">
+      <div style="width:36px; height:36px; border-radius:50%; background:var(--primary); color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+      <div>
+        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem;">Datei herunterladen</div>
+        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.5;">
+          Lade die <strong>heilungsjournal.html</strong> Datei herunter — sie landet im Ordner <code style="background:var(--bg); padding:0.1rem 0.4rem; border-radius:4px; font-size:0.8rem;">/Downloads</code> auf deinem Tablet.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div style="display:flex; gap:1rem; margin-bottom:1.25rem; align-items:flex-start;">
+      <div style="width:36px; height:36px; border-radius:50%; background:var(--primary); color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+      <div>
+        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem;">In Chrome öffnen</div>
+        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.5;">
+          Öffne Chrome und tippe in die Adressleiste:<br>
+          <code style="display:inline-block; margin-top:0.4rem; background:var(--text); color:white; padding:0.3rem 0.7rem; border-radius:6px; font-size:0.82rem; letter-spacing:0.02em;">file:///sdcard/Download/heilungsjournal.html</code><br>
+          <span style="margin-top:0.4rem; display:block;">Oder öffne den <strong>Datei-Manager</strong> → Downloads → auf die Datei tippen → Chrome auswählen.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div style="display:flex; gap:1rem; margin-bottom:1.25rem; align-items:flex-start;">
+      <div style="width:36px; height:36px; border-radius:50%; background:var(--sage); color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
+      <div>
+        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem;">Zum Startbildschirm hinzufügen</div>
+        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.6;">
+          In Chrome oben rechts auf <strong>⋮ (drei Punkte)</strong> tippen<br>
+          → <strong>„App installieren"</strong> oder <strong>„Zum Startbildschirm hinzufügen"</strong><br>
+          → Name bestätigen → <strong>Installieren / Hinzufügen</strong> tippen
+        </div>
+        <div style="margin-top:0.6rem; background:var(--sage-pale); border:1px solid var(--sage-light); border-radius:8px; padding:0.6rem 0.75rem; font-size:0.8rem; color:var(--sage);">
+          ✅ Danach erscheint ein <strong>🌿 App-Icon</strong> auf deinem Homescreen — wie eine echte App!
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div style="display:flex; gap:1rem; align-items:flex-start;">
+      <div style="width:36px; height:36px; border-radius:50%; background:#C49A50; color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</div>
+      <div>
+        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem;">Offline-Modus aktivieren</div>
+        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.5;">
+          Beim ersten Öffnen der installierten App wird die Seite automatisch für den <strong>Offline-Betrieb gespeichert</strong> — die App funktioniert dann auch ohne Internet!
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:0.6rem;" onclick="checkSWStatus()">🔄 Offline-Status prüfen</button>
+        <div id="sw-status" style="margin-top:0.5rem; font-size:0.78rem; color:var(--text-muted);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card section-gap">
+    <div class="card-title">❓ Häufige Fragen</div>
+
+    <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Bleiben meine Daten erhalten?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Ja — alle Daten (Schmerzlogs, abgehakte Tage) sind im Browser-Speicher (localStorage) gespeichert und bleiben auch nach dem Schliessen der App erhalten. Regelmässiges Backup empfohlen!</div>
+    </div>
+
+    <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Was passiert wenn ich Chrome-Daten lösche?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Dann gehen die Daten verloren! Deshalb immer vorher ein <strong>Backup erstellen</strong> (Schmerztracker-Tab → Backup → Google Drive).</div>
+    </div>
+
+    <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Brauche ich Internet?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Nach dem ersten Laden funktioniert die App vollständig offline — ausser die Schriftarten beim ersten Start (optional, nur Optik).</div>
+    </div>
+
+    <div style="padding:0.85rem 0;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Unterschied zu einer APK-App?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Aus Nutzersicht praktisch kein Unterschied — App-Icon auf dem Homescreen, Vollbild, offline. Der einzige Unterschied: keine Installation via Play Store nötig.</div>
+    </div>
+  </div>
+
+  <!-- Backup reminder -->
+  <div class="card" style="border-color:var(--sage-light); background:var(--sage-pale);">
+    <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+      <div style="font-size:1.5rem;">💡</div>
+      <div>
+        <div style="font-weight:600; font-size:0.9rem; color:var(--sage); margin-bottom:0.3rem;">Empfehlung: Wöchentliches Backup</div>
+        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.5;">Tippe einmal pro Woche auf «Backup → Google Drive» im Schmerztracker-Tab. So sind alle Heilungsdaten sicher — auch wenn du das Tablet wechselst oder zurücksetzt.</div>
+        <button class="btn btn-sage btn-sm" style="margin-top:0.75rem;" onclick="showTab('schmerz'); document.querySelectorAll('.nav-btn')[2].classList.add('active'); document.querySelectorAll('.nav-btn').forEach((b,i)=>{ if(i!==2) b.classList.remove('active'); })">☁️ Jetzt Backup erstellen</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<!-- Reminder Banner -->
+<div id="reminder-banner">
+  <h4>⏰ Zeit für deinen Schmerz-Check!</h4>
+  <p>Wie fühlst du dich gerade? Trage dein Schmerzniveau ein.</p>
+  <div style="display:flex; gap:0.5rem;">
+    <button class="btn btn-primary btn-sm" onclick="goToPainTracker()">Jetzt eintragen</button>
+    <button class="btn btn-outline btn-sm" onclick="dismissReminder()">Später</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const OP_DATE = new Date('2026-03-19T00:00:00');
+const END_DATE = new Date('2026-09-18T00:00:00');
+const TOTAL_DAYS = Math.round((END_DATE - OP_DATE) / 86400000);
+
+const PHASES = [
+  {
+    id: 'op',
+    name: 'OP-Tag',
+    week: 'Tag 0',
+    dates: 'Do, 19. März 2026',
+    start: '2026-03-19',
+    end:   '2026-03-19',
+    color: '#C4705A',
+    bg:    '#FBF0EC',
+    border:'#E8B8A8',
+    icon: '🏥',
+    painRange: '6–8/10',
+    allowed: [
+      'Aufwachen & Überwachung',
+      'Erste Schluckversuche (Wasser)',
+      'Kurzes Sitzen an Bettkante (mit Begleitung)',
+    ],
+    forbidden: [
+      'Aufstehen nur mit Pflege',
+      'Nicht essen ohne Freigabe',
+      'Keine Kopfbewegungen',
+    ],
+    hints: [
+      'Schluckbeschwerden sind NORMAL — Zugang über Halsvorderseite',
+      'Heiserkeit möglich (vorübergehend)',
+      'Drainage im Hals — wird nach 1–2 Tagen entfernt',
+      'Schmerzmittel über Infusion',
+    ],
+    medication: 'Schmerzmittel i.v. (Spital steuert alles)',
+    orthesis:   'Harter Kragen rund um die Uhr (Philadelphia / Miami J)',
+    milestones: ['Post-OP Röntgen/CT', 'Schraubenposition bestätigt'],
+  },
+  {
+    id: 'spital',
+    name: 'Spital',
+    week: 'Tag 1–3',
+    dates: 'Fr 20. – So 22. März 2026',
+    start: '2026-03-20',
+    end:   '2026-03-22',
+    color: '#C49A50',
+    bg:    '#FBF6EC',
+    border:'#E8D098',
+    icon: '🛏️',
+    painRange: '4–6/10',
+    allowed: [
+      'Aufstehen und kurz gehen (mit Begleitung)',
+      'Weiches Essen (Suppe, Brei)',
+      'Duschen (Wunde abdecken)',
+      'Lesen, Tablet, Telefon',
+      'Besuch empfangen',
+    ],
+    forbidden: [
+      'Keine ruckartigen Kopfbewegungen',
+      'Nicht schwer heben',
+      'Nicht bücken',
+      'Kragen NICHT selbst abnehmen',
+    ],
+    hints: [
+      'Schluckbeschwerden noch vorhanden → weiche Kost',
+      'Drainage wird entfernt (Tag 1–2)',
+      'Physiotherapie erste Instruktion (Atemübungen, Haltung)',
+      'Frühzeitige Mobilisation ist wichtig für die Heilung',
+    ],
+    medication: 'Übergang zu oralen Schmerzmitteln (Tramadol / Paracetamol)',
+    orthesis:   'Harter Kragen 24h/Tag (auch nachts)',
+    milestones: ['Entlassung nach 2–3 Tagen', 'Austrittsrezept', 'Physio-Verordnung'],
+  },
+  {
+    id: 'early',
+    name: 'Frühe Erholung',
+    week: 'Woche 1–2',
+    dates: 'Mo 23. März – So 5. April 2026',
+    start: '2026-03-23',
+    end:   '2026-04-05',
+    color: '#6D9B74',
+    bg:    '#EDF4EF',
+    border:'#B0D4B8',
+    icon: '🌿',
+    painRange: '2–5/10',
+    allowed: [
+      'Kurze Spaziergänge (15–45 min)',
+      'Leichte Hausarbeit (Geschirr, Kochen)',
+      'Treppensteigen (langsam)',
+      'Lesen, TV, Tablet',
+      'Leichte PC-Arbeit (kurze Phasen)',
+      'Soziale Kontakte',
+      'Einkaufen (leichte Taschen)',
+    ],
+    forbidden: [
+      'KEIN Autofahren',
+      'KEIN Heben über 2–3 kg',
+      'KEIN Sport jeglicher Art',
+      'KEIN Baden / Schwimmen',
+      'KEINE ruckartigen Bewegungen',
+      'KEIN Alkohol mit Schmerzmitteln',
+      'NICHT auf dem Bauch schlafen',
+      'KEIN Velo / E-Bike',
+    ],
+    hints: [
+      'Schlafposition: Rückenlage mit ergonomischem Kissen',
+      'Wundkontrolle täglich — bei Rötung/Fieber sofort Arzt',
+      'Verstopfung durch Opiate möglich → Laxantien',
+      'Narbe vor Sonne schützen',
+      'Physiotherapie: sanfte Mobilisation Schulter/BWS (NICHT HWS!)',
+    ],
+    medication: 'Tramadol (ausschleichen) + Paracetamol + Ibuprofen nach Bedarf',
+    orthesis:   'Harter Kragen tagsüber / Nachts: je nach Anweisung Dr. Mica',
+    milestones: ['Wundkontrolle (Hausarzt oder USZ)', 'Fäden/Klammern entfernen (Tag 10–14)'],
+  },
+  {
+    id: 'active',
+    name: 'Zunehmende Aktivität',
+    week: 'Woche 3–6',
+    dates: 'Mo 6. April – So 3. Mai 2026',
+    start: '2026-04-06',
+    end:   '2026-05-03',
+    color: '#5A8FAA',
+    bg:    '#EBF3F8',
+    border:'#A8CCE0',
+    icon: '🚶‍♀️',
+    painRange: '0–3/10',
+    allowed: [
+      'Längere Spaziergänge (1+ Stunden)',
+      'Büroarbeit von zu Hause (halbe Tage)',
+      'Kochen, leichter Haushalt',
+      'Einkaufen normal',
+      'Als Beifahrer im Auto (kurze Strecken)',
+      'Leichtes Stretching',
+      'Büroarbeit 50–80% (Woche 5–6)',
+      'Autofahren nach ärztlicher Freigabe (Woche 5–6)',
+      'Leichte Wanderungen flach (Woche 5–6)',
+      'Hometrainer/Ergometer ohne Nackenlast',
+    ],
+    forbidden: [
+      'KEIN Autofahren selbst (bis Freigabe)',
+      'KEIN Heben über 5–8 kg',
+      'KEIN Sport',
+      'KEIN Schwimmen',
+      'KEINE Sauna / Dampfbad (Woche 3–4)',
+      'KEIN Kopfsprung ins Wasser',
+    ],
+    hints: [
+      'Physio 2×/Woche — Nackenmuskulatur sanft kräftigen',
+      'Ergonomischen Arbeitsplatz einrichten (Bildschirm Augenhöhe)',
+      'Orthese evtl. Umstellung auf weicheren Kragen',
+      '⚠️ FERIEN MERAN ab 25. April: Wellness ✓, Spaziergänge ✓, Sauna erst nach Freigabe',
+    ],
+    medication: 'Paracetamol / Ibuprofen nach Bedarf (kein Tramadol mehr)',
+    orthesis:   'Weicher oder harter Kragen nach Anweisung / evtl. ohne',
+    milestones: ['6-Wochen-Kontrolle (CT + Röntgen!)', 'Beurteilung Knochenheilung', 'Freigabe Autofahren?', 'Anpassung Orthese'],
+  },
+  {
+    id: 'reha',
+    name: 'Rehabilitation',
+    week: 'Woche 7–12',
+    dates: 'Mo 4. Mai – So 14. Juni 2026',
+    start: '2026-05-04',
+    end:   '2026-06-14',
+    color: '#8872A8',
+    bg:    '#F2EEF8',
+    border:'#C8B8E0',
+    icon: '💪',
+    painRange: '0–1/10',
+    allowed: [
+      'Büroarbeit 100%',
+      'Autofahren',
+      'Leichtes Joggen',
+      'Schwimmen (Brust / Rücken)',
+      'Velofahren (Strasse, flach)',
+      'Wandern (leichtes Gelände)',
+      'Leichtes Krafttraining (kein Überkopf)',
+      'Gartenarbeit (leicht)',
+    ],
+    forbidden: [
+      'Keine schweren Lasten >10 kg über Kopf',
+      'KEIN Kopfball etc.',
+    ],
+    hints: [
+      'Physio weiter 1–2×/Woche',
+      'Nacken-/Schultermuskulatur gezielt aufbauen',
+      'Schrittweise Steigerung der Aktivitäten',
+      'Bei Schmerzzunahme: Aktivität reduzieren',
+      'Geduld — der Knochen heilt weiter!',
+    ],
+    medication: 'Keine reguläre Medikation mehr nötig',
+    orthesis:   'In der Regel keine Orthese mehr',
+    milestones: ['3-Monats-Kontrolle (CT + Funktionsaufnahme)', 'Beurteilung knöcherne Fusion', 'Sportfreigabe schrittweise'],
+  },
+  {
+    id: 'full',
+    name: 'Volle Rückkehr',
+    week: 'Monat 4–6',
+    dates: 'Mo 15. Juni – Fr 18. Sept. 2026',
+    start: '2026-06-15',
+    end:   '2026-09-18',
+    color: '#B87049',
+    bg:    '#FAF0E8',
+    border:'#E4C090',
+    icon: '🏔️',
+    painRange: '0/10',
+    allowed: [
+      'Alle Alltagsaktivitäten uneingeschränkt',
+      'Joggen uneingeschränkt',
+      'Krafttraining aufbauen',
+      'Wandern / Bergwandern',
+      'Schwimmen uneingeschränkt',
+    ],
+    forbidden: [
+      'Gamsjagd: schwere Lasten + Absturzgelände → erst nach bestätigter voller Fusion!',
+    ],
+    hints: [
+      'Dens hat erst nach vollständiger Fusion seine volle Festigkeit',
+      'Sport schrittweise steigern',
+      'Auf Körpersignale hören',
+      '6-Monats-CT ist entscheidend für Gamsjagd-Freigabe',
+    ],
+    medication: 'Keine',
+    orthesis:   'Keine',
+    milestones: ['6-Monats-Kontrolle (CT)', 'Bestätigung der Fusion', 'Endgültige Sportfreigabe'],
+  },
+];
+
+const PAIN_INFO = [
+  { emoji:'😊', label:'Kein Schmerz',     desc:'Vollständig schmerzfrei, normaler Alltag',           example:'Kein Schmerz — volle Leistungsfähigkeit',                                         color:'#5A9068' },
+  { emoji:'🙂', label:'Minimal',           desc:'Kaum bemerkbar, keine Einschränkung',                example:'Wie ein leises Kribbeln oder Muskelzucken',                                        color:'#6EA870' },
+  { emoji:'🙂', label:'Sehr leicht',       desc:'Spürbar aber nicht störend',                         example:'Wie leichtes Druckgefühl nach längerem Sitzen',                                    color:'#90B860' },
+  { emoji:'😐', label:'Leicht',            desc:'Leicht störend, Alltag gut möglich',                 example:'Wie leichter Kopfschmerz oder Muskelkater',                                        color:'#C8C850' },
+  { emoji:'😐', label:'Mässig leicht',     desc:'Deutlich spürbar, leichte Einschränkung',            example:'Wie Spannungskopfschmerz nach langer Bildschirmarbeit',                            color:'#E0B040' },
+  { emoji:'😕', label:'Mässig',            desc:'Störend, Konzentration beeinträchtigt',              example:'Wie starke Menstruationsschmerzen oder heftiger Muskelkater',                      color:'#E09030' },
+  { emoji:'😟', label:'Mässig stark',      desc:'Deutliche Einschränkung, Ruhebedarf',               example:'Wie Grippe-Gliederschmerzen oder starke Zahnschmerzen',                            color:'#D07020' },
+  { emoji:'😖', label:'Stark',             desc:'Schwer zu ignorieren, starke Einschränkung',        example:'Wie Nierenkolik oder starke Migräne — kaum normal funktionieren',                  color:'#C05018' },
+  { emoji:'😣', label:'Sehr stark',        desc:'Dominiert den Alltag, kaum Aktivitäten möglich',    example:'Wie ein Knochenbruch — sofortige medizinische Hilfe erwünscht',                    color:'#A83010' },
+  { emoji:'😩', label:'Extrem',            desc:'Unerträglich, sofortige Massnahmen nötig',          example:'Wie Verbrennungen 2. Grades oder starke Wehen — kaum erträglich',                  color:'#882010' },
+  { emoji:'🆘', label:'Maximum — NOTFALL', desc:'Schlimmster vorstellbarer Schmerz → sofort USZ!',  example:'Schlimmster vorstellbarer Schmerz — sofortige Notfallversorgung zwingend',          color:'#601008' },
+];
+
+const QUOTES = [
+  { text: 'Jeder Tag ist ein Schritt vorwärts — auch wenn er sich klein anfühlt.', author: 'Heilungsjournal' },
+  { text: 'Geduld ist nicht passives Warten. Sie ist aktive Akzeptanz des Prozesses.', author: '' },
+  { text: 'Dein Körper weiss, wie er heilen soll. Vertraue ihm.', author: '' },
+  { text: 'Ruhig atmen. Heute muss es kein grosser Tag sein.', author: '' },
+  { text: 'Kleine Fortschritte sind immer noch Fortschritte. Und sie zählen.', author: '' },
+  { text: 'Was du heute schonst, bringt dich morgen weiter.', author: '' },
+  { text: 'Heilung braucht Zeit — und die hast du dir verdient.', author: '' },
+  { text: 'Ruhe ist keine Schwäche. Sie ist die Arbeit der Heilung.', author: '' },
+  { text: 'Du hast eine Densschrauben-OP überlebt. Das ist mehr als die meisten Menschen je erleben.', author: '' },
+  { text: 'Berg geht es bergauf — Schritt für Schritt.', author: '' },
+];
+
+const ACHIEVEMENTS = [
+  { id:'first-day',    icon:'🌱', name:'Erster Tag',        desc:'OP-Tag abgehakt',               check: s => s.checkedDays['2026-03-19'] },
+  { id:'hospital',     icon:'🏥', name:'Spital überstanden', desc:'Alle 3 Spitaltage erledigt',   check: s => ['2026-03-20','2026-03-21','2026-03-22'].every(d => s.checkedDays[d]) },
+  { id:'one-week',     icon:'📅', name:'7 Tage',             desc:'7 aufeinanderfolgende Tage',    check: s => getStreak(s) >= 7 },
+  { id:'two-weeks',    icon:'✌️', name:'2 Wochen',           desc:'14 aufeinanderfolgende Tage',   check: s => getStreak(s) >= 14 },
+  { id:'one-month',    icon:'🌙', name:'1 Monat',            desc:'30 aufeinanderfolgende Tage',   check: s => getStreak(s) >= 30 },
+  { id:'pain-free',    icon:'😊', name:'Schmerzfreier Tag',  desc:'Schmerzstufe 0 eingetragen',   check: s => s.painLogs.some(l => l.level === 0) },
+  { id:'meran',        icon:'🌿', name:'Ferien Meran',       desc:'25. April 2026 erreicht',       check: () => new Date() >= new Date('2026-04-25') && getDayPostOP() >= 0 },
+  { id:'six-weeks',    icon:'🎯', name:'6-Wochen-Check',     desc:'Kontrolltermin: CT + Röntgen',  check: () => getDayPostOP() >= 42 },
+  { id:'halfway',      icon:'⚡', name:'Halbzeit!',          desc:'50% der Heilung erreicht',      check: () => getProgress() >= 50 },
+  { id:'reha-start',   icon:'💪', name:'Reha-Phase',         desc:'Woche 7 gestartet',             check: () => getDayPostOP() >= 43 },
+  { id:'three-months', icon:'🦅', name:'3 Monate',           desc:'90 Tage post-OP',               check: () => getDayPostOP() >= 90 },
+  { id:'tracker-pro',  icon:'📊', name:'Tracker-Profi',      desc:'20+ Schmerzeinträge',           check: s => s.painLogs.length >= 20 },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let STATE = {
+  checkedDays: {},
+  painLogs: [],
+  medLogs: [],
+  reminderEnabled: false,
+  reminderTimes: ['08:00', '12:00', '16:00', '20:00'],
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('heilungsjournal_v1');
+    if (raw) STATE = { ...STATE, ...JSON.parse(raw) };
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('heilungsjournal_v1', JSON.stringify(STATE));
+  } catch(e) {}
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function dateStr(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function parseDate(str) {
+  return new Date(str + 'T00:00:00');
+}
+
+function getDayPostOP(dateArg) {
+  const d = dateArg instanceof Date ? dateArg : new Date();
+  const diff = Math.floor((d - OP_DATE) / 86400000);
+  return diff;
+}
+
+function getProgress() {
+  const day = getDayPostOP();
+  if (day < 0) return 0;
+  return Math.min(100, Math.round((day / TOTAL_DAYS) * 100));
+}
+
+function getCurrentPhase(dateArg) {
+  const d = dateArg ? parseDate(dateStr(dateArg)) : parseDate(today());
+  for (const ph of PHASES) {
+    if (d >= parseDate(ph.start) && d <= parseDate(ph.end)) return ph;
+  }
+  return null;
+}
+
+function getPhaseProgress(phase) {
+  if (!phase) return 0;
+  const start = parseDate(phase.start);
+  const end   = parseDate(phase.end);
+  const now   = new Date();
+  if (now < start) return 0;
+  if (now > end)   return 100;
+  const total = end - start;
+  const done  = now - start;
+  return Math.round((done / total) * 100);
+}
+
+function getStreak(s) {
+  s = s || STATE;
+  let streak = 0;
+  const d = new Date();
+  for (let i = 0; i >= -500; i--) {
+    const dd = new Date(d);
+    dd.setDate(dd.getDate() + i);
+    const key = dateStr(dd);
+    if (s.checkedDays[key]) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function getPainColor(level) {
+  return PAIN_INFO[level]?.color || '#999';
+}
+
+function avgPainForDay(dateKey) {
+  const entries = STATE.painLogs.filter(l => l.date === dateKey);
+  if (!entries.length) return null;
+  return Math.round(entries.reduce((a, b) => a + b.level, 0) / entries.length * 10) / 10;
+}
+
+function getDayLabel(daysAgo) {
+  const days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return days[d.getDay()];
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'kalender')   renderCalendar();
+  if (name === 'erfolge')    renderAchievements();
+  if (name === 'schmerz')    renderPainTab();
+  if (name === 'phasen')     renderPhasenTab();
+  if (name === 'auswertung') renderAuswertung();
+  if (name === 'install')    checkSWStatus();
+}
+
+// ============================================================
+// TODAY TAB
+// ============================================================
+function renderToday() {
+  const dayN   = getDayPostOP();
+  const phase  = getCurrentPhase();
+  const streak = getStreak();
+  const pct    = getProgress();
+
+  // Header
+  const ctr = document.getElementById('day-counter');
+  if (dayN < 0) {
+    ctr.textContent = `OP in ${Math.abs(dayN)} Tagen`;
+  } else if (dayN === 0) {
+    ctr.textContent = 'OP-Tag heute!';
+  } else {
+    ctr.textContent = `Tag ${dayN} post-OP`;
+  }
+
+  const sb = document.getElementById('streak-badge');
+  if (streak > 0) {
+    sb.style.display = 'flex';
+    document.getElementById('streak-num').textContent = streak;
+  } else {
+    sb.style.display = 'none';
+  }
+
+  // Phase tag
+  const ptag = document.getElementById('today-phase-tag');
+  if (phase) {
+    ptag.textContent = phase.icon + ' ' + phase.name;
+    ptag.style.background = phase.bg;
+    ptag.style.color = phase.color;
+    ptag.style.borderColor = phase.border;
+  } else if (dayN < 0) {
+    ptag.textContent = '🗓 Vor der OP';
+    ptag.style.background = '#F4F4F4';
+    ptag.style.color = '#888';
+    ptag.style.borderColor = '#DDD';
+  } else {
+    ptag.textContent = '✅ Heilung abgeschlossen';
+    ptag.style.background = 'var(--sage-pale)';
+    ptag.style.color = 'var(--sage)';
+    ptag.style.borderColor = 'var(--sage-light)';
+  }
+
+  // Progress
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+
+  const pp = phase ? getPhaseProgress(phase) : 0;
+  const pf = document.getElementById('phase-progress-fill');
+  pf.style.width = pp + '%';
+  pf.style.background = phase ? phase.color : 'var(--primary)';
+  document.getElementById('phase-progress-label').textContent = phase ? phase.name : '–';
+  document.getElementById('phase-progress-pct').textContent = pp + '%';
+
+  // Check button
+  const btn  = document.getElementById('check-btn');
+  const icon = document.getElementById('check-icon');
+  const txt  = document.getElementById('check-text');
+  const isDone = STATE.checkedDays[today()];
+  if (dayN < 0) {
+    btn.className = 'check-btn pre-op';
+    icon.textContent = '○';
+    txt.textContent  = 'OP noch nicht gestartet';
+  } else if (isDone) {
+    btn.className = 'check-btn done';
+    icon.textContent = '✓';
+    txt.textContent  = 'Heute erledigt! Gut gemacht 🌿';
+  } else {
+    btn.className = 'check-btn';
+    icon.textContent = '○';
+    txt.textContent  = 'Heute als erledigt markieren';
+  }
+
+  // Phase content
+  const displayPhase = phase || (dayN < 0 ? null : PHASES[PHASES.length-1]);
+
+  function makeList(items, dotColor) {
+    return items.map(t => `
+      <div class="list-item">
+        <div class="list-dot" style="background:${dotColor}"></div>
+        <div>${t}</div>
+      </div>`).join('');
+  }
+
+  if (displayPhase) {
+    document.getElementById('today-allowed').innerHTML   = makeList(displayPhase.allowed, 'var(--sage)');
+    document.getElementById('today-forbidden').innerHTML = makeList(displayPhase.forbidden, '#C45050');
+    document.getElementById('today-med').innerHTML = `
+      <div class="list-item"><div class="list-dot" style="background:#8872A8"></div><div>${displayPhase.medication}</div></div>
+      <div class="list-item"><div class="list-dot" style="background:#5A8FAA"></div><div>${displayPhase.orthesis}</div></div>`;
+    document.getElementById('today-milestones').innerHTML = makeList(displayPhase.milestones, 'var(--primary)');
+    document.getElementById('today-hints').innerHTML      = makeList(displayPhase.hints, '#C49A50');
+  } else {
+    const msg = '<div style="font-size:0.85rem;color:var(--text-muted);font-style:italic;padding:0.5rem 0;">Bald geht es los!</div>';
+    ['today-allowed','today-forbidden','today-med','today-milestones','today-hints'].forEach(id => {
+      document.getElementById(id).innerHTML = msg;
+    });
+  }
+
+  // Quote (day-of-week based rotation)
+  const qi = new Date().getDay();
+  const q = QUOTES[qi % QUOTES.length];
+  document.getElementById('today-quote').textContent = q.text;
+  document.getElementById('today-quote-author').textContent = q.author ? '— ' + q.author : '';
+
+  // Quick slider
+  updateQuickSlider(document.getElementById('quick-slider').value);
+}
+
+function toggleCheckDay() {
+  const dayN = getDayPostOP();
+  if (dayN < 0) return;
+  const key = today();
+  STATE.checkedDays[key] = !STATE.checkedDays[key];
+  if (STATE.checkedDays[key]) showToast('✓ Tag abgehakt! Weiter so 🌿');
+  saveState();
+  renderToday();
+  updateAchievements();
+}
+
+function updateQuickSlider(val) {
+  val = parseInt(val);
+  const info = PAIN_INFO[val];
+  const slider = document.getElementById('quick-slider');
+  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, var(--border) ${val*10}%)`;
+  slider.style.color = info.color;
+  document.getElementById('quick-pain-label').textContent = `${val}/10 — ${info.label}`;
+  document.getElementById('quick-pain-label').style.color = info.color;
+}
+
+function quickPainEntry() {
+  const level = parseInt(document.getElementById('quick-slider').value);
+  const entry = { date: today(), time: nowTime(), level, note: '' };
+  STATE.painLogs.push(entry);
+  saveState();
+  showToast(`💊 Schmerz ${level}/10 eingetragen`);
+  updateAchievements();
+}
+
+// ============================================================
+// CALENDAR
+// ============================================================
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function renderCalendar() {
+  const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const DAYS   = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  document.getElementById('cal-month-title').textContent = MONTHS[calMonth] + ' ' + calYear;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = DAYS.map(d => `<div class="cal-header">${d}</div>`).join('');
+
+  const first = new Date(calYear, calMonth, 1);
+  const last  = new Date(calYear, calMonth + 1, 0);
+  let startDow = first.getDay(); // 0=Sun
+  if (startDow === 0) startDow = 7;
+  startDow -= 1; // 0=Mon
+
+  for (let i = 0; i < startDow; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-day empty';
+    grid.appendChild(empty);
+  }
+
+  const td = today();
+  for (let day = 1; day <= last.getDate(); day++) {
+    const dObj = new Date(calYear, calMonth, day);
+    const dStr = dateStr(dObj);
+    const phase = getCurrentPhase(dObj);
+    const isToday = dStr === td;
+    const isFuture = dObj > new Date() && !isToday;
+    const isChecked = STATE.checkedDays[dStr];
+    const dayPost = getDayPostOP(dObj);
+    const avgPain = avgPainForDay(dStr);
+
+    const el = document.createElement('div');
+    let classes = 'cal-day';
+    if (isFuture && dayPost >= 0) classes += ' future';
+    if (isToday) classes += ' today';
+    if (isChecked) classes += ' checked';
+
+    if (phase) {
+      el.style.background = isChecked ? phase.bg : phase.bg;
+      el.style.color = phase.color;
+      if (isChecked) {
+        el.style.background = phase.color + '22';
+        el.style.fontWeight = '700';
+      }
+    } else if (dayPost < 0) {
+      el.style.background = '#F4F4F4';
+      el.style.color = '#AAA';
+    }
+
+    el.className = classes;
+    el.innerHTML = `
+      <span>${day}</span>
+      ${isChecked ? '<span class="cal-check">✓</span>' : ''}
+      ${avgPain !== null ? `<div class="cal-pain-dot" style="background:${getPainColor(Math.round(avgPain))}"></div>` : ''}
+    `;
+    el.title = phase ? phase.name + (avgPain !== null ? ` · Ø Schmerz: ${avgPain}` : '') : '';
+
+    if (!isFuture || dayPost < 0) {
+      el.onclick = () => {
+        if (dayPost < 0) return;
+        STATE.checkedDays[dStr] = !STATE.checkedDays[dStr];
+        saveState();
+        renderCalendar();
+        if (dStr === td) renderToday();
+        updateAchievements();
+      };
+    }
+
+    grid.appendChild(el);
+  }
+
+  // Phase summary list
+  const psl = document.getElementById('phase-summary-list');
+  psl.innerHTML = PHASES.map(ph => {
+    const phStart = parseDate(ph.start);
+    const phEnd   = parseDate(ph.end);
+    const now = new Date();
+    const isCurrent = now >= phStart && now <= phEnd;
+    const isPast = now > phEnd;
+    return `
+      <div style="display:flex; align-items:center; gap:0.75rem; padding:0.55rem 0; border-bottom:1px solid var(--border-light);">
+        <div style="width:10px; height:10px; border-radius:3px; background:${ph.color}; flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div style="font-size:0.85rem; font-weight:${isCurrent?'600':'400'}; color:${isCurrent?ph.color:'var(--text)'};">
+            ${ph.icon} ${ph.name} <span style="font-size:0.75rem; color:var(--text-muted);">(${ph.week})</span>
+          </div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">${ph.dates}</div>
+        </div>
+        ${isCurrent ? `<span style="font-size:0.72rem; font-weight:600; color:${ph.color}; background:${ph.bg}; padding:0.15rem 0.5rem; border-radius:8px;">Aktiv</span>` : ''}
+        ${isPast ? '<span style="font-size:0.9rem;">✅</span>' : ''}
+      </div>`;
+  }).join('');
+}
+
+function prevMonth() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function nextMonth() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+// ============================================================
+// PAIN TRACKER
+// ============================================================
+function renderPainTab() {
+  updatePainSlider(document.getElementById('pain-slider').value);
+  renderTodayEntries();
+  renderPainChart();
+  renderPainReference();
+}
+
+function updatePainSlider(val) {
+  val = parseInt(val);
+  const info = PAIN_INFO[val];
+  const slider = document.getElementById('pain-slider');
+  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, var(--border) ${val*10}%)`;
+  slider.style.color = info.color;
+  document.getElementById('slider-emoji').textContent  = info.emoji;
+  document.getElementById('slider-number').textContent = val;
+  document.getElementById('slider-number').style.color = info.color;
+  document.getElementById('slider-label').textContent  = info.label;
+  document.getElementById('slider-desc').textContent   = info.desc;
+  const disp = document.getElementById('pain-display');
+  disp.style.borderColor = info.color + '60';
+  disp.style.background  = info.color + '0A';
+}
+
+function addPainEntry() {
+  const level = parseInt(document.getElementById('pain-slider').value);
+  const note  = document.getElementById('pain-note').value.trim();
+  const entry = { date: today(), time: nowTime(), level, note };
+  STATE.painLogs.push(entry);
+  saveState();
+  document.getElementById('pain-note').value = '';
+  renderTodayEntries();
+  renderPainChart();
+  showToast(`💊 Schmerz ${level}/10 — ${PAIN_INFO[level].label} gespeichert`);
+  updateAchievements();
+}
+
+function renderTodayEntries() {
+  const entries = STATE.painLogs.filter(l => l.date === today()).reverse();
+  const meds    = STATE.medLogs.filter(l => l.date === today()).reverse();
+  const wrap = document.getElementById('today-pain-entries');
+  const avg  = document.getElementById('today-avg-pain');
+
+  if (!entries.length && !meds.length) {
+    wrap.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted); font-style:italic; padding:1rem 0; text-align:center;">Noch keine Einträge heute.</div>';
+    avg.textContent = '';
+    return;
+  }
+
+  if (entries.length) {
+    const mean = (entries.reduce((a,b) => a+b.level, 0) / entries.length).toFixed(1);
+    avg.textContent = `Ø ${mean}/10 heute`;
+  }
+
+  const painHtml = entries.map(e => `
+    <div class="pain-entry">
+      <div class="pain-bubble" style="background:${getPainColor(e.level)}">${e.level}</div>
+      <div class="pain-entry-meta">
+        <div class="pain-entry-label">${PAIN_INFO[e.level].emoji} ${PAIN_INFO[e.level].label}</div>
+        <div class="pain-entry-time">${e.time}</div>
+        ${e.note ? `<div class="pain-entry-note">${e.note}</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  const medHtml = meds.map(m => `
+    <div class="pain-entry" style="background:#F2EEF8;">
+      <div class="pain-bubble" style="background:#8872A8; font-size:0.75rem;">💊</div>
+      <div class="pain-entry-meta">
+        <div class="pain-entry-label" style="color:#8872A8;">${m.med} · ${m.dose}</div>
+        <div class="pain-entry-time">${m.time}</div>
+        ${m.note ? `<div class="pain-entry-note">${m.note}</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  wrap.innerHTML = painHtml + (medHtml ? `<div style="font-size:0.72rem; font-weight:600; color:#8872A8; margin:0.6rem 0 0.3rem; text-transform:uppercase; letter-spacing:0.05em;">Medikamente</div>${medHtml}` : '');
+}
+
+function renderPainChart() {
+  const chart = document.getElementById('pain-chart');
+  let html = '';
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dStr = dateStr(d);
+    const avg = avgPainForDay(dStr);
+    const h = avg !== null ? Math.round((avg / 10) * 70) : 4;
+    const col = avg !== null ? getPainColor(Math.round(avg)) : 'var(--border)';
+    const label = getDayLabel(i);
+    html += `
+      <div class="chart-bar-wrap">
+        <div class="chart-bar" style="height:${h}px; background:${col};" title="${avg !== null ? 'Ø ' + avg + '/10' : 'kein Eintrag'}"></div>
+        <div class="chart-bar-label">${label}</div>
+      </div>`;
+  }
+  chart.innerHTML = html;
+}
+
+function renderPainReference() {
+  const ref = document.getElementById('pain-reference');
+  ref.innerHTML = PAIN_INFO.map((p, i) => `
+    <div style="border-bottom:1px solid var(--border-light); padding:0.45rem 0;">
+      <div style="display:flex; align-items:center; gap:0.65rem;">
+        <div style="width:28px; height:28px; border-radius:50%; background:${p.color}; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; color:white; flex-shrink:0;">${i}</div>
+        <div>
+          <div style="font-size:0.82rem;">${p.emoji} <strong>${p.label}</strong> — ${p.desc}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); font-style:italic; margin-top:0.1rem;">z.B. ${p.example}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// MEDIKAMENTEN-LOG
+// ============================================================
+let _selectedMed  = null;
+let _selectedDose = null;
+
+function selectMed(btn) {
+  _selectedMed  = btn.dataset.med;
+  _selectedDose = null;
+  document.querySelectorAll('.med-btn').forEach(b => {
+    b.style.background = 'var(--bg)';
+    b.style.borderColor = 'var(--border)';
+    b.style.fontWeight = '400';
+    b.style.color = 'var(--text)';
+  });
+  btn.style.background = '#F2EEF8';
+  btn.style.borderColor = '#8872A8';
+  btn.style.fontWeight = '600';
+  btn.style.color = '#8872A8';
+
+  ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
+    document.getElementById('dose-'+m).style.display = 'none');
+  document.getElementById('dose-'+_selectedMed.toLowerCase()).style.display = 'block';
+  document.getElementById('med-selected-display').style.display = 'none';
+  document.querySelectorAll('.dose-btn').forEach(b => {
+    b.style.background = 'var(--bg)'; b.style.borderColor = 'var(--border)'; b.style.fontWeight = '400';
+  });
+}
+
+function selectDose(dose) {
+  _selectedDose = dose;
+  document.querySelectorAll('.dose-btn').forEach(b => {
+    const active = b.dataset.dose === dose;
+    b.style.background   = active ? '#F2EEF8' : 'var(--bg)';
+    b.style.borderColor  = active ? '#8872A8' : 'var(--border)';
+    b.style.fontWeight   = active ? '700' : '400';
+    b.style.color        = active ? '#8872A8' : 'var(--text)';
+  });
+  updateMedDisplay();
+}
+
+function updateMedDisplay() {
+  const el = document.getElementById('med-selected-display');
+  if (_selectedMed && _selectedDose) {
+    el.textContent = `💊 ${_selectedMed} · ${_selectedDose}`;
+    el.style.display = 'block';
+  }
+}
+
+function addMedEntry() {
+  if (!_selectedMed) { showToast('⚠️ Bitte zuerst ein Medikament auswählen'); return; }
+  let dose = _selectedDose;
+  if (_selectedMed === 'Anderes') {
+    dose = document.getElementById('med-other-text').value.trim();
+    if (!dose) { showToast('⚠️ Bitte Medikament & Dosis eingeben'); return; }
+  }
+  if (!dose) { showToast('⚠️ Bitte Dosis auswählen'); return; }
+  const note = document.getElementById('med-note').value.trim();
+  const entry = { date: today(), time: nowTime(), med: _selectedMed, dose, note };
+  STATE.medLogs.push(entry);
+  saveState();
+  showToast(`💊 ${_selectedMed} ${dose} gespeichert`);
+  document.getElementById('med-note').value = '';
+  document.getElementById('med-other-text').value = '';
+  document.getElementById('med-selected-display').style.display = 'none';
+  document.querySelectorAll('.med-btn').forEach(b => {
+    b.style.background='var(--bg)'; b.style.borderColor='var(--border)'; b.style.fontWeight='400'; b.style.color='var(--text)';
+  });
+  ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
+    document.getElementById('dose-'+m).style.display = 'none');
+  _selectedMed = null; _selectedDose = null;
+  renderTodayEntries();
+}
+
+// ============================================================
+// STATISTICS HELPERS
+// ============================================================
+function calcStats(values) {
+  if (!values.length) return null;
+  const n    = values.length;
+  const sorted = [...values].sort((a,b)=>a-b);
+  const mean = values.reduce((a,b)=>a+b,0) / n;
+  const median = n % 2 === 0
+    ? (sorted[n/2-1] + sorted[n/2]) / 2
+    : sorted[Math.floor(n/2)];
+  const variance = values.reduce((a,b)=>a+Math.pow(b-mean,2),0) / n;
+  const sd   = Math.sqrt(variance);
+  const p25  = sorted[Math.floor(n*0.25)];
+  const p75  = sorted[Math.floor(n*0.75)];
+  const p95  = sorted[Math.floor(n*0.95)];
+  const iqr  = p75 - p25;
+  return {
+    n, mean: +mean.toFixed(2), median: +median.toFixed(1),
+    min: sorted[0], max: sorted[n-1],
+    sd: +sd.toFixed(2), variance: +variance.toFixed(2),
+    p25, p75, p95, iqr: +iqr.toFixed(1)
+  };
+}
+
+// ============================================================
+// PHASES TAB
+// ============================================================
+function renderPhasenTab() {
+  const now = new Date();
+  const timeline = document.getElementById('phase-timeline');
+  timeline.innerHTML = PHASES.map(ph => {
+    const phStart = parseDate(ph.start);
+    const phEnd   = parseDate(ph.end);
+    const isCurrent = now >= phStart && now <= phEnd;
+    const isPast    = now > phEnd;
+    return `
+    <div class="phase-item ${isCurrent ? 'current' : ''}">
+      <div class="phase-card section-gap" style="background:${ph.bg}; border-color:${isCurrent ? ph.color : ph.border};">
+        <div class="phase-card-header">
+          <div class="phase-icon">${ph.icon}</div>
+          <div>
+            <div class="phase-card-name" style="color:${ph.color}">${ph.name}</div>
+            <div class="phase-card-dates">${ph.dates}</div>
+          </div>
+          <div class="phase-card-week" style="color:${ph.color}">${ph.week}</div>
+          ${isCurrent ? `<span style="margin-left:0.5rem; font-size:0.75rem; font-weight:700; background:${ph.color}; color:white; padding:0.2rem 0.55rem; border-radius:10px;">● Aktiv</span>` : ''}
+          ${isPast ? '<span style="font-size:1.2rem; margin-left:0.5rem;">✅</span>' : ''}
+        </div>
+        <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
+          <span style="font-size:0.78rem; padding:0.2rem 0.6rem; border-radius:8px; background:${ph.color}18; color:${ph.color}; font-weight:600;">
+            🌡 Schmerz: ${ph.painRange}
+          </span>
+          <span style="font-size:0.78rem; padding:0.2rem 0.6rem; border-radius:8px; background:${ph.color}18; color:${ph.color};">
+            💊 ${ph.medication}
+          </span>
+        </div>
+        <div class="phase-info-grid">
+          <div class="phase-info-block">
+            <div class="phase-info-block-title">✅ Erlaubt</div>
+            <ul>${ph.allowed.map(a=>`<li>${a}</li>`).join('')}</ul>
+          </div>
+          <div class="phase-info-block">
+            <div class="phase-info-block-title">🚫 Eingeschränkt</div>
+            <ul>${ph.forbidden.map(f=>`<li>${f}</li>`).join('')}</ul>
+          </div>
+          <div class="phase-info-block">
+            <div class="phase-info-block-title">💡 Hinweise</div>
+            <ul>${ph.hints.map(h=>`<li>${h}</li>`).join('')}</ul>
+          </div>
+          <div class="phase-info-block">
+            <div class="phase-info-block-title">📋 Meilensteine</div>
+            <ul>${ph.milestones.map(m=>`<li>${m}</li>`).join('')}</ul>
+            <div style="margin-top:0.5rem; font-size:0.75rem; opacity:0.8; padding-left:0.8rem;">🦺 ${ph.orthesis}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// ACHIEVEMENTS
+// ============================================================
+function updateAchievements() {
+  ACHIEVEMENTS.forEach(ach => {
+    try { ach._earned = ach.check(STATE); } catch(e) { ach._earned = false; }
+  });
+}
+
+function renderAchievements() {
+  updateAchievements();
+  const earned = ACHIEVEMENTS.filter(a => a._earned).length;
+  document.getElementById('earned-count').textContent = earned;
+  document.getElementById('total-count').textContent  = ACHIEVEMENTS.length;
+  document.getElementById('ach-progress-fill').style.width = Math.round((earned / ACHIEVEMENTS.length) * 100) + '%';
+
+  const grid = document.getElementById('ach-grid');
+  grid.innerHTML = ACHIEVEMENTS.map(a => `
+    <div class="ach-card ${a._earned ? 'earned' : 'locked'}">
+      ${a._earned ? '<div class="ach-earned-badge">★</div>' : ''}
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// REMINDERS
+// ============================================================
+function toggleReminders() {
+  STATE.reminderEnabled = !STATE.reminderEnabled;
+  const t = document.getElementById('reminder-toggle');
+  t.className = 'toggle' + (STATE.reminderEnabled ? ' on' : '');
+  saveState();
+  if (STATE.reminderEnabled) requestNotifPermission();
+}
+
+function renderReminderTimes() {
+  const list = document.getElementById('reminder-times-list');
+  list.innerHTML = STATE.reminderTimes.map((t, i) => `
+    <div class="reminder-time-row">
+      <input type="time" value="${t}" style="width:auto; padding:0.35rem 0.6rem;"
+        onchange="STATE.reminderTimes[${i}]=this.value; saveState();">
+      <button class="btn btn-outline btn-sm" onclick="removeReminderTime(${i})" style="padding:0.3rem 0.6rem;">✕</button>
+    </div>`).join('');
+}
+
+function addReminderTime() {
+  STATE.reminderTimes.push('10:00');
+  saveState();
+  renderReminderTimes();
+}
+
+function removeReminderTime(i) {
+  STATE.reminderTimes.splice(i, 1);
+  saveState();
+  renderReminderTimes();
+}
+
+function requestNotifPermission() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(perm => {
+      if (perm === 'granted') showToast('🔔 Benachrichtigungen aktiviert!');
+    });
+  }
+}
+
+function checkReminders() {
+  if (!STATE.reminderEnabled) return;
+  const now = new Date();
+  const hhmm = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  if (STATE.reminderTimes.includes(hhmm)) {
+    showReminderBanner();
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('⏰ Schmerztracker', {
+        body: 'Zeit für deinen Schmerz-Check! Wie geht es dir?',
+        icon: ''
+      });
+    }
+  }
+}
+
+function showReminderBanner() {
+  const banner = document.getElementById('reminder-banner');
+  banner.style.display = 'block';
+  setTimeout(() => { if (banner.style.display === 'block') dismissReminder(); }, 30000);
+}
+
+function dismissReminder() {
+  document.getElementById('reminder-banner').style.display = 'none';
+}
+
+function goToPainTracker() {
+  dismissReminder();
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn')[2].classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-schmerz').classList.add('active');
+  renderPainTab();
+}
+
+// ============================================================
+// AUSWERTUNG
+// ============================================================
+let _charts = {};
+
+function destroyChart(id) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+}
+
+function renderAuswertung() {
+  const logs = STATE.painLogs;
+  const kpiWrap = document.getElementById('auswertung-kpis');
+  const allLevels = logs.map(l => l.level);
+  const stats = calcStats(allLevels);
+  const avg = stats ? stats.mean.toFixed(1) : '–';
+  const dayN = getDayPostOP();
+  const pct  = getProgress();
+
+  // Pre vs Post OP
+  const preOPLogs  = logs.filter(l => l.date < '2026-03-19');
+  const postOPLogs = logs.filter(l => l.date >= '2026-03-19');
+  const avgPre  = preOPLogs.length  ? (preOPLogs.reduce((a,b)=>a+b.level,0)/preOPLogs.length).toFixed(1)  : null;
+  const avgPost = postOPLogs.length ? (postOPLogs.reduce((a,b)=>a+b.level,0)/postOPLogs.length).toFixed(1) : null;
+
+  function kpi(icon, val, label, sub, color) {
+    return `<div class="card" style="text-align:center; padding:1.1rem 0.75rem;">
+      <div style="font-size:1.6rem; margin-bottom:0.3rem;">${icon}</div>
+      <div style="font-family:'Lora',serif; font-size:1.6rem; font-weight:700; color:${color||'var(--primary)'}; line-height:1;">${val}</div>
+      <div style="font-size:0.82rem; font-weight:600; margin-top:0.25rem;">${label}</div>
+      <div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.1rem;">${sub}</div>
+    </div>`;
+  }
+
+  // Extended stats row
+  const statsHtml = stats ? `
+    <div class="card section-gap" style="background:var(--paper2);">
+      <div class="card-label">📐 Erweiterte Statistik — alle Einträge (n=${stats.n})</div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; margin-top:0.5rem; flex-wrap:wrap;">
+        ${[
+          ['Median',    stats.median+'/10', '#5A8FAA'],
+          ['Ø Mean',    stats.mean+'/10',   'var(--primary)'],
+          ['σ Std.abw.',stats.sd,           '#8872A8'],
+          ['Varianz',   stats.variance,     '#C49A50'],
+          ['Min',       stats.min+'/10',    '#5A9068'],
+          ['Max',       stats.max+'/10',    '#C05018'],
+          ['P25',       stats.p25+'/10',    '#6D9B74'],
+          ['P75',       stats.p75+'/10',    '#C49A50'],
+          ['P95',       stats.p95+'/10',    '#C4705A'],
+          ['IQR',       stats.iqr,          '#5A8FAA'],
+          ['Vor OP Ø',  avgPre!==null?avgPre+'/10':'–', '#5A8FAA'],
+          ['Nach OP Ø', avgPost!==null?avgPost+'/10':'–','#6D9B74'],
+        ].map(([l,v,c])=>`
+          <div style="text-align:center; padding:0.6rem 0.4rem; background:var(--bg); border-radius:10px;">
+            <div style="font-size:1.1rem; font-weight:700; color:${c}; font-family:'Lora',serif;">${v}</div>
+            <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.15rem;">${l}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  kpiWrap.innerHTML =
+    kpi('📝', logs.length, 'Einträge gesamt', `${preOPLogs.length} vor OP · ${postOPLogs.length} nach OP`) +
+    kpi('🎯', avg+'/10', 'Ø Schmerz', 'Gesamtdurchschnitt') +
+    kpi('📐', stats ? stats.median+'/10' : '–', 'Median', 'Robuster Mittelwert', '#5A8FAA') +
+    kpi('📊', stats ? stats.sd : '–', 'Std.abweichung σ', 'Streuung der Werte', '#8872A8');
+
+  // Insert extended stats after kpis
+  const existingStats = document.getElementById('extended-stats-wrap');
+  if (existingStats) existingStats.remove();
+  const wrap = document.createElement('div');
+  wrap.id = 'extended-stats-wrap';
+  wrap.innerHTML = statsHtml;
+  kpiWrap.after(wrap);
+
+  // ---- Vor/Nach Vergleich Banner ----
+  const compWrap = document.getElementById('prepost-comparison');
+  if (compWrap) {
+    if (avgPre !== null && avgPost !== null) {
+      const diff = (parseFloat(avgPost) - parseFloat(avgPre)).toFixed(1);
+      const better = diff < 0;
+      const arrow = better ? '↓' : diff > 0 ? '↑' : '→';
+      const col   = better ? '#5A9068' : diff > 0 ? '#C05018' : '#9A8070';
+      const msg   = better
+        ? `Schmerz ist nach der OP um ${Math.abs(diff)} Punkte tiefer als davor — gute Entwicklung! 🌿`
+        : diff > 0
+        ? `Schmerz ist aktuell ${diff} Punkte höher als vor OP — normal in der Frühphase.`
+        : 'Schmerzniveau vor und nach OP ist gleich.';
+      compWrap.innerHTML = `
+        <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+          <div style="font-size:2rem; font-weight:700; color:${col}; font-family:'Lora',serif;">${arrow} ${Math.abs(diff)}</div>
+          <div>
+            <div style="font-weight:600; font-size:0.9rem;">${msg}</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">Vor OP: Ø ${avgPre}/10 · Nach OP: Ø ${avgPost}/10</div>
+          </div>
+        </div>`;
+      compWrap.style.display = 'block';
+    } else {
+      compWrap.style.display = 'none';
+    }
+  }
+
+  // ---- Verlauf (Line chart: from earliest log to today) ----
+  destroyChart('verlauf');
+  const dayLabels = [], dayData = [], dayColors = [], opLineData = [];
+
+  // Start from earliest log entry OR today if no entries yet
+  const allDates = logs.map(l => l.date).sort();
+  const chartStart = allDates.length ? new Date(allDates[0] + 'T00:00:00') : new Date();
+  const chartEnd   = new Date();
+
+  let opLineIndex = null;
+  let idx = 0;
+  for (let d = new Date(chartStart); d <= chartEnd; d.setDate(d.getDate()+1)) {
+    const ds  = dateStr(new Date(d));
+    const avg = avgPainForDay(ds);
+    if (avg !== null) {
+      dayLabels.push(ds === '2026-03-19' ? '🔴 OP' : ds.slice(5));
+      dayData.push(avg);
+      dayColors.push(ds >= '2026-03-19' ? getPainColor(Math.round(avg)) : '#5A8FAA');
+      if (ds === '2026-03-19') opLineIndex = idx;
+      idx++;
+    }
+  }
+
+  const ctxV = document.getElementById('chart-verlauf').getContext('2d');
+  _charts['verlauf'] = new Chart(ctxV, {
+    type: 'line',
+    data: {
+      labels: dayLabels,
+      datasets: [
+        {
+          label: 'Vor OP',
+          data: dayData.map((v, i) => {
+            const ds = allDates[0] ? dateStr(new Date(new Date(allDates[0]+'T00:00:00').setDate(new Date(allDates[0]+'T00:00:00').getDate()+i))) : null;
+            return dayLabels[i] === '🔴 OP' || (opLineIndex !== null && i >= opLineIndex) ? null : v;
+          }),
+          borderColor: '#5A8FAA',
+          backgroundColor: 'rgba(90,143,170,0.08)',
+          pointBackgroundColor: '#5A8FAA',
+          pointBorderColor: '#5A8FAA',
+          pointRadius: 4,
+          tension: 0.4,
+          fill: true,
+          borderWidth: 2,
+          spanGaps: false,
+        },
+        {
+          label: 'Nach OP',
+          data: dayData.map((v, i) => (opLineIndex !== null && i < opLineIndex) ? null : v),
+          borderColor: '#B87049',
+          backgroundColor: 'rgba(184,112,73,0.08)',
+          pointBackgroundColor: dayColors,
+          pointBorderColor: dayColors,
+          pointRadius: 4,
+          tension: 0.4,
+          fill: true,
+          borderWidth: 2,
+          spanGaps: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y: { min:0, max:10, grid: { color:'rgba(0,0,0,0.05)' },
+             ticks: { font:{size:10}, color:'#9A8070' } },
+        x: { grid: { display:false },
+             ticks: { font:{size:9}, color:'#9A8070', maxTicksLimit:16 } }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          labels: { font:{size:11}, color:'#3A2A1C', padding:16,
+            generateLabels: chart => [
+              { text:'🔵 Vor OP', fillStyle:'#5A8FAA', strokeStyle:'#5A8FAA', lineWidth:2 },
+              { text:'🟠 Nach OP', fillStyle:'#B87049', strokeStyle:'#B87049', lineWidth:2 },
+              { text:'🔴 OP-Tag', fillStyle:'#C4705A', strokeStyle:'#C4705A', lineWidth:2 },
+            ]
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.parsed.y !== null ? `${ctx.parsed.y}/10 — ${PAIN_INFO[Math.round(ctx.parsed.y)]?.label||''}` : '',
+          }
+        }
+      }
+    }
+  });
+
+  // ---- Phase comparison (bar) — add Vor-OP bar ----
+  destroyChart('phase');
+  const phaseLabels = ['Vor OP', ...PHASES.map(p => p.name)];
+  const phaseColors = ['#5A8FAA', ...PHASES.map(p => p.color)];
+
+  const phaseAvgs = [
+    // Vor OP
+    preOPLogs.length ? parseFloat((preOPLogs.reduce((a,b)=>a+b.level,0)/preOPLogs.length).toFixed(1)) : null,
+    // Each phase
+    ...PHASES.map(ph => {
+      const phLogs = logs.filter(l => {
+        const d = parseDate(l.date);
+        return d >= parseDate(ph.start) && d <= parseDate(ph.end);
+      });
+      if (!phLogs.length) return null;
+      return parseFloat((phLogs.reduce((a,b)=>a+b.level,0)/phLogs.length).toFixed(1));
+    })
+  ];
+
+  const ctxP = document.getElementById('chart-phase').getContext('2d');
+  _charts['phase'] = new Chart(ctxP, {
+    type: 'bar',
+    data: {
+      labels: phaseLabels,
+      datasets: [{
+        label: 'Ø Schmerz',
+        data: phaseAvgs,
+        backgroundColor: phaseColors.map(c => c + 'CC'),
+        borderColor:     phaseColors,
+        borderWidth: 1.5,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { min:0, max:10, grid:{color:'rgba(0,0,0,0.05)'},
+             ticks:{font:{size:10},color:'#9A8070'} },
+        x: { grid:{display:false}, ticks:{font:{size:8},color:'#9A8070'} }
+      },
+      plugins: {
+        legend:{display:false},
+        tooltip:{ callbacks:{ label: ctx => ctx.parsed.y !== null ? ctx.parsed.y+'/10' : 'Keine Daten' } }
+      }
+    }
+  });
+
+  // ---- Tageszeit ----
+  destroyChart('tageszeit');
+  const slots = [
+    { label:'Nacht (0–6h)',  short:'Nacht',  range:[0,5],   color:'#8872A8' },
+    { label:'Morgen (6–11h)',short:'Morgen', range:[6,10],  color:'#C49A50' },
+    { label:'Mittag (11–15h)',short:'Mittag',range:[11,14], color:'#5A8FAA' },
+    { label:'Nachmittag (15–18h)',short:'Nachmitt.',range:[15,17],color:'#6D9B74'},
+    { label:'Abend (18–22h)',short:'Abend',  range:[18,21], color:'#B87049' },
+    { label:'Spät (22–24h)', short:'Spät',   range:[22,23], color:'#C4705A' },
+  ];
+
+  const slotAvgs = slots.map(s => {
+    const h0 = s.range[0], h1 = s.range[1];
+    const sl = logs.filter(l => {
+      const h = parseInt(l.time?.split(':')[0] || 12);
+      return h >= h0 && h <= h1;
+    });
+    if (!sl.length) return null;
+    return parseFloat((sl.reduce((a,b)=>a+b.level,0)/sl.length).toFixed(1));
+  });
+
+  const ctxT = document.getElementById('chart-tageszeit').getContext('2d');
+  _charts['tageszeit'] = new Chart(ctxT, {
+    type: 'bar',
+    data: {
+      labels: slots.map(s => s.short),
+      datasets: [{
+        label: 'Ø Schmerz',
+        data: slotAvgs,
+        backgroundColor: slots.map(s => s.color + 'CC'),
+        borderColor:     slots.map(s => s.color),
+        borderWidth: 1.5,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        y: { min:0, max:10, grid:{color:'rgba(0,0,0,0.05)'},
+             ticks:{font:{size:10},color:'#9A8070'} },
+        x: { grid:{display:false}, ticks:{font:{size:9},color:'#9A8070'} }
+      },
+      plugins: { legend:{display:false} }
+    }
+  });
+
+  const legend = document.getElementById('tageszeit-legend');
+  legend.innerHTML = slots.map((s,i) => `
+    <div style="display:flex;align-items:center;gap:0.3rem;">
+      <div style="width:9px;height:9px;border-radius:3px;background:${s.color};flex-shrink:0;"></div>
+      <span>${s.label}${slotAvgs[i]!==null ? ': Ø '+slotAvgs[i] : ': –'}</span>
+    </div>`).join('');
+
+  // ---- Weekly stats table ----
+  renderWeeklyTable();
+  renderLogTable();
+  renderDailyStats();
+}
+
+function renderWeeklyTable() {
+  const table = document.getElementById('weekly-table');
+  const TH = s => `<th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.78rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);white-space:nowrap;">${s}</th>`;
+  const TD = (s, style='') => `<td style="padding:0.45rem 0.75rem;border-bottom:1px solid var(--border-light);font-size:0.82rem;${style}">${s}</td>`;
+
+  let html = `<thead><tr>${TH('Woche')}${TH('KW')}${TH('Phase')}${TH('Einträge')}${TH('Ø Schmerz')}${TH('Min')}${TH('Max')}${TH('Trend')}</tr></thead><tbody>`;
+
+  // Start from first log entry OR OP date, whichever is earlier
+  const allLogDates = STATE.painLogs.map(l => l.date).sort();
+  const firstLogDate = allLogDates.length ? new Date(allLogDates[0]+'T00:00:00') : new Date(OP_DATE);
+  const tableStart = firstLogDate < OP_DATE ? firstLogDate : new Date(OP_DATE);
+
+  // Align to Monday of that week
+  let weekStart = new Date(tableStart);
+  const dow = weekStart.getDay();
+  const mondayOffset = dow === 0 ? -6 : 1 - dow;
+  weekStart.setDate(weekStart.getDate() + mondayOffset);
+
+  const now = new Date();
+  let weekIdx = 0;
+  const rows = [];
+
+  while (weekStart <= now) {
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    const ds = dateStr(weekStart);
+    const de = dateStr(weekEnd > now ? now : weekEnd);
+
+    const weekLogs = STATE.painLogs.filter(l => l.date >= ds && l.date <= de);
+    const levels = weekLogs.map(l => l.level);
+    const avg = levels.length ? (levels.reduce((a,b)=>a+b,0)/levels.length).toFixed(1) : null;
+    const min = levels.length ? Math.min(...levels) : null;
+    const max = levels.length ? Math.max(...levels) : null;
+
+    const kw = getISOWeek(weekStart);
+    const isPreOP = weekEnd < OP_DATE;
+    const isOPWeek = weekStart <= OP_DATE && weekEnd >= OP_DATE;
+    const phase = isPreOP ? null : (getCurrentPhase(weekStart) || getCurrentPhase(weekEnd));
+    const phaseName  = isPreOP ? 'Vor OP' : isOPWeek ? '🏥 OP-Woche' : (phase ? phase.name : '–');
+    const phaseColor = isPreOP ? '#5A8FAA' : isOPWeek ? '#C4705A' : (phase ? phase.color : '#999');
+
+    rows.push({ weekIdx, kw, ds, de, count: weekLogs.length, avg, min, max, phaseName, phaseColor, isPreOP, isOPWeek });
+    weekStart.setDate(weekStart.getDate() + 7);
+    weekIdx++;
+  }
+
+  rows.forEach((r, i) => {
+    const prev = rows[i-1];
+    let trend = '–';
+    if (r.avg !== null && prev?.avg !== null) {
+      const diff = parseFloat(r.avg) - parseFloat(prev.avg);
+      trend = diff < -0.3 ? '<span style="color:#5A9068">↓ besser</span>'
+             : diff > 0.3  ? '<span style="color:#C05018">↑ höher</span>'
+             : '<span style="color:#9A8070">→ stabil</span>';
+    }
+    const isCurrentWeek = i === rows.length - 1;
+    const rowBg = r.isOPWeek ? 'background:#FBF0EC;' : r.isPreOP ? 'background:#EBF3F8;' : isCurrentWeek ? 'background:var(--primary-pale);' : '';
+    html += `<tr style="${rowBg}">
+      ${TD(r.isPreOP ? 'Vor OP' : r.isOPWeek ? '🔴 OP-Woche' : 'Woche '+(r.weekIdx - rows.filter(x=>x.isPreOP||x.isOPWeek).length), isCurrentWeek ? 'font-weight:600;' : '')}
+      ${TD('KW '+r.kw)}
+      ${TD(`<span style="color:${r.phaseColor};font-weight:500;">${r.phaseName}</span>`)}
+      ${TD(r.count || '0')}
+      ${TD(r.avg !== null ? `<strong>${r.avg}/10</strong>` : '<span style="color:var(--text-muted)">–</span>')}
+      ${TD(r.min !== null ? r.min : '–')}
+      ${TD(r.max !== null ? r.max : '–')}
+      ${TD(trend)}
+    </tr>`;
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function getISOWeek(date) {
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+  const week1 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
+function clearLogFilters() {
+  ['filter-date-from','filter-date-to'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['filter-phase','filter-level','filter-time'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  renderLogTable();
+}
+
+function getTimeSlot(time) {
+  const h = parseInt(time?.split(':')[0] || 12);
+  if (h < 6)  return 'nacht';
+  if (h < 11) return 'morgen';
+  if (h < 15) return 'mittag';
+  if (h < 18) return 'nachmittag';
+  if (h < 22) return 'abend';
+  return 'spaet';
+}
+
+function renderLogTable() {
+  const dateFrom  = document.getElementById('filter-date-from')?.value  || '';
+  const dateTo    = document.getElementById('filter-date-to')?.value    || '';
+  const phaseF    = document.getElementById('filter-phase')?.value      || '';
+  const levelF    = parseInt(document.getElementById('filter-level')?.value || '0');
+  const timeF     = document.getElementById('filter-time')?.value       || '';
+
+  const empty = document.getElementById('log-empty');
+  const table = document.getElementById('log-table');
+  const countEl = document.getElementById('log-filter-count');
+
+  if (!STATE.painLogs.length) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    if (countEl) countEl.textContent = '';
+    return;
+  }
+
+  const filtered = [...STATE.painLogs]
+    .map((l, origIdx) => ({ ...l, origIdx }))
+    .filter(l => {
+      if (dateFrom && l.date < dateFrom) return false;
+      if (dateTo   && l.date > dateTo)   return false;
+      if (levelF   && l.level < levelF)  return false;
+      if (timeF    && getTimeSlot(l.time) !== timeF) return false;
+      if (phaseF) {
+        if (phaseF === 'pre') { if (l.date >= '2026-03-19') return false; }
+        else {
+          const ph = getCurrentPhase(parseDate(l.date));
+          if (!ph || ph.id !== phaseF) return false;
+        }
+      }
+      return true;
+    })
+    .reverse();
+
+  table.style.display = '';
+  empty.style.display = 'none';
+  if (countEl) countEl.textContent = `${filtered.length} von ${STATE.painLogs.length} Einträgen`;
+
+  const TH = s => `<th style="text-align:left;padding:0.45rem 0.6rem;font-size:0.73rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);position:sticky;top:0;background:var(--paper);white-space:nowrap;">${s}</th>`;
+  let html = `<thead><tr>${TH('Datum')}${TH('Zeit')}${TH('Phase')}${TH('Stufe')}${TH('Beschreibung')}${TH('Notiz')}${TH('')}</tr></thead><tbody>`;
+
+  filtered.forEach(l => {
+    const ph   = getCurrentPhase(parseDate(l.date));
+    const col  = getPainColor(l.level);
+    const info = PAIN_INFO[l.level];
+    html += `<tr style="border-bottom:1px solid var(--border-light);">
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;white-space:nowrap;">${formatDateDE(l.date)}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;color:var(--text-muted);">${l.time||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:${ph?ph.color:'#999'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+      <td style="padding:0.4rem 0.6rem;">
+        <span style="background:${col};color:white;padding:0.15rem 0.5rem;border-radius:20px;font-size:0.78rem;font-weight:700;">${l.level}</span>
+      </td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;">${info?.emoji||''} ${info?.label||''}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:var(--text-muted);font-style:${l.note?'italic':'normal'};">${l.note||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;">
+        <button onclick="deletePainEntry(${l.origIdx})" title="Löschen" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#C05018;padding:0.1rem 0.3rem;border-radius:6px;" onmouseover="this.style.background='#FFF0EC'" onmouseout="this.style.background='none'">🗑</button>
+      </td>
+    </tr>`;
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function deletePainEntry(idx) {
+  const entry = STATE.painLogs[idx];
+  if (!entry) return;
+  if (!confirm(`Eintrag löschen?\n${formatDateDE(entry.date)} ${entry.time} — Schmerz ${entry.level}/10`)) return;
+  STATE.painLogs.splice(idx, 1);
+  saveState();
+  renderLogTable();
+  renderTodayEntries();
+  renderPainChart();
+  showToast('🗑 Eintrag gelöscht');
+}
+
+function renderDailyStats() {
+  // 14-day bar chart
+  destroyChart('daily14');
+  const labels14 = [], data14 = [], colors14 = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const ds = dateStr(d);
+    const avg = avgPainForDay(ds);
+    labels14.push(ds.slice(5));
+    data14.push(avg);
+    colors14.push(avg !== null ? getPainColor(Math.round(avg)) : 'var(--border)');
+  }
+  const ctxD = document.getElementById('chart-daily14')?.getContext('2d');
+  if (ctxD) {
+    _charts['daily14'] = new Chart(ctxD, {
+      type: 'bar',
+      data: {
+        labels: labels14,
+        datasets: [{ label:'Ø Schmerz', data: data14, backgroundColor: colors14, borderRadius: 5, borderWidth: 0 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          y: { min:0, max:10, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:9},color:'#9A8070'} },
+          x: { grid:{display:false}, ticks:{font:{size:8},color:'#9A8070'} }
+        },
+        plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.parsed.y!==null?ctx.parsed.y+'/10':'–'}} }
+      }
+    });
+  }
+
+  // Daily table — all days with data
+  const table = document.getElementById('daily-table');
+  const emptyEl = document.getElementById('daily-empty');
+  if (!STATE.painLogs.length) {
+    if (table) table.style.display='none';
+    if (emptyEl) emptyEl.style.display='block';
+    return;
+  }
+  if (table) table.style.display='';
+  if (emptyEl) emptyEl.style.display='none';
+
+  const allDates = [...new Set(STATE.painLogs.map(l=>l.date))].sort().reverse();
+  const TH = s => `<th style="text-align:left;padding:0.4rem 0.6rem;font-size:0.72rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);white-space:nowrap;">${s}</th>`;
+
+  let html = `<thead><tr>${TH('Datum')}${TH('Phase')}${TH('n')}${TH('Ø')}${TH('Median')}${TH('σ')}${TH('Min')}${TH('Max')}${TH('')}</tr></thead><tbody>`;
+
+  allDates.forEach(ds => {
+    const dayLogs = STATE.painLogs.filter(l=>l.date===ds);
+    const levels  = dayLogs.map(l=>l.level);
+    const s = calcStats(levels);
+    const ph = getCurrentPhase(parseDate(ds));
+    const isToday = ds === today();
+    const bg = isToday ? 'background:var(--primary-pale);' : '';
+    const medToday = STATE.medLogs.filter(l=>l.date===ds);
+
+    html += `
+      <tr style="${bg} cursor:pointer;" onclick="toggleDayDetail('${ds}')">
+        <td style="padding:0.4rem 0.6rem;font-size:0.8rem;font-weight:${isToday?'700':'400'};">${formatDateDE(ds)}${isToday?' 🔵':''}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'#5A8FAA'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;">${s.n}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;font-weight:600;color:${getPainColor(Math.round(s.mean))};">${s.mean}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#5A8FAA;">${s.median}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#8872A8;">${s.sd}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#5A9068;">${s.min}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#C05018;">${s.max}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:var(--text-muted);">▾</td>
+      </tr>
+      <tr id="detail-${ds}" style="display:none;">
+        <td colspan="9" style="padding:0.5rem 1rem 0.75rem; background:var(--bg);">
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:600;">Alle Messungen:</div>
+          ${dayLogs.map(l=>`
+            <div style="display:inline-flex; align-items:center; gap:0.4rem; margin:0.15rem 0.25rem 0.15rem 0; padding:0.25rem 0.6rem; background:${getPainColor(l.level)}18; border:1px solid ${getPainColor(l.level)}40; border-radius:20px; font-size:0.78rem;">
+              <span style="font-weight:700;color:${getPainColor(l.level)}">${l.level}/10</span>
+              <span style="color:var(--text-muted)">${l.time}</span>
+              ${l.note?`<span style="font-style:italic">${l.note}</span>`:''}
+            </div>`).join('')}
+          ${medToday.length ? `<div style="margin-top:0.5rem; font-size:0.78rem; color:#8872A8;">💊 ${medToday.map(m=>`${m.med} ${m.dose}`).join(' · ')}</div>` : ''}
+        </td>
+      </tr>`;
+  });
+
+  html += '</tbody>';
+  if (table) table.innerHTML = html;
+}
+
+function toggleDayDetail(ds) {
+  const row = document.getElementById('detail-'+ds);
+  if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+function formatDateDE(ds) {
+  const [y,m,d] = ds.split('-');
+  return `${d}.${m}.${y}`;
+}
+
+function exportCSV() {
+  if (!STATE.painLogs.length) { showToast('⚠️ Keine Daten vorhanden'); return; }
+  const BOM = '\uFEFF';
+  const header = 'Datum;Zeit;Phase;Schmerzstufe;Beschreibung;Notiz\n';
+  const rows = [...STATE.painLogs].map(l => {
+    const ph = getCurrentPhase(parseDate(l.date));
+    const info = PAIN_INFO[l.level];
+    return [
+      formatDateDE(l.date),
+      l.time||'',
+      ph ? ph.name : '',
+      l.level,
+      info?.label||'',
+      (l.note||'').replace(/;/g,','),
+    ].join(';');
+  });
+  const csv = BOM + header + rows.join('\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Schmerztracker_Andreia_${today()}.csv`;
+  a.click();
+  showToast('📥 CSV heruntergeladen!');
+}
+
+// ============================================================
+// BACKUP & RESTORE
+// ============================================================
+function getBackupData() {
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    exportedAtDE: formatDateDE(today()) + ' ' + nowTime(),
+    appName: 'Heilungsjournal Andreia',
+    ...STATE
+  };
+}
+
+function updateLastBackupInfo(label) {
+  const el = document.getElementById('last-backup-info');
+  if (el) {
+    STATE.lastBackup = label;
+    saveState();
+    el.textContent = '✅ Letztes Backup: ' + label;
+  }
+}
+
+function renderLastBackupInfo() {
+  const el = document.getElementById('last-backup-info');
+  if (el && STATE.lastBackup) {
+    el.textContent = '✅ Letztes Backup: ' + STATE.lastBackup;
+  }
+}
+
+// Android Share → Google Drive
+async function backupToGoogleDrive() {
+  const data = getBackupData();
+  const json = JSON.stringify(data, null, 2);
+  const filename = `Heilungsjournal_Backup_${today()}.json`;
+
+  // Try native Web Share API (Android Chrome supports file sharing)
+  if (navigator.canShare) {
+    try {
+      const file = new File([json], filename, { type: 'application/json' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: 'Heilungsjournal Backup',
+          text: `Backup vom ${formatDateDE(today())} — Heilungsjournal Andreia`,
+          files: [file],
+        });
+        const label = formatDateDE(today()) + ' ' + nowTime();
+        updateLastBackupInfo(label);
+        showToast('☁️ Backup erfolgreich geteilt!');
+        return;
+      }
+    } catch(e) {
+      if (e.name !== 'AbortError') {
+        // Share failed — fall through to download
+      } else {
+        return; // User cancelled
+      }
+    }
+  }
+
+  // Fallback: direct download
+  exportBackupJSON();
+}
+
+// Direct file download
+function exportBackupJSON() {
+  const data = getBackupData();
+  const json = JSON.stringify(data, null, 2);
+  const filename = `Heilungsjournal_Backup_${today()}.json`;
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  const label = formatDateDE(today()) + ' ' + nowTime();
+  updateLastBackupInfo(label);
+  showToast('⬇ Backup-Datei heruntergeladen!');
+}
+
+// Restore from JSON file
+function restoreFromJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+
+      // Validate it looks like our backup
+      if (!parsed.painLogs && !parsed.checkedDays) {
+        showToast('❌ Ungültige Backup-Datei!');
+        return;
+      }
+
+      const count = (parsed.painLogs?.length || 0);
+      const days  = Object.keys(parsed.checkedDays || {}).length;
+
+      // Confirm dialog
+      if (!confirm(`Backup wiederherstellen?\n\n📅 Erstellt: ${parsed.exportedAtDE || '–'}\n💊 Schmerzeinträge: ${count}\n✅ Abgehakte Tage: ${days}\n\n⚠️ Aktuelle Daten werden überschrieben!`)) {
+        input.value = '';
+        return;
+      }
+
+      // Restore
+      STATE.checkedDays      = parsed.checkedDays      || {};
+      STATE.painLogs         = parsed.painLogs         || [];
+      STATE.medLogs          = parsed.medLogs          || [];
+      STATE.reminderEnabled  = parsed.reminderEnabled  || false;
+      STATE.reminderTimes    = parsed.reminderTimes    || ['08:00','12:00','16:00','20:00'];
+      STATE.lastBackup       = parsed.lastBackup       || null;
+
+      saveState();
+      renderToday();
+      renderReminderTimes();
+      renderLastBackupInfo();
+      updateAchievements();
+      input.value = '';
+
+      showToast(`✅ ${count} Einträge + ${days} Tage wiederhergestellt!`);
+    } catch(err) {
+      showToast('❌ Fehler beim Lesen der Datei!');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function nowTime() {
+  const n = new Date();
+  return n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => { t.style.display = 'none'; }, 2800);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  loadState();
+  updateAchievements();
+  renderToday();
+  renderReminderTimes();
+  renderLastBackupInfo();
+  document.getElementById('reminder-toggle').className = 'toggle' + (STATE.reminderEnabled ? ' on' : '');
+
+  // Initial calendar month
+  calYear  = new Date().getFullYear();
+  calMonth = new Date().getMonth();
+
+  // Check reminders every minute
+  setInterval(checkReminders, 60000);
+}
+
+// ============================================================
+// PWA — MANIFEST, SERVICE WORKER, INSTALL PROMPT
+// ============================================================
+
+// Generate app icon as SVG → data URI
+function generateAppIcon(size) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <rect width="${size}" height="${size}" rx="${size*0.2}" fill="#F9F5EF"/>
+    <rect width="${size}" height="${size}" rx="${size*0.2}" fill="url(#bg)"/>
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#FAF0E8"/>
+        <stop offset="100%" stop-color="#EDF4EF"/>
+      </linearGradient>
+    </defs>
+    <text x="50%" y="54%" font-size="${size*0.52}" text-anchor="middle" dominant-baseline="middle">🌿</text>
+    <text x="50%" y="87%" font-size="${size*0.11}" text-anchor="middle" fill="#B87049" font-family="serif" font-weight="bold">Heilung</text>
+  </svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+}
+
+// Inject PWA Manifest dynamically
+function injectManifest() {
+  const icon192 = generateAppIcon(192);
+  const icon512 = generateAppIcon(512);
+  const manifest = {
+    name: 'Heilungsjournal · Andreia',
+    short_name: 'Heilungsjournal',
+    description: 'Persönliches Heilungsjournal nach Densschrauben-OP',
+    start_url: window.location.href,
+    display: 'standalone',
+    background_color: '#F9F5EF',
+    theme_color: '#B87049',
+    orientation: 'any',
+    lang: 'de',
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel  = 'manifest';
+  link.href = url;
+  document.head.appendChild(link);
+
+  // Also set apple touch icon
+  const appleIcon = document.createElement('link');
+  appleIcon.rel  = 'apple-touch-icon';
+  appleIcon.href = icon192;
+  document.head.appendChild(appleIcon);
+}
+
+// Register Service Worker for offline support
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+
+  const swCode = `
+const CACHE = 'heilungsjournal-v1';
+const URLS  = [self.location.href];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(cache => {
+      return Promise.allSettled(URLS.map(url => cache.add(url).catch(()=>{})));
+    }).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => cached))
+  );
+});
+  `;
+
+  const blob  = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+
+  navigator.serviceWorker.register(swUrl, { scope: './' })
+    .then(reg => {
+      console.log('SW registered:', reg.scope);
+      updateSWStatus(true);
+    })
+    .catch(err => {
+      console.warn('SW registration failed (normal for file://):', err);
+      updateSWStatus(false);
+    });
+}
+
+function updateSWStatus(ok) {
+  const el = document.getElementById('sw-status');
+  if (!el) return;
+  el.textContent = ok
+    ? '✅ Offline-Modus aktiv — App funktioniert ohne Internet'
+    : '⚠️ Offline-Modus nicht aktiv (funktioniert nur über HTTPS oder localhost)';
+  el.style.color = ok ? 'var(--sage)' : 'var(--text-muted)';
+}
+
+function checkSWStatus() {
+  if (!('serviceWorker' in navigator)) {
+    updateSWStatus(false); return;
+  }
+  navigator.serviceWorker.getRegistration().then(reg => updateSWStatus(!!reg));
+}
+
+// Install prompt handling
+let _deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+  // Show install banner in install tab
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.style.display = 'block';
+  updateInstallStatus('ready');
+});
+
+window.addEventListener('appinstalled', () => {
+  _deferredInstallPrompt = null;
+  updateInstallStatus('installed');
+  showToast('🎉 App erfolgreich installiert!');
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.style.display = 'none';
+});
+
+function triggerPWAInstall() {
+  if (!_deferredInstallPrompt) {
+    showToast('⚠️ Nutze Chrome-Menü ⋮ → App installieren');
+    return;
+  }
+  _deferredInstallPrompt.prompt();
+  _deferredInstallPrompt.userChoice.then(result => {
+    if (result.outcome === 'accepted') {
+      showToast('🎉 App wird installiert!');
+    }
+    _deferredInstallPrompt = null;
+  });
+}
+
+function updateInstallStatus(state) {
+  const icon  = document.getElementById('install-status-icon');
+  const title = document.getElementById('install-status-title');
+  const desc  = document.getElementById('install-status-desc');
+  if (!icon) return;
+
+  const states = {
+    checking:  { i:'⏳', t:'Wird geprüft…',         d:'Einen Moment…' },
+    ready:     { i:'🚀', t:'Bereit zur Installation!',d:'Chrome hat die App erkannt. Tippe auf «App installieren» oben.' },
+    installed: { i:'✅', t:'App installiert!',         d:'Das 🌿 Icon ist jetzt auf deinem Homescreen.' },
+    manual:    { i:'📋', t:'Manuelle Installation',    d:'Folge der Schritt-für-Schritt Anleitung unten.' },
+    notsup:    { i:'⚠️', t:'Nicht unterstützt',        d:'Bitte Chrome auf Android verwenden.' },
+  };
+
+  const s = states[state] || states.manual;
+  icon.textContent  = s.i;
+  title.textContent = s.t;
+  desc.textContent  = s.d;
+}
+
+function initPWA() {
+  injectManifest();
+  registerServiceWorker();
+
+  // Detect if already running as installed PWA
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+    updateInstallStatus('installed');
+    // Hide install nav button since we're already in app mode
+    const btn = document.getElementById('install-nav-btn');
+    if (btn) { btn.textContent = '✅ App aktiv'; btn.style.color = 'var(--sage)'; }
+  } else if (!('serviceWorker' in navigator)) {
+    updateInstallStatus('notsup');
+  } else {
+    updateInstallStatus('manual');
+  }
+}
+
+init();
+initPWA();
+</script>
+</body>
+</html>
