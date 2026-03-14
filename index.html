@@ -684,19 +684,18 @@ option { background: var(--surface2); color: var(--text); }
       <div class="card-title" style="margin-bottom:0">📈 Schmerzverauf — alle Wochen</div>
       <div style="font-size:0.78rem; color:var(--text-sub);">Tages-Durchschnitt</div>
     </div>
-    <canvas id="chart-verlauf" height="220" style="width:100%;max-height:220px;"></canvas>
-  </div>
+    <div style="position:relative;height:220px;"><canvas id="chart-verlauf"></canvas></div>  </div>
 
   <div class="g2 section-gap" style="align-items:start;">
     <!-- Phase comparison -->
     <div class="card">
       <div class="card-title">🗂 Schmerz pro Phase</div>
-      <canvas id="chart-phase" height="200" style="width:100%;max-height:200px;"></canvas>
+      <div style="position:relative;height:200px;"><canvas id="chart-phase"></canvas></div>
     </div>
     <!-- Time of day -->
     <div class="card">
       <div class="card-title">🕐 Tageszeit-Muster</div>
-      <canvas id="chart-tageszeit" height="200" style="width:100%;max-height:200px;"></canvas>
+      <div style="position:relative;height:200px;"><canvas id="chart-tageszeit"></canvas></div>
       <div style="font-size:0.75rem; color:var(--text-sub); margin-top:0.75rem; display:flex; gap:1rem; flex-wrap:wrap;" id="tageszeit-legend"></div>
     </div>
   </div>
@@ -789,7 +788,7 @@ option { background: var(--surface2); color: var(--text); }
       <div>
         <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">📍 Zeitstrahl — Schmerz & Medikamente</div>
         <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:0.5rem;">Linie = Schmerzniveau · Balken = Medikamenteneinnahme</div>
-        <canvas id="chart-med-timeline" height="220" style="width:100%;max-height:220px;"></canvas>
+        <div style="position:relative;height:220px;"><canvas id="chart-med-timeline"></canvas></div>
         <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.6rem; font-size:0.72rem; color:var(--text-sub);"></div>
       </div>
 
@@ -797,7 +796,7 @@ option { background: var(--surface2); color: var(--text); }
       <div>
         <div style="font-size:0.8rem; font-weight:600; margin-bottom:0.6rem; color:var(--text);">⚖️ Vorher / Nachher — Ø Schmerz (±3h)</div>
         <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:0.5rem;">Ø Schmerzniveau 3h vor vs. 3h nach Einnahme</div>
-        <canvas id="chart-med-effect" height="220" style="width:100%;max-height:220px;"></canvas>
+        <div style="position:relative;height:220px;"><canvas id="chart-med-effect"></canvas></div>
         <div id="med-effect-empty" style="display:none; text-align:center; padding:2rem; font-size:0.82rem; color:var(--text-sub); font-style:italic;">
           Für diese Auswertung werden Schmerzeinträge innerhalb von 3h vor/nach einer Medikamenteneinnahme benötigt.
         </div>
@@ -809,7 +808,7 @@ option { background: var(--surface2); color: var(--text); }
 
     <!-- 14-day bar chart -->
     <div style="font-size:0.82rem; color:var(--text-sub); margin-bottom:0.75rem;">Tages-Durchschnitt — letzte 14 Tage</div>
-    <canvas id="chart-daily14" height="160" style="width:100%;max-height:160px;margin-bottom:1.25rem;"></canvas>
+    <div style="position:relative;height:160px;margin-bottom:1.25rem;"><canvas id="chart-daily14"></canvas></div>
 
     <!-- Daily table -->
     <div style="overflow-x:auto; max-height:400px; overflow-y:auto;">
@@ -1453,9 +1452,9 @@ function renderToday() {
     ptag.style.borderColor = '#DDD';
   } else {
     ptag.textContent = '✅ Heilung abgeschlossen';
-    ptag.style.background = 'var(--sage-pale)';
-    ptag.style.color = 'var(--sage)';
-    ptag.style.borderColor = 'var(--sage-light)';
+    ptag.style.background = '#0E2418';
+    ptag.style.color = '#3CB46E';
+    ptag.style.borderColor = '#1A4A30';
   }
 
   // Progress
@@ -1465,7 +1464,7 @@ function renderToday() {
   const pp = phase ? getPhaseProgress(phase) : 0;
   const pf = document.getElementById('phase-progress-fill');
   pf.style.width = pp + '%';
-  pf.style.background = phase ? phase.color : 'var(--primary)';
+  pf.style.background = phase ? phase.color : '#E8714A';
   document.getElementById('phase-progress-label').textContent = phase ? phase.name : '–';
   document.getElementById('phase-progress-pct').textContent = pp + '%';
 
@@ -1500,15 +1499,15 @@ function renderToday() {
   }
 
   if (displayPhase) {
-    document.getElementById('today-allowed').innerHTML   = makeList(displayPhase.allowed, 'var(--sage)');
+    document.getElementById('today-allowed').innerHTML   = makeList(displayPhase.allowed, '#3CB46E');
     document.getElementById('today-forbidden').innerHTML = makeList(displayPhase.forbidden, '#C45050');
     document.getElementById('today-med').innerHTML = `
       <div class="list-item"><div class="list-dot" style="background:#8872A8"></div><div>${displayPhase.medication}</div></div>
       <div class="list-item"><div class="list-dot" style="background:#5A8FAA"></div><div>${displayPhase.orthesis}</div></div>`;
-    document.getElementById('today-milestones').innerHTML = makeList(displayPhase.milestones, 'var(--primary)');
+    document.getElementById('today-milestones').innerHTML = makeList(displayPhase.milestones, '#E8714A');
     document.getElementById('today-hints').innerHTML      = makeList(displayPhase.hints, '#C49A50');
   } else {
-    const msg = '<div style="font-size:0.85rem;color:var(--text-muted);font-style:italic;padding:0.5rem 0;">Bald geht es los!</div>';
+    const msg = '<div style="font-size:0.85rem;color:#9AA5B8;font-style:italic;padding:0.5rem 0;">Bald geht es los!</div>';
     ['today-allowed','today-forbidden','today-med','today-milestones','today-hints'].forEach(id => {
       document.getElementById(id).innerHTML = msg;
     });
@@ -1539,7 +1538,7 @@ function updateQuickSlider(val) {
   val = parseInt(val);
   const info = PAIN_INFO[val];
   const slider = document.getElementById('quick-slider');
-  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, var(--border) ${val*10}%)`;
+  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, #1E2A3A ${val*10}%)`;
   slider.style.color = info.color;
   document.getElementById('quick-pain-label').textContent = `${val}/10 — ${info.label}`;
   document.getElementById('quick-pain-label').style.color = info.color;
@@ -1641,13 +1640,13 @@ function renderCalendar() {
     const isCurrent = now >= phStart && now <= phEnd;
     const isPast = now > phEnd;
     return `
-      <div style="display:flex; align-items:center; gap:0.75rem; padding:0.55rem 0; border-bottom:1px solid var(--border-light);">
+      <div style="display:flex; align-items:center; gap:0.75rem; padding:0.55rem 0; border-bottom:1px solid #1A2030;">
         <div style="width:10px; height:10px; border-radius:3px; background:${ph.color}; flex-shrink:0;"></div>
         <div style="flex:1;">
-          <div style="font-size:0.85rem; font-weight:${isCurrent?'600':'400'}; color:${isCurrent?ph.color:'var(--text)'};">
-            ${ph.icon} ${ph.name} <span style="font-size:0.75rem; color:var(--text-muted);">(${ph.week})</span>
+          <div style="font-size:0.85rem; font-weight:${isCurrent?'600':'400'}; color:${isCurrent?ph.color:'#EEF0F5'};">
+            ${ph.icon} ${ph.name} <span style="font-size:0.75rem; color:#9AA5B8;">(${ph.week})</span>
           </div>
-          <div style="font-size:0.72rem; color:var(--text-muted);">${ph.dates}</div>
+          <div style="font-size:0.72rem; color:#9AA5B8;">${ph.dates}</div>
         </div>
         ${isCurrent ? `<span style="font-size:0.72rem; font-weight:600; color:${ph.color}; background:${ph.bg}; padding:0.15rem 0.5rem; border-radius:8px;">Aktiv</span>` : ''}
         ${isPast ? '<span style="font-size:0.9rem;">✅</span>' : ''}
@@ -1682,7 +1681,7 @@ function updatePainSlider(val) {
   val = parseInt(val);
   const info = PAIN_INFO[val];
   const slider = document.getElementById('pain-slider');
-  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, var(--border) ${val*10}%)`;
+  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, #1E2A3A ${val*10}%)`;
   slider.style.color = info.color;
   document.getElementById('slider-emoji').textContent  = info.emoji;
   document.getElementById('slider-number').textContent = val;
@@ -1716,7 +1715,7 @@ function renderTodayEntries() {
   const avg  = document.getElementById('today-avg-pain');
 
   if (!entries.length && !meds.length) {
-    wrap.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted); font-style:italic; padding:1rem 0; text-align:center;">Noch keine Einträge heute.</div>';
+    wrap.innerHTML = '<div style="font-size:0.85rem; color:#9AA5B8; font-style:italic; padding:1rem 0; text-align:center;">Noch keine Einträge heute.</div>';
     avg.textContent = '';
     return;
   }
@@ -1758,7 +1757,7 @@ function renderPainChart() {
     const dStr = dateStr(d);
     const avg = avgPainForDay(dStr);
     const h = avg !== null ? Math.round((avg / 10) * 70) : 4;
-    const col = avg !== null ? getPainColor(Math.round(avg)) : 'var(--border)';
+    const col = avg !== null ? getPainColor(Math.round(avg)) : '#1E2A3A';
     const label = getDayLabel(i);
     html += `
       <div class="chart-bar-wrap">
@@ -1772,12 +1771,12 @@ function renderPainChart() {
 function renderPainReference() {
   const ref = document.getElementById('pain-reference');
   ref.innerHTML = PAIN_INFO.map((p, i) => `
-    <div style="border-bottom:1px solid var(--border-light); padding:0.45rem 0;">
+    <div style="border-bottom:1px solid #1A2030; padding:0.45rem 0;">
       <div style="display:flex; align-items:center; gap:0.65rem;">
         <div style="width:28px; height:28px; border-radius:50%; background:${p.color}; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; color:white; flex-shrink:0;">${i}</div>
         <div>
           <div style="font-size:0.82rem;">${p.emoji} <strong>${p.label}</strong> — ${p.desc}</div>
-          <div style="font-size:0.75rem; color:var(--text-muted); font-style:italic; margin-top:0.1rem;">z.B. ${p.example}</div>
+          <div style="font-size:0.75rem; color:#9AA5B8; font-style:italic; margin-top:0.1rem;">z.B. ${p.example}</div>
         </div>
       </div>
     </div>`).join('');
@@ -1793,22 +1792,22 @@ function selectMed(btn) {
   _selectedMed  = btn.dataset.med;
   _selectedDose = null;
   document.querySelectorAll('.med-btn').forEach(b => {
-    b.style.background = 'var(--surface2)';
-    b.style.borderColor = 'var(--border)';
+    b.style.background = '#1C2333';
+    b.style.borderColor = '#1E2A3A';
     b.style.fontWeight = '500';
-    b.style.color = 'var(--text-sub)';
+    b.style.color = '#9AA5B8';
   });
-  btn.style.background = 'var(--purple-dim)';
-  btn.style.borderColor = 'var(--purple)';
+  btn.style.background = '#1A1530';
+  btn.style.borderColor = '#9B7FD4';
   btn.style.fontWeight = '600';
-  btn.style.color = 'var(--purple)';
+  btn.style.color = '#9B7FD4';
 
   ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
     document.getElementById('dose-'+m).style.display = 'none');
   document.getElementById('dose-'+_selectedMed.toLowerCase()).style.display = 'block';
   document.getElementById('med-selected-display').style.display = 'none';
   document.querySelectorAll('.dose-btn').forEach(b => {
-    b.style.background = 'var(--surface2)'; b.style.borderColor = 'var(--border)'; b.style.fontWeight = '400'; b.style.color = 'var(--text)';
+    b.style.background = '#1C2333'; b.style.borderColor = '#1E2A3A'; b.style.fontWeight = '400'; b.style.color = '#EEF0F5';
   });
 }
 
@@ -1816,10 +1815,10 @@ function selectDose(dose) {
   _selectedDose = dose;
   document.querySelectorAll('.dose-btn').forEach(b => {
     const active = b.dataset.dose === dose;
-    b.style.background   = active ? 'var(--purple-dim)' : 'var(--surface2)';
-    b.style.borderColor  = active ? 'var(--purple)' : 'var(--border)';
+    b.style.background   = active ? '#1A1530' : '#1C2333';
+    b.style.borderColor  = active ? '#9B7FD4' : '#1E2A3A';
     b.style.fontWeight   = active ? '700' : '400';
-    b.style.color        = active ? 'var(--purple)' : 'var(--text)';
+    b.style.color        = active ? '#9B7FD4' : '#EEF0F5';
   });
   updateMedDisplay();
 }
@@ -1850,7 +1849,7 @@ function addMedEntry() {
   document.getElementById('med-other-text').value = '';
   document.getElementById('med-selected-display').style.display = 'none';
   document.querySelectorAll('.med-btn').forEach(b => {
-    b.style.background='var(--bg)'; b.style.borderColor='var(--border)'; b.style.fontWeight='400'; b.style.color='var(--text)';
+    b.style.background='#0D1117'; b.style.borderColor='#1E2A3A'; b.style.fontWeight='400'; b.style.color='#EEF0F5';
   });
   ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
     document.getElementById('dose-'+m).style.display = 'none');
@@ -1903,9 +1902,9 @@ function renderPhasenTab() {
           <div class="phase-icon">${ph.icon}</div>
           <div>
             <div class="phase-card-name" style="color:${ph.color}">${ph.name}</div>
-            <div class="phase-card-dates" style="color:var(--text-muted);">${ph.dates}</div>
+            <div class="phase-card-dates" style="color:#9AA5B8;">${ph.dates}</div>
           </div>
-          <div class="phase-card-week" style="color:var(--text);">${ph.week}</div>
+          <div class="phase-card-week" style="color:#EEF0F5;">${ph.week}</div>
           ${isCurrent ? `<span style="margin-left:0.5rem; font-size:0.75rem; font-weight:700; background:${ph.color}; color:white; padding:0.2rem 0.55rem; border-radius:10px;">● Aktiv</span>` : ''}
           ${isPast ? '<span style="font-size:1.2rem; margin-left:0.5rem;">✅</span>' : ''}
         </div>
@@ -1933,7 +1932,7 @@ function renderPhasenTab() {
           <div class="phase-info-block">
             <div class="phase-info-block-title">📋 Meilensteine</div>
             <ul>${ph.milestones.map(m=>`<li>${m}</li>`).join('')}</ul>
-            <div style="margin-top:0.5rem; font-size:0.75rem; color:var(--text-muted); padding-left:0.8rem;">🦺 ${ph.orthesis}</div>
+            <div style="margin-top:0.5rem; font-size:0.75rem; color:#9AA5B8; padding-left:0.8rem;">🦺 ${ph.orthesis}</div>
           </div>
         </div>
       </div>
@@ -2071,20 +2070,20 @@ function renderAuswertung() {
   function kpi(icon, val, label, sub, color) {
     return `<div class="card" style="text-align:center; padding:1.1rem 0.75rem;">
       <div style="font-size:1.6rem; margin-bottom:0.3rem;">${icon}</div>
-      <div style="font-family:'Lora',serif; font-size:1.6rem; font-weight:700; color:${color||'var(--primary)'}; line-height:1;">${val}</div>
+      <div style="font-family:'Lora',serif; font-size:1.6rem; font-weight:700; color:${color||'#E8714A'}; line-height:1;">${val}</div>
       <div style="font-size:0.82rem; font-weight:600; margin-top:0.25rem;">${label}</div>
-      <div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.1rem;">${sub}</div>
+      <div style="font-size:0.72rem; color:#9AA5B8; margin-top:0.1rem;">${sub}</div>
     </div>`;
   }
 
   // Extended stats row
   const statsHtml = stats ? `
-    <div class="card section-gap" style="background:var(--paper2);">
+    <div class="card section-gap" style="background:#1C2333;">
       <div class="card-label">📐 Erweiterte Statistik — alle Einträge (n=${stats.n})</div>
       <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; margin-top:0.5rem; flex-wrap:wrap;">
         ${[
           ['Median',    stats.median+'/10', '#5A8FAA'],
-          ['Ø Mean',    stats.mean+'/10',   'var(--primary)'],
+          ['Ø Mean',    stats.mean+'/10',   '#E8714A'],
           ['σ Std.abw.',stats.sd,           '#8872A8'],
           ['Varianz',   stats.variance,     '#C49A50'],
           ['Min',       stats.min+'/10',    '#5A9068'],
@@ -2093,9 +2092,9 @@ function renderAuswertung() {
           ['Vor OP Ø',  avgPre!==null?avgPre+'/10':'–', '#5A8FAA'],
           ['Nach OP Ø', avgPost!==null?avgPost+'/10':'–','#6D9B74'],
         ].map(([l,v,c])=>`
-          <div style="text-align:center; padding:0.6rem 0.4rem; background:var(--bg); border-radius:10px;">
+          <div style="text-align:center; padding:0.6rem 0.4rem; background:#0D1117; border-radius:10px;">
             <div style="font-size:1.1rem; font-weight:700; color:${c}; font-family:'Lora',serif;">${v}</div>
-            <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.15rem;">${l}</div>
+            <div style="font-size:0.68rem; color:#9AA5B8; margin-top:0.15rem;">${l}</div>
           </div>`).join('')}
       </div>
     </div>` : '';
@@ -2132,7 +2131,7 @@ function renderAuswertung() {
           <div style="font-size:2rem; font-weight:700; color:${col}; font-family:'Lora',serif;">${arrow} ${Math.abs(diff)}</div>
           <div>
             <div style="font-weight:600; font-size:0.9rem;">${msg}</div>
-            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.2rem;">Vor OP: Ø ${avgPre}/10 · Nach OP: Ø ${avgPost}/10</div>
+            <div style="font-size:0.78rem; color:#9AA5B8; margin-top:0.2rem;">Vor OP: Ø ${avgPre}/10 · Nach OP: Ø ${avgPost}/10</div>
           </div>
         </div>`;
       compWrap.style.display = 'block';
@@ -2345,8 +2344,8 @@ function renderAuswertung() {
 // Renders weekly statistics table starting from first log entry
 function renderWeeklyTable() {
   const table = document.getElementById('weekly-table');
-  const TH = s => `<th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.78rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);white-space:nowrap;">${s}</th>`;
-  const TD = (s, style='') => `<td style="padding:0.45rem 0.75rem;border-bottom:1px solid var(--border-light);font-size:0.82rem;${style}">${s}</td>`;
+  const TH = s => `<th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.78rem;font-weight:600;color:#9AA5B8;border-bottom:2px solid #1E2A3A;white-space:nowrap;">${s}</th>`;
+  const TD = (s, style='') => `<td style="padding:0.45rem 0.75rem;border-bottom:1px solid #1A2030;font-size:0.82rem;${style}">${s}</td>`;
 
   let html = `<thead><tr>${TH('Woche')}${TH('KW')}${TH('Phase')}${TH('Einträge')}${TH('Ø Schmerz')}${TH('Min')}${TH('Max')}${TH('Trend')}</tr></thead><tbody>`;
 
@@ -2399,13 +2398,13 @@ function renderWeeklyTable() {
              : '<span style="color:#9A8070">→ stabil</span>';
     }
     const isCurrentWeek = i === rows.length - 1;
-    const rowBg = r.isOPWeek ? 'background:#FBF0EC;' : r.isPreOP ? 'background:#EBF3F8;' : isCurrentWeek ? 'background:var(--primary-pale);' : '';
+    const rowBg = r.isOPWeek ? 'background:#FBF0EC;' : r.isPreOP ? 'background:#EBF3F8;' : isCurrentWeek ? 'background:#3A1E14;' : '';
     html += `<tr style="${rowBg}">
       ${TD(r.isPreOP ? 'Vor OP' : r.isOPWeek ? '🔴 OP-Woche' : 'Woche '+(r.weekIdx - rows.filter(x=>x.isPreOP||x.isOPWeek).length), isCurrentWeek ? 'font-weight:600;' : '')}
       ${TD('KW '+r.kw)}
       ${TD(`<span style="color:${r.phaseColor};font-weight:500;">${r.phaseName}</span>`)}
       ${TD(r.count || '0')}
-      ${TD(r.avg !== null ? `<strong>${r.avg}/10</strong>` : '<span style="color:var(--text-muted)">–</span>')}
+      ${TD(r.avg !== null ? `<strong>${r.avg}/10</strong>` : '<span style="color:#9AA5B8">–</span>')}
       ${TD(r.min !== null ? r.min : '–')}
       ${TD(r.max !== null ? r.max : '–')}
       ${TD(trend)}
@@ -2482,7 +2481,7 @@ function renderLogTable() {
   if (empty) empty.style.display = 'none';
   if (countEl) countEl.textContent = `${filtered.length} Einträge (${filtered.filter(l=>l._type==='pain').length} 🌡 Schmerz · ${filtered.filter(l=>l._type==='med').length} 💊 Medikament)`;
 
-  const TH = s => `<th style="text-align:left;padding:0.45rem 0.6rem;font-size:0.73rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);position:sticky;top:0;background:var(--paper);white-space:nowrap;">${s}</th>`;
+  const TH = s => `<th style="text-align:left;padding:0.45rem 0.6rem;font-size:0.73rem;font-weight:600;color:#9AA5B8;border-bottom:2px solid #1E2A3A;position:sticky;top:0;background:#161B27;white-space:nowrap;">${s}</th>`;
   let html = `<thead><tr>${TH('Typ')}${TH('Datum')}${TH('Zeit')}${TH('Phase')}${TH('Eintrag')}${TH('Notiz')}${TH('')}</tr></thead><tbody>`;
 
   filtered.forEach(l => {
@@ -2504,18 +2503,18 @@ function renderLogTable() {
     const actionBtns = `
       <div style="display:flex;gap:0.3rem;">
         <button onclick="openEditModal('${l._type}',${l._idx},'${l.date}','${l.time||''}')"
-          title="Bearbeiten" style="background:none;border:1px solid var(--border);cursor:pointer;font-size:0.85rem;color:var(--text-muted);padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">✏️</button>
+          title="Bearbeiten" style="background:none;border:1px solid #1E2A3A;cursor:pointer;font-size:0.85rem;color:#9AA5B8;padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='#E8714A';this.style.color='#E8714A'" onmouseout="this.style.borderColor='#1E2A3A';this.style.color='#9AA5B8'">✏️</button>
         <button onclick="deleteEntry('${l._type}',${l._idx})"
-          title="Löschen" style="background:none;border:1px solid var(--border);cursor:pointer;font-size:0.85rem;color:var(--text-muted);padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='#C05018';this.style.color='#C05018'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">🗑</button>
+          title="Löschen" style="background:none;border:1px solid #1E2A3A;cursor:pointer;font-size:0.85rem;color:#9AA5B8;padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='#C05018';this.style.color='#C05018'" onmouseout="this.style.borderColor='#1E2A3A';this.style.color='#9AA5B8'">🗑</button>
       </div>`;
 
-    html += `<tr style="border-bottom:1px solid var(--border-light);${rowBg}">
+    html += `<tr style="border-bottom:1px solid #1A2030;${rowBg}">
       <td style="padding:0.4rem 0.6rem;">${typeBadge}</td>
       <td style="padding:0.4rem 0.6rem;font-size:0.8rem;white-space:nowrap;">${formatDateDE(l.date)}</td>
-      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;color:var(--text-muted);">${l.time||'–'}</td>
-      <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'var(--text-muted)'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;color:#9AA5B8;">${l.time||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'#9AA5B8'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
       <td style="padding:0.4rem 0.6rem;font-size:0.82rem;">${entryCell}</td>
-      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:var(--text-muted);font-style:${l.note?'italic':'normal'};">${l.note||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:#9AA5B8;font-style:${l.note?'italic':'normal'};">${l.note||'–'}</td>
       <td style="padding:0.4rem 0.5rem;">${actionBtns}</td>
     </tr>`;
   });
@@ -2600,7 +2599,6 @@ function getTimeSlot(time) {
 }
 
 // deletePainEntry kept for any legacy references
-function deletePainEntry(idx) { deleteEntry('pain', idx); }
 
 // Renders 14-day bar chart and expandable per-day statistics table
 function renderDailyStats() {
@@ -2650,7 +2648,7 @@ function renderDailyStats() {
   if (emptyEl) emptyEl.style.display='none';
 
   const allDates = [...new Set(STATE.painLogs.map(l=>l.date))].sort().reverse();
-  const TH = s => `<th style="text-align:left;padding:0.4rem 0.6rem;font-size:0.72rem;font-weight:600;color:var(--text-dim);border-bottom:1px solid var(--border);white-space:nowrap;">${s}</th>`;
+  const TH = s => `<th style="text-align:left;padding:0.4rem 0.6rem;font-size:0.72rem;font-weight:600;color:#5A6476;border-bottom:1px solid #1E2A3A;white-space:nowrap;">${s}</th>`;
 
   let html = `<thead><tr>${TH('Datum')}${TH('Phase')}${TH('n')}${TH('Ø')}${TH('Median')}${TH('σ')}${TH('Min')}${TH('Max')}${TH('')}</tr></thead><tbody>`;
 
@@ -2660,31 +2658,31 @@ function renderDailyStats() {
     const s = calcStats(levels);
     const ph = getCurrentPhase(parseDate(ds));
     const isToday = ds === today();
-    const bg = isToday ? 'background:var(--primary-dim);' : '';
+    const bg = isToday ? 'background:#3A1E14;' : '';
     const medToday = STATE.medLogs.filter(l=>l.date===ds);
 
     html += `
       <tr style="${bg} cursor:pointer;" onclick="toggleDayDetail('${ds}')">
-        <td style="padding:0.4rem 0.6rem;font-size:0.8rem;font-weight:${isToday?'700':'400'};color:var(--text);">${formatDateDE(ds)}${isToday?' 🔵':''}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'var(--blue)'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:var(--text);">${s.n}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.8rem;font-weight:${isToday?'700':'400'};color:#EEF0F5;">${formatDateDE(ds)}${isToday?' 🔵':''}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'#4A9FD4'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#EEF0F5;">${s.n}</td>
         <td style="padding:0.4rem 0.6rem;font-size:0.82rem;font-weight:600;color:${getPainColor(Math.round(s.mean))};">${s.mean}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:var(--blue);">${s.median}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:var(--purple);">${s.sd}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:var(--green);">${s.min}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:var(--red);">${s.max}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:var(--text-dim);">▾</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#4A9FD4;">${s.median}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#9B7FD4;">${s.sd}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#3CB46E;">${s.min}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#E05050;">${s.max}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:#5A6476;">▾</td>
       </tr>
       <tr id="detail-${ds}" style="display:none;">
-        <td colspan="9" style="padding:0.5rem 1rem 0.75rem; background:var(--surface2);">
-          <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">Alle Messungen</div>
+        <td colspan="9" style="padding:0.5rem 1rem 0.75rem; background:#1C2333;">
+          <div style="font-size:0.75rem; color:#5A6476; margin-bottom:0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">Alle Messungen</div>
           ${dayLogs.map(l=>`
             <div style="display:inline-flex; align-items:center; gap:0.4rem; margin:0.15rem 0.25rem 0.15rem 0; padding:0.22rem 0.55rem; background:${getPainColor(l.level)}20; border:1px solid ${getPainColor(l.level)}40; border-radius:6px; font-size:0.76rem;">
               <span style="font-weight:700;color:${getPainColor(l.level)}">${l.level}/10</span>
-              <span style="color:var(--text-dim)">${l.time}</span>
-              ${l.note?`<span style="color:var(--text-sub);font-style:italic">${l.note}</span>`:''}
+              <span style="color:#5A6476">${l.time}</span>
+              ${l.note?`<span style="color:#9AA5B8;font-style:italic">${l.note}</span>`:''}
             </div>`).join('')}
-          ${medToday.length ? `<div style="margin-top:0.5rem; font-size:0.77rem; color:var(--purple);">💊 ${medToday.map(m=>`${m.med} ${m.dose}`).join(' · ')}</div>` : ''}
+          ${medToday.length ? `<div style="margin-top:0.5rem; font-size:0.77rem; color:#9B7FD4;">💊 ${medToday.map(m=>`${m.med} ${m.dose}`).join(' · ')}</div>` : ''}
         </td>
       </tr>`;
   });
@@ -2783,7 +2781,7 @@ function renderMedCharts() {
           {
             label: 'Schmerzniveau',
             data: painLineData,
-            borderColor: 'var(--primary)',
+            borderColor: '#E8714A',
             backgroundColor: 'rgba(232,113,74,0.08)',
             pointBackgroundColor: painPointColors,
             pointBorderColor: painPointColors,
@@ -3246,7 +3244,7 @@ function updateSWStatus(ok) {
   el.textContent = ok
     ? '✅ Offline-Modus aktiv — App funktioniert ohne Internet'
     : '⚠️ Offline-Modus nicht aktiv (funktioniert nur über HTTPS oder localhost)';
-  el.style.color = ok ? 'var(--sage)' : 'var(--text-muted)';
+  el.style.color = ok ? '#3CB46E' : '#9AA5B8';
 }
 
 function checkSWStatus() {
@@ -3320,7 +3318,7 @@ function initPWA() {
     updateInstallStatus('installed');
     // Hide install nav button since we're already in app mode
     const btn = document.getElementById('install-nav-btn');
-    if (btn) { btn.textContent = '✅ App aktiv'; btn.style.color = 'var(--sage)'; }
+    if (btn) { btn.textContent = '✅ App aktiv'; btn.style.color = '#3CB46E'; }
   } else if (!('serviceWorker' in navigator)) {
     updateInstallStatus('notsup');
   } else {
