@@ -2332,11 +2332,6 @@ function renderAuswertung() {
       <span>${s.label}${slotAvgs[i]!==null ? ': Ø '+slotAvgs[i] : ': –'}</span>
     </div>`).join('');
 
-  // Force chart resize after all rendering (tab may not have full dimensions yet)
-  setTimeout(() => {
-    Object.values(_charts).forEach(c => { try { c?.resize(); } catch(e){} });
-  }, 300);
-
   // ---- Weekly stats table ----
   renderWeeklyTable();
   renderLogTable();
@@ -2433,16 +2428,8 @@ function getISOWeek(date) {
 // Renders the combined journal table (pain + medication logs)
 // with filters, edit (✏️) and delete (🗑) buttons per row
 function renderLogTable() {
-  // Pre-fill date filters if empty
-  const allDates = [
-    ...STATE.painLogs.map(l=>l.date),
-    ...STATE.medLogs.map(l=>l.date)
-  ].sort();
-  const firstDate = allDates.length ? allDates[0] : today();
   const fromEl = document.getElementById('filter-date-from');
   const toEl   = document.getElementById('filter-date-to');
-  if (fromEl && !fromEl.value) fromEl.value = firstDate;
-  if (toEl   && !toEl.value)   toEl.value   = today();
 
   const dateFrom = fromEl?.value || '';
   const dateTo   = toEl?.value   || '';
@@ -2559,6 +2546,7 @@ function saveEdit() {
   closeEditModal();
   renderLogTable();
   renderTodayEntries();
+  requestAnimationFrame(() => { renderDailyStats(); renderMedCharts(); });
   showToast('✅ Eintrag aktualisiert');
 }
 
@@ -2575,6 +2563,7 @@ function deleteEntry(type, idx) {
   renderLogTable();
   renderTodayEntries();
   renderPainChart();
+  requestAnimationFrame(() => { renderDailyStats(); renderMedCharts(); });
   showToast('🗑 Eintrag gelöscht');
 }
 
@@ -2586,11 +2575,12 @@ function clearLogFilters() {
     ...STATE.painLogs.map(l=>l.date),
     ...STATE.medLogs.map(l=>l.date)
   ].sort();
-  const firstDate = allDates.length ? allDates[0] : today();
+  const firstDate = allDates.length ? allDates[0]                      : today();
+  const lastDate  = allDates.length ? allDates[allDates.length - 1]    : today();
   const fromEl = document.getElementById('filter-date-from');
   const toEl   = document.getElementById('filter-date-to');
   if (fromEl) fromEl.value = firstDate;
-  if (toEl)   toEl.value   = today();
+  if (toEl)   toEl.value   = lastDate;
   ['filter-phase','filter-level','filter-time'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   renderLogTable();
 }
@@ -2847,7 +2837,7 @@ function renderMedCharts() {
       '<div style="display:flex;align-items:center;gap:0.35rem;"><div style="width:18px;height:3px;background:#E8714A;border-radius:2px;"></div><span>Schmerzverlauf</span></div>',
       ...usedMeds.map(med => {
         const col = MED_COLORS[med] || '#888';
-        return '<div style="display:flex;align-items:center;gap:0.35rem;"><svg width="12" height="12" style="flex-shrink:0"><polygon points="6,12 0,0 12,0" fill="' + col + '"/></svg><span>' + med + '</span></div>';
+        return `<div style="display:flex;align-items:center;gap:0.35rem;"><div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid ${col};"></div><span>${med}</span></div>`;
       }),
     ].join('');
   }
