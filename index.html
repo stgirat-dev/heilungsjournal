@@ -1041,7 +1041,12 @@ textarea:focus, input:focus { border-color: var(--primary); }
         <div id="dose-tramadol" style="display:none; margin-bottom:0.75rem;">
           <div class="card-label">Anzahl Tropfen</div>
           <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-            ${[5,10,15,20,25,30].map(d=>`<button onclick="selectDose('${d} Tropfen')" class="dose-btn" data-dose="${d} Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+            <button onclick="selectDose('5 Tropfen')"  class="dose-btn" data-dose="5 Tropfen"  style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">5</button>
+            <button onclick="selectDose('10 Tropfen')" class="dose-btn" data-dose="10 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">10</button>
+            <button onclick="selectDose('15 Tropfen')" class="dose-btn" data-dose="15 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">15</button>
+            <button onclick="selectDose('20 Tropfen')" class="dose-btn" data-dose="20 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">20</button>
+            <button onclick="selectDose('25 Tropfen')" class="dose-btn" data-dose="25 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">25</button>
+            <button onclick="selectDose('30 Tropfen')" class="dose-btn" data-dose="30 Tropfen" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">30</button>
           </div>
         </div>
 
@@ -1049,7 +1054,8 @@ textarea:focus, input:focus { border-color: var(--primary); }
         <div id="dose-paracetamol" style="display:none; margin-bottom:0.75rem;">
           <div class="card-label">Dosis</div>
           <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-            ${['500mg','1000mg'].map(d=>`<button onclick="selectDose('${d}')" class="dose-btn" data-dose="${d}" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+            <button onclick="selectDose('500mg')"  class="dose-btn" data-dose="500mg"  style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">500mg</button>
+            <button onclick="selectDose('1000mg')" class="dose-btn" data-dose="1000mg" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">1000mg</button>
           </div>
         </div>
 
@@ -1057,7 +1063,9 @@ textarea:focus, input:focus { border-color: var(--primary); }
         <div id="dose-ibuprofen" style="display:none; margin-bottom:0.75rem;">
           <div class="card-label">Dosis</div>
           <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-            ${['400mg','600mg','800mg'].map(d=>`<button onclick="selectDose('${d}')" class="dose-btn" data-dose="${d}" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">${d}</button>`).join('')}
+            <button onclick="selectDose('400mg')" class="dose-btn" data-dose="400mg" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">400mg</button>
+            <button onclick="selectDose('600mg')" class="dose-btn" data-dose="600mg" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">600mg</button>
+            <button onclick="selectDose('800mg')" class="dose-btn" data-dose="800mg" style="padding:0.35rem 0.75rem; border:1.5px solid var(--border); border-radius:8px; background:var(--bg); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer;">800mg</button>
           </div>
         </div>
 
@@ -2506,9 +2514,6 @@ function renderAuswertung() {
           ['Varianz',   stats.variance,     '#C49A50'],
           ['Min',       stats.min+'/10',    '#5A9068'],
           ['Max',       stats.max+'/10',    '#C05018'],
-          ['P25',       stats.p25+'/10',    '#6D9B74'],
-          ['P75',       stats.p75+'/10',    '#C49A50'],
-          ['P95',       stats.p95+'/10',    '#C4705A'],
           ['IQR',       stats.iqr,          '#5A8FAA'],
           ['Vor OP Ø',  avgPre!==null?avgPre+'/10':'–', '#5A8FAA'],
           ['Nach OP Ø', avgPost!==null?avgPost+'/10':'–','#6D9B74'],
