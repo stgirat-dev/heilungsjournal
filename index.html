@@ -2340,8 +2340,12 @@ function renderAuswertung() {
   // ---- Weekly stats table ----
   renderWeeklyTable();
   renderLogTable();
-  renderDailyStats();
-  renderMedCharts();
+  // Charts that depend on canvas dimensions: defer one more rAF so the
+  // browser completes layout after the tab becomes visible
+  requestAnimationFrame(() => {
+    renderDailyStats();
+    renderMedCharts();
+  });
 }
 
 // Renders weekly statistics table starting from first log entry
@@ -2606,14 +2610,10 @@ function getTimeSlot(time) {
 // Renders 14-day bar chart and expandable per-day statistics table
 function renderDailyStats() {
   // ── Chart.js: 14-Tage-Balkendiagramm ─────────────────────────
-  // Canvas is replaced before each render to clear Chart.js internal state
   (function() {
-    const oldCanvas = document.getElementById('chart-daily14');
-    if (!oldCanvas) return;
-    const parent = oldCanvas.parentNode;
-    const fresh  = document.createElement('canvas');
-    fresh.id = 'chart-daily14';
-    parent.replaceChild(fresh, oldCanvas);
+    destroyChart('daily14');
+    const fresh = document.getElementById('chart-daily14');
+    if (!fresh) return;
 
     const labels14 = [], data14 = [], colors14 = [];
     for (let i = 13; i >= 0; i--) {
@@ -2734,13 +2734,9 @@ function renderMedCharts() {
   }
   if (emptyEl) emptyEl.style.display = 'none';
 
-  // Replace canvas to fully clear Chart.js internal state before re-render
-  const oldCanvas = document.getElementById('chart-med-timeline');
-  if (!oldCanvas) return;
-  const fresh = document.createElement('canvas');
-  fresh.id = 'chart-med-timeline';
-  oldCanvas.parentNode.replaceChild(fresh, oldCanvas);
-  if (_charts['med-timeline']) { try { _charts['med-timeline'].destroy(); } catch(e){} delete _charts['med-timeline']; }
+  destroyChart('med-timeline');
+  const fresh = document.getElementById('chart-med-timeline');
+  if (!fresh) return;
 
   // Build label: "DD.MM HH:MM"
   function toLabel(date, time) {
