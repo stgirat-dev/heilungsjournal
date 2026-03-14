@@ -16,32 +16,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg: #F9F5EF;
-  --paper: #FFFDF9;
-  --paper2: #FDF9F3;
-  --primary: #B87049;
-  --primary-light: #E8C4A0;
-  --primary-pale: #FAF0E8;
+  --bg: #111827;
+  --paper: #1F2937;
+  --paper2: #1A2433;
+  --primary: #D4845A;
+  --primary-light: #8B5A3C;
+  --primary-pale: #2A1F18;
   --sage: #6D9B74;
-  --sage-light: #C0D9C4;
-  --sage-pale: #EDF4EF;
-  --text: #3A2A1C;
-  --text-muted: #9A8070;
-  --border: #E4D8CA;
-  --border-light: #F0E8DC;
+  --sage-light: #3A6B42;
+  --sage-pale: #162318;
+  --text: #F1EDE8;
+  --text-muted: #8A9BB0;
+  --border: #2D3748;
+  --border-light: #243040;
 
-  --phase-op: #C4705A;
-  --phase-op-bg: #FBF0EC;
-  --phase-spital: #C49A50;
-  --phase-spital-bg: #FBF6EC;
+  --phase-op: #E08070;
+  --phase-op-bg: #2A1A18;
+  --phase-spital: #D4A850;
+  --phase-spital-bg: #2A2218;
   --phase-early: #6D9B74;
-  --phase-early-bg: #EDF4EF;
-  --phase-active: #5A8FAA;
-  --phase-active-bg: #EBF3F8;
-  --phase-reha: #8872A8;
-  --phase-reha-bg: #F2EEF8;
-  --phase-full: #B87049;
-  --phase-full-bg: #FAF0E8;
+  --phase-early-bg: #162318;
+  --phase-active: #5A9FCA;
+  --phase-active-bg: #162030;
+  --phase-reha: #9882C8;
+  --phase-reha-bg: #1E1A2E;
+  --phase-full: #D4845A;
+  --phase-full-bg: #2A1F18;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -714,15 +714,15 @@ textarea:focus, input:focus { border-color: var(--primary); }
 
 /* EMERGENCY BOX */
 .emergency-box {
-  background: #FFF5F5;
-  border: 1.5px solid #F8C4C4;
+  background: #2A1515;
+  border: 1.5px solid #6B2020;
   border-radius: 14px;
   padding: 1.2rem;
 }
 .emergency-box h4 {
   font-family: 'Lora', serif;
   font-size: 0.95rem;
-  color: #B02020;
+  color: #FF8080;
   margin-bottom: 0.6rem;
   display: flex;
   align-items: center;
@@ -731,7 +731,7 @@ textarea:focus, input:focus { border-color: var(--primary); }
 .emergency-box li {
   list-style: none;
   font-size: 0.82rem;
-  color: #6A1010;
+  color: #FFB0B0;
   padding: 0.2rem 0;
   padding-left: 1rem;
   position: relative;
@@ -740,23 +740,50 @@ textarea:focus, input:focus { border-color: var(--primary); }
 .emergency-number {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #B02020;
+  color: #FF8080;
   margin-top: 0.75rem;
   padding-top: 0.6rem;
-  border-top: 1px solid #F8C4C4;
+  border-top: 1px solid #6B2020;
 }
 
 /* SPECIAL NOTE */
 .special-note {
-  background: #FFFBEC;
-  border: 1.5px solid #F0D870;
+  background: #252010;
+  border: 1.5px solid #5A4A10;
   border-radius: 12px;
   padding: 0.85rem 1rem;
   font-size: 0.83rem;
-  color: #6A5A10;
+  color: #D4C070;
   display: flex;
   gap: 0.5rem;
   align-items: flex-start;
+}
+
+/* EDIT MODAL */
+#edit-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+#edit-modal.open { display: flex; }
+#edit-modal-box {
+  background: #1F2937;
+  border: 1.5px solid #2D3748;
+  border-radius: 18px;
+  padding: 1.75rem;
+  width: 90%;
+  max-width: 380px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+#edit-modal-box h3 {
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 1.25rem;
 }
 
 /* RESPONSIVE */
@@ -1225,9 +1252,10 @@ textarea:focus, input:focus { border-color: var(--primary); }
   <!-- All entries log -->
   <div class="card section-gap">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-      <div class="card-title" style="margin-bottom:0">📝 Alle Einträge</div>
+      <div class="card-title" style="margin-bottom:0">📓 Journal — Alle Einträge</div>
       <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV</button>
     </div>
+    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.85rem;">🌡 Schmerz-Logs und 💊 Medikamenten-Logs — chronologisch kombiniert</div>
 
     <!-- Filters -->
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.85rem;">
@@ -1470,6 +1498,27 @@ textarea:focus, input:focus { border-color: var(--primary); }
 </div>
 
 </main>
+
+<!-- Edit Modal -->
+<div id="edit-modal">
+  <div id="edit-modal-box">
+    <h3>✏️ Eintrag bearbeiten</h3>
+    <input type="hidden" id="edit-type">
+    <input type="hidden" id="edit-idx">
+    <div style="margin-bottom:1rem;">
+      <div class="card-label" style="margin-bottom:0.4rem;">Datum</div>
+      <input type="date" id="edit-date" style="width:100%; padding:0.6rem 0.75rem; font-size:0.9rem; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif;">
+    </div>
+    <div style="margin-bottom:1.25rem;">
+      <div class="card-label" style="margin-bottom:0.4rem;">Uhrzeit</div>
+      <input type="time" id="edit-time" style="width:100%; padding:0.6rem 0.75rem; font-size:0.9rem; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif;">
+    </div>
+    <div style="display:flex; gap:0.75rem;">
+      <button class="btn btn-primary" onclick="saveEdit()" style="flex:1; justify-content:center;">💾 Speichern</button>
+      <button class="btn btn-outline" onclick="closeEditModal()" style="flex:1; justify-content:center;">Abbrechen</button>
+    </div>
+  </div>
+</div>
 
 <!-- Reminder Banner -->
 <div id="reminder-banner">
@@ -2871,10 +2920,161 @@ function getISOWeek(date) {
   return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
 }
 
+function renderLogTable() {
+  // Pre-fill date filters if empty
+  const allDates = [
+    ...STATE.painLogs.map(l=>l.date),
+    ...STATE.medLogs.map(l=>l.date)
+  ].sort();
+  const firstDate = allDates.length ? allDates[0] : today();
+  const fromEl = document.getElementById('filter-date-from');
+  const toEl   = document.getElementById('filter-date-to');
+  if (fromEl && !fromEl.value) fromEl.value = firstDate;
+  if (toEl   && !toEl.value)   toEl.value   = today();
+
+  const dateFrom = fromEl?.value || '';
+  const dateTo   = toEl?.value   || '';
+  const phaseF   = document.getElementById('filter-phase')?.value || '';
+  const levelF   = parseInt(document.getElementById('filter-level')?.value || '0');
+  const timeF    = document.getElementById('filter-time')?.value  || '';
+
+  const empty   = document.getElementById('log-empty');
+  const table   = document.getElementById('log-table');
+  const countEl = document.getElementById('log-filter-count');
+
+  // Build combined entries
+  const painEntries = STATE.painLogs.map((l, origIdx) => ({ ...l, _type:'pain', _idx: origIdx }));
+  const medEntries  = STATE.medLogs.map((l, origIdx)  => ({ ...l, _type:'med',  _idx: origIdx }));
+  const combined    = [...painEntries, ...medEntries];
+
+  if (!combined.length) {
+    if (table) table.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    if (countEl) countEl.textContent = '';
+    return;
+  }
+
+  // Filter
+  const filtered = combined.filter(l => {
+    if (dateFrom && l.date < dateFrom) return false;
+    if (dateTo   && l.date > dateTo)   return false;
+    if (timeF    && getTimeSlot(l.time) !== timeF) return false;
+    if (l._type === 'pain') {
+      if (levelF && l.level < levelF) return false;
+      if (phaseF) {
+        if (phaseF === 'pre') { if (l.date >= '2026-03-19') return false; }
+        else { const ph = getCurrentPhase(parseDate(l.date)); if (!ph || ph.id !== phaseF) return false; }
+      }
+    }
+    return true;
+  }).sort((a,b) => {
+    const dt = (b.date+b.time).localeCompare(a.date+a.time);
+    return dt;
+  });
+
+  if (table) table.style.display = '';
+  if (empty) empty.style.display = 'none';
+  if (countEl) countEl.textContent = `${filtered.length} Einträge (${filtered.filter(l=>l._type==='pain').length} 🌡 Schmerz · ${filtered.filter(l=>l._type==='med').length} 💊 Medikament)`;
+
+  const TH = s => `<th style="text-align:left;padding:0.45rem 0.6rem;font-size:0.73rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);position:sticky;top:0;background:var(--paper);white-space:nowrap;">${s}</th>`;
+  let html = `<thead><tr>${TH('Typ')}${TH('Datum')}${TH('Zeit')}${TH('Phase')}${TH('Eintrag')}${TH('Notiz')}${TH('')}</tr></thead><tbody>`;
+
+  filtered.forEach(l => {
+    const ph = getCurrentPhase(parseDate(l.date));
+    const isPain = l._type === 'pain';
+    const rowBg = isPain ? '' : 'background:rgba(152,130,200,0.08);';
+
+    let typeBadge, entryCell;
+    if (isPain) {
+      const col  = getPainColor(l.level);
+      const info = PAIN_INFO[l.level];
+      typeBadge  = `<span style="background:${col}22;color:${col};border:1px solid ${col}44;padding:0.15rem 0.5rem;border-radius:12px;font-size:0.72rem;font-weight:700;">🌡 Schmerz</span>`;
+      entryCell  = `<span style="background:${col};color:white;padding:0.15rem 0.5rem;border-radius:20px;font-size:0.78rem;font-weight:700;margin-right:0.4rem;">${l.level}</span>${info?.emoji||''} ${info?.label||''}`;
+    } else {
+      typeBadge  = `<span style="background:#9882C822;color:#9882C8;border:1px solid #9882C844;padding:0.15rem 0.5rem;border-radius:12px;font-size:0.72rem;font-weight:700;">💊 Medikament</span>`;
+      entryCell  = `<strong>${l.med}</strong> · ${l.dose}`;
+    }
+
+    const actionBtns = `
+      <div style="display:flex;gap:0.3rem;">
+        <button onclick="openEditModal('${l._type}',${l._idx},'${l.date}','${l.time||''}')"
+          title="Bearbeiten" style="background:none;border:1px solid var(--border);cursor:pointer;font-size:0.85rem;color:var(--text-muted);padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">✏️</button>
+        <button onclick="deleteEntry('${l._type}',${l._idx})"
+          title="Löschen" style="background:none;border:1px solid var(--border);cursor:pointer;font-size:0.85rem;color:var(--text-muted);padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='#C05018';this.style.color='#C05018'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">🗑</button>
+      </div>`;
+
+    html += `<tr style="border-bottom:1px solid var(--border-light);${rowBg}">
+      <td style="padding:0.4rem 0.6rem;">${typeBadge}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;white-space:nowrap;">${formatDateDE(l.date)}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;color:var(--text-muted);">${l.time||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'var(--text-muted)'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.82rem;">${entryCell}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:var(--text-muted);font-style:${l.note?'italic':'normal'};">${l.note||'–'}</td>
+      <td style="padding:0.4rem 0.5rem;">${actionBtns}</td>
+    </tr>`;
+  });
+
+  html += '</tbody>';
+  if (table) table.innerHTML = html;
+}
+
+function openEditModal(type, idx, date, time) {
+  document.getElementById('edit-type').value = type;
+  document.getElementById('edit-idx').value  = idx;
+  document.getElementById('edit-date').value = date;
+  document.getElementById('edit-time').value = time;
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+}
+
+function saveEdit() {
+  const type = document.getElementById('edit-type').value;
+  const idx  = parseInt(document.getElementById('edit-idx').value);
+  const date = document.getElementById('edit-date').value;
+  const time = document.getElementById('edit-time').value;
+  if (!date) { showToast('⚠️ Bitte Datum eingeben'); return; }
+  if (type === 'pain' && STATE.painLogs[idx]) {
+    STATE.painLogs[idx].date = date;
+    STATE.painLogs[idx].time = time;
+  } else if (type === 'med' && STATE.medLogs[idx]) {
+    STATE.medLogs[idx].date = date;
+    STATE.medLogs[idx].time = time;
+  }
+  saveState();
+  closeEditModal();
+  renderLogTable();
+  renderTodayEntries();
+  showToast('✅ Eintrag aktualisiert');
+}
+
+function deleteEntry(type, idx) {
+  const arr   = type === 'pain' ? STATE.painLogs : STATE.medLogs;
+  const entry = arr[idx];
+  if (!entry) return;
+  const label = type === 'pain'
+    ? `Schmerz ${entry.level}/10 — ${formatDateDE(entry.date)} ${entry.time}`
+    : `${entry.med} ${entry.dose} — ${formatDateDE(entry.date)} ${entry.time}`;
+  if (!confirm(`Eintrag löschen?\n${label}`)) return;
+  arr.splice(idx, 1);
+  saveState();
+  renderLogTable();
+  renderTodayEntries();
+  renderPainChart();
+  showToast('🗑 Eintrag gelöscht');
+}
+
+// Keep old deletePainEntry for backward compat
+function deletePainEntry(idx) { deleteEntry('pain', idx); }
+
 function clearLogFilters() {
-  const firstDate = STATE.painLogs.length
-    ? [...STATE.painLogs].sort((a,b)=>a.date.localeCompare(b.date))[0].date
-    : today();
+  const allDates = [
+    ...STATE.painLogs.map(l=>l.date),
+    ...STATE.medLogs.map(l=>l.date)
+  ].sort();
+  const firstDate = allDates.length ? allDates[0] : today();
   const fromEl = document.getElementById('filter-date-from');
   const toEl   = document.getElementById('filter-date-to');
   if (fromEl) fromEl.value = firstDate;
