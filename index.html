@@ -2164,11 +2164,6 @@ function resetChartZoom(id) {
 function showZoomResetBtn(chartId) {
   const rb = document.querySelector(`.chart-tool-btn.zoom-reset[data-chart="${chartId}"]`);
   if (rb) rb.style.display = 'inline-block';
-  // Also show fullscreen reset if this chart is currently in fullscreen
-  if (_fsReturnInfo && _fsReturnInfo.chartId === chartId) {
-    const fsBtn = document.getElementById('fs-zoom-reset');
-    if (fsBtn) fsBtn.style.display = 'inline-block';
-  }
 }
 
 // ── Zoom/Pan config helper — returns plugin block for Chart.js ──
@@ -2187,10 +2182,20 @@ function zoomPanConfig(chartId) {
 }
 
 // ── Fullscreen Chart ──
-// Strategy: MOVE the original canvas container into the overlay (preserving
-// the live Chart.js instance with all callbacks/data), then move it back on close.
+// Strategy: Store each chart's raw type/data/options at creation time in
+// _chartConfigs. Fullscreen creates a FRESH Chart.js instance on a new canvas
+// using the stored config. The original chart stays untouched in the background.
 let _fsOverlay = null;
-let _fsReturnInfo = null;   // { placeholder, canvasWrap, chartId }
+let _fsChart = null;       // fullscreen Chart.js instance
+let _fsChartId = null;     // which chart is currently fullscreen
+let _chartConfigs = {};    // chartId → { type, data, options }
+
+// Call this right after every `new Chart(...)` to store the config for fullscreen
+function storeChartConfig(chartId, type, data, options) {
+  // Deep-copy data (labels + datasets with plain arrays) but keep options by ref
+  // so callbacks survive
+  _chartConfigs[chartId] = { type, data: JSON.parse(JSON.stringify(data)), options };
+}
 
 function _ensureFsOverlay() {
   if (_fsOverlay) return;
@@ -2204,7 +2209,7 @@ function _ensureFsOverlay() {
         <button class="fs-btn" onclick="closeChartFullscreen()">✕ Schliessen</button>
       </div>
     </div>
-    <div class="fs-canvas-wrap" id="fs-canvas-wrap"></div>
+    <div class="fs-canvas-wrap" id="fs-canvas-wrap"><canvas id="fs-canvas"></canvas></div>
     <div class="fs-hint">Scroll-Zoom / Pinch zum Zoomen · Ziehen zum Navigieren · ESC zum Schliessen</div>`;
   document.body.appendChild(_fsOverlay);
   document.addEventListener('keydown', e => {
@@ -2213,94 +2218,84 @@ function _ensureFsOverlay() {
 }
 
 function openChartFullscreen(chartId, title) {
-  const chart = _charts[chartId];
-  if (!chart) return;
+  const cfg = _chartConfigs[chartId];
+  if (!cfg) return;
 
   // If already fullscreen, close first
-  if (_fsReturnInfo) closeChartFullscreen(true);
+  if (_fsChart) closeChartFullscreen(true);
 
   _ensureFsOverlay();
-
-  // Find the canvas's direct parent (the position:relative wrapper div)
-  const canvas = chart.canvas;
-  const canvasWrap = canvas.parentElement;
-
-  // Save original inline style so we can restore it
-  const origStyle = canvasWrap.style.cssText;
-
-  // Insert a placeholder so we know where to put it back
-  const placeholder = document.createElement('div');
-  placeholder.className = 'fs-placeholder';
-  placeholder.style.cssText = origStyle;
-  placeholder.style.display = 'flex';
-  placeholder.style.alignItems = 'center';
-  placeholder.style.justifyContent = 'center';
-  placeholder.innerHTML = '<span style="color:#4A4A60; font-size:0.82rem;">Diagramm im Vollbild geöffnet…</span>';
-  canvasWrap.parentElement.insertBefore(placeholder, canvasWrap);
-
-  // Save return info (including original style)
-  _fsReturnInfo = { placeholder, canvasWrap, chartId, origStyle };
-
-  // Move canvas wrapper into overlay
-  const fsWrap = document.getElementById('fs-canvas-wrap');
-  fsWrap.innerHTML = '';
-  fsWrap.appendChild(canvasWrap);
 
   // Set title & reset zoom button
   document.getElementById('fs-title').textContent = title;
   document.getElementById('fs-zoom-reset').style.display = 'none';
 
-  // Show overlay first so it has layout dimensions
+  // Show overlay so it gets layout dimensions
   _fsOverlay.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  _fsChartId = chartId;
 
-  // After overlay is visible and laid out, compute the available height
-  // and set it explicitly on the canvas wrapper, then resize the chart.
+  // Replace canvas (Chart.js needs a fresh canvas each time)
+  const wrap = document.getElementById('fs-canvas-wrap');
+  wrap.innerHTML = '<canvas id="fs-canvas"></canvas>';
+  const canvas = document.getElementById('fs-canvas');
+
   requestAnimationFrame(() => {
     _fsOverlay.classList.add('visible');
     requestAnimationFrame(() => {
-      // Compute available height inside fs-canvas-wrap (minus padding)
-      const wrapRect = fsWrap.getBoundingClientRect();
-      const availH = wrapRect.height - 32; // 1rem padding top+bottom = ~32px
-      const availW = wrapRect.width - 32;
-      canvasWrap.style.cssText = `position:relative; width:${availW}px; height:${availH}px;`;
-      chart.resize();
+      // Build fullscreen options: merge original options + force zoom/pan
+      const fsOptions = Object.assign({}, cfg.options, {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: Object.assign({}, cfg.options.plugins || {}, {
+          // Disable external tooltip in fullscreen (med-timeline uses one)
+          tooltip: (cfg.options.plugins && cfg.options.plugins.tooltip && cfg.options.plugins.tooltip.enabled === false)
+            ? { enabled: true }
+            : (cfg.options.plugins && cfg.options.plugins.tooltip) || {},
+          zoom: {
+            pan: { enabled: true, mode: 'x', onPanComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; } },
+            zoom: {
+              wheel: { enabled: true, modifierKey: null },
+              pinch: { enabled: true },
+              mode: 'x',
+              onZoomComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; },
+            },
+          },
+        }),
+      });
+
+      _fsChart = new Chart(canvas.getContext('2d'), {
+        type: cfg.type,
+        data: JSON.parse(JSON.stringify(cfg.data)),
+        options: fsOptions,
+      });
     });
   });
 }
 
 function resetFsZoom() {
-  if (_fsReturnInfo && _charts[_fsReturnInfo.chartId]) {
-    _charts[_fsReturnInfo.chartId].resetZoom();
+  if (_fsChart) {
+    _fsChart.resetZoom();
     document.getElementById('fs-zoom-reset').style.display = 'none';
   }
 }
 
 function closeChartFullscreen(instant) {
-  if (!_fsOverlay || !_fsReturnInfo) return;
+  if (!_fsOverlay) return;
 
-  const { placeholder, canvasWrap, chartId, origStyle } = _fsReturnInfo;
-  const chart = _charts[chartId];
-
-  function doReturn() {
-    // Restore original inline style
-    canvasWrap.style.cssText = origStyle;
-    // Put canvas wrapper back where the placeholder is
-    placeholder.parentElement.insertBefore(canvasWrap, placeholder);
-    placeholder.remove();
-    _fsReturnInfo = null;
+  function doClose() {
+    if (_fsChart) { _fsChart.destroy(); _fsChart = null; }
+    _fsChartId = null;
     _fsOverlay.style.display = 'none';
-    // Trigger resize so chart re-fits original container
-    if (chart) requestAnimationFrame(() => chart.resize());
   }
 
   document.body.style.overflow = '';
   if (instant) {
     _fsOverlay.classList.remove('visible');
-    doReturn();
+    doClose();
   } else {
     _fsOverlay.classList.remove('visible');
-    setTimeout(doReturn, 250);
+    setTimeout(doClose, 250);
   }
 }
 
@@ -2500,6 +2495,7 @@ function renderAuswertung() {
       }
     }
   });
+  storeChartConfig('verlauf', 'line', _charts['verlauf'].data, _charts['verlauf'].options);
 
   // ---- Phase comparison (bar) — add Vor-OP bar ----
   destroyChart('phase');
@@ -2548,6 +2544,7 @@ function renderAuswertung() {
       }
     }
   });
+  storeChartConfig('phase', 'bar', _charts['phase'].data, _charts['phase'].options);
 
   // ---- Tageszeit ----
   destroyChart('tageszeit');
@@ -2594,6 +2591,7 @@ function renderAuswertung() {
       plugins: { legend:{display:false}, ...zoomPanConfig('tageszeit') }
     }
   });
+  storeChartConfig('tageszeit', 'bar', _charts['tageszeit'].data, _charts['tageszeit'].options);
 
   const legend = document.getElementById('tageszeit-legend');
   if (legend) legend.innerHTML = slots.map((s,i) => `
@@ -2901,6 +2899,7 @@ function renderDailyStats() {
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? ctx.parsed.y + '/10' : 'kein Eintrag' } }, ...zoomPanConfig('daily14') }
       }
     });
+    storeChartConfig('daily14', 'bar', _charts['daily14'].data, _charts['daily14'].options);
   })();
 
   // Daily table
@@ -3184,6 +3183,7 @@ function renderMedCharts() {
       },
     },
   });
+  storeChartConfig('med-timeline', 'line', _charts['med-timeline'].data, _charts['med-timeline'].options);
 
   // Legend
   if (legEl) {
