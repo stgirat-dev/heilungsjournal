@@ -388,7 +388,7 @@ option { background: var(--surface2); color: var(--text); }
   <button class="nav-btn" onclick="showTab('schmerz')">📊 Schmerztracker</button>
   <button class="nav-btn" onclick="showTab('auswertung')">📈 Auswertung</button>
   <button class="nav-btn" onclick="showTab('erfolge')">🏅 Erfolge</button>
-  <button class="nav-btn" onclick="showTab('install')" id="install-nav-btn" style="color:var(--sage); font-weight:600;">📲 App installieren</button>
+  <button class="nav-btn" onclick="showTab('install')" id="install-nav-btn" style="color:var(--sage); font-weight:600;">⚙️ App-Manager</button>
 </nav>
 
 <main>
@@ -928,123 +928,233 @@ option { background: var(--surface2); color: var(--text); }
   </div>
 </div>
 
-<!-- ======================== INSTALL ======================== -->
+<!-- ======================== APP-MANAGER ======================== -->
 <div class="tab" id="tab-install">
 
-  <!-- PWA Install Banner (shown when prompt available) -->
-  <div id="pwa-install-banner" style="display:none; margin-bottom:1.25rem; background:linear-gradient(135deg, #EDF4EF, #FAF0E8); border:2px solid var(--sage-light); border-radius:16px; padding:1.4rem;">
-    <div style="display:flex; align-items:center; gap:1rem;">
-      <div style="font-size:3rem; line-height:1;">🌿</div>
-      <div style="flex:1;">
-        <div style="font-family:'Lora',serif; font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:0.3rem;">App installieren</div>
-        <div style="font-size:0.85rem; color:var(--text-muted);">Chrome hat die App erkannt — direkt installieren!</div>
-      </div>
-    </div>
-    <button id="pwa-install-btn" class="btn btn-sage" onclick="triggerPWAInstall()" style="width:100%; margin-top:1rem; justify-content:center; padding:0.9rem; font-size:1rem;">
-      📲 Jetzt als App installieren
-    </button>
-  </div>
-
-  <!-- Status -->
-  <div id="install-status" class="card section-gap" style="text-align:center; padding:1.5rem;">
-    <div style="font-size:3rem; margin-bottom:0.75rem;" id="install-status-icon">⏳</div>
-    <div style="font-family:'Lora',serif; font-size:1.05rem; font-weight:600; margin-bottom:0.4rem;" id="install-status-title">Wird geprüft…</div>
-    <div style="font-size:0.85rem; color:var(--text-muted);" id="install-status-desc"></div>
-  </div>
-
-  <!-- Step-by-step guide -->
+  <!-- ─── DATA MANAGEMENT ─── -->
   <div class="card section-gap">
-    <div class="card-title">📋 Schritt-für-Schritt Anleitung</div>
-    <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.25rem;">Android-Tablet · Google Chrome</div>
+    <div class="card-title">💾 Datensicherung</div>
+    <div style="font-size:0.83rem; color:var(--text-muted); margin-bottom:1.25rem;">
+      Sichere deine Daten als JSON-Datei und speichere sie in deinem Google Drive Ordner. So kannst du sie auf jedem Gerät wiederherstellen.
+    </div>
 
-    <!-- Step 1 -->
-    <div style="display:flex; gap:1rem; margin-bottom:1.25rem; align-items:flex-start;">
-      <div style="width:36px; height:36px; border-radius:50%; background:var(--primary); color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
-      <div>
-        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem;">Datei herunterladen</div>
-        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.5;">
-          Lade die <strong>heilungsjournal.html</strong> Datei herunter — sie landet im Ordner <code style="background:var(--bg); padding:0.1rem 0.4rem; border-radius:4px; font-size:0.8rem;">/Downloads</code> auf deinem Tablet.
-        </div>
+    <!-- Current data summary -->
+    <div id="backup-data-summary" style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1.25rem; font-size:0.83rem;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+        <span style="color:var(--text-muted);">Schmerzeinträge:</span>
+        <span id="summary-pain-count" style="color:var(--text); font-weight:600;">0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+        <span style="color:var(--text-muted);">Medikamenten-Einträge:</span>
+        <span id="summary-med-count" style="color:var(--text); font-weight:600;">0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+        <span style="color:var(--text-muted);">Abgehakte Tage:</span>
+        <span id="summary-checked-count" style="color:var(--text); font-weight:600;">0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between;">
+        <span style="color:var(--text-muted);">Gerät:</span>
+        <span id="summary-device" style="color:var(--text); font-weight:600;">—</span>
       </div>
     </div>
 
-    <!-- Step 2 -->
-    <div style="display:flex; gap:1rem; margin-bottom:1.25rem; align-items:flex-start;">
-      <div style="width:36px; height:36px; border-radius:50%; background:var(--primary); color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
-      <div>
-        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem;">In Chrome öffnen</div>
-        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.5;">
-          Öffne Chrome und tippe in die Adressleiste:<br>
-          <code style="display:inline-block; margin-top:0.4rem; background:var(--text); color:white; padding:0.3rem 0.7rem; border-radius:6px; font-size:0.82rem; letter-spacing:0.02em;">file:///sdcard/Download/heilungsjournal.html</code><br>
-          <span style="margin-top:0.4rem; display:block;">Oder öffne den <strong>Datei-Manager</strong> → Downloads → auf die Datei tippen → Chrome auswählen.</span>
-        </div>
-      </div>
+    <!-- Export button -->
+    <button class="btn btn-sage" onclick="exportBackup()" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.95rem; margin-bottom:0.75rem;">
+      📤 Backup erstellen &amp; herunterladen
+    </button>
+    <div style="font-size:0.75rem; color:var(--text-dim); text-align:center; margin-bottom:1.5rem;">
+      Speichere die heruntergeladene Datei in deinem Google Drive Ordner
     </div>
 
-    <!-- Step 3 -->
-    <div style="display:flex; gap:1rem; margin-bottom:1.25rem; align-items:flex-start;">
-      <div style="width:36px; height:36px; border-radius:50%; background:var(--sage); color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
-      <div>
-        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem;">Zum Startbildschirm hinzufügen</div>
-        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.6;">
-          In Chrome oben rechts auf <strong>⋮ (drei Punkte)</strong> tippen<br>
-          → <strong>„App installieren"</strong> oder <strong>„Zum Startbildschirm hinzufügen"</strong><br>
-          → Name bestätigen → <strong>Installieren / Hinzufügen</strong> tippen
-        </div>
-        <div style="margin-top:0.6rem; background:var(--sage-pale); border:1px solid var(--sage-light); border-radius:8px; padding:0.6rem 0.75rem; font-size:0.8rem; color:var(--sage);">
-          ✅ Danach erscheint ein <strong>🌿 App-Icon</strong> auf deinem Homescreen — wie eine echte App!
-        </div>
-      </div>
-    </div>
+    <!-- Import section -->
+    <div style="border-top:1px solid var(--border); padding-top:1.25rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.75rem;">📥 Backup importieren</div>
+      <input type="file" id="backup-file-input" accept=".json" style="display:none;" onchange="handleBackupFileSelect(event)">
+      <button class="btn btn-outline" onclick="document.getElementById('backup-file-input').click()" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.95rem;">
+        📂 JSON-Datei auswählen
+      </button>
 
-    <!-- Step 4 -->
-    <div style="display:flex; gap:1rem; align-items:flex-start;">
-      <div style="width:36px; height:36px; border-radius:50%; background:#C49A50; color:white; font-weight:700; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</div>
-      <div>
-        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem;">Offline-Modus aktivieren</div>
-        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.5;">
-          Beim ersten Öffnen der installierten App wird die Seite automatisch für den <strong>Offline-Betrieb gespeichert</strong> — die App funktioniert dann auch ohne Internet!
+      <!-- Import preview (hidden until file selected) -->
+      <div id="import-preview" style="display:none; margin-top:1rem;">
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem; font-size:0.83rem; margin-bottom:1rem;">
+          <div style="font-weight:600; color:var(--gold); margin-bottom:0.5rem;">📋 Backup-Vorschau</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+            <span style="color:var(--text-muted);">Erstellt am:</span>
+            <span id="import-date" style="color:var(--text); font-weight:600;">—</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+            <span style="color:var(--text-muted);">Gerät:</span>
+            <span id="import-device" style="color:var(--text); font-weight:600;">—</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+            <span style="color:var(--text-muted);">Schmerzeinträge:</span>
+            <span id="import-pain-count" style="color:var(--text); font-weight:600;">0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+            <span style="color:var(--text-muted);">Medikamenten-Einträge:</span>
+            <span id="import-med-count" style="color:var(--text); font-weight:600;">0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+            <span style="color:var(--text-muted);">Abgehakte Tage:</span>
+            <span id="import-checked-count" style="color:var(--text); font-weight:600;">0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--text-muted);">Zeitraum:</span>
+            <span id="import-date-range" style="color:var(--text); font-weight:600;">—</span>
+          </div>
         </div>
-        <button class="btn btn-outline btn-sm" style="margin-top:0.6rem;" onclick="checkSWStatus()">🔄 Offline-Status prüfen</button>
-        <div id="sw-status" style="margin-top:0.5rem; font-size:0.78rem; color:var(--text-muted);"></div>
+
+        <!-- Merge vs Replace choice -->
+        <div style="display:flex; gap:0.75rem; margin-bottom:0.5rem;">
+          <button class="btn btn-sage" onclick="executeImport('merge')" style="flex:1; justify-content:center; padding:0.85rem; font-size:0.9rem;">
+            🔀 Zusammenführen
+          </button>
+          <button class="btn btn-primary" onclick="executeImport('replace')" style="flex:1; justify-content:center; padding:0.85rem; font-size:0.9rem;">
+            🔄 Ersetzen
+          </button>
+        </div>
+        <div style="font-size:0.73rem; color:var(--text-dim); line-height:1.5;">
+          <strong>Zusammenführen:</strong> Bestehende + neue Einträge kombinieren (ideal für verschiedene Geräte).<br>
+          <strong>Ersetzen:</strong> Alle lokalen Daten durch das Backup ersetzen.
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- FAQ -->
+  <!-- ─── PWA INSTALLATION ─── -->
+  <div class="card section-gap">
+    <div class="card-title" style="cursor:pointer;" onclick="togglePWASection()">
+      📲 App installieren
+      <span id="pwa-section-toggle" style="float:right; font-size:0.8rem; color:var(--text-muted);">▼</span>
+    </div>
+
+    <div id="pwa-section-content">
+      <!-- PWA Install Banner (shown when prompt available) -->
+      <div id="pwa-install-banner" style="display:none; margin-bottom:1.25rem; background:linear-gradient(135deg, #0A2A22, #2A1C08); border:2px solid var(--sage-light); border-radius:16px; padding:1.4rem;">
+        <div style="display:flex; align-items:center; gap:1rem;">
+          <div style="font-size:3rem; line-height:1;">🌿</div>
+          <div style="flex:1;">
+            <div style="font-family:'Lora',serif; font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:0.3rem;">App installieren</div>
+            <div style="font-size:0.85rem; color:var(--text-muted);">Chrome hat die App erkannt — direkt installieren!</div>
+          </div>
+        </div>
+        <button id="pwa-install-btn" class="btn btn-sage" onclick="triggerPWAInstall()" style="width:100%; margin-top:1rem; justify-content:center; padding:0.9rem; font-size:1rem;">
+          📲 Jetzt als App installieren
+        </button>
+      </div>
+
+      <!-- Status -->
+      <div id="install-status" style="text-align:center; padding:1rem; background:var(--surface2); border-radius:10px; margin-bottom:1rem;">
+        <div style="font-size:2.5rem; margin-bottom:0.5rem;" id="install-status-icon">⏳</div>
+        <div style="font-family:'Lora',serif; font-size:0.95rem; font-weight:600; margin-bottom:0.3rem;" id="install-status-title">Wird geprüft…</div>
+        <div style="font-size:0.8rem; color:var(--text-muted);" id="install-status-desc"></div>
+      </div>
+
+      <button class="btn btn-outline btn-sm" style="margin-bottom:0.75rem;" onclick="checkSWStatus()">🔄 Offline-Status prüfen</button>
+      <div id="sw-status" style="font-size:0.78rem; color:var(--text-muted); margin-bottom:1rem;"></div>
+
+      <!-- Collapsible install guide -->
+      <details style="font-size:0.83rem;">
+        <summary style="cursor:pointer; color:var(--sage); font-weight:600; margin-bottom:0.75rem;">📋 Schritt-für-Schritt Anleitung anzeigen</summary>
+        <div style="padding-top:0.5rem;">
+          <div style="display:flex; gap:0.75rem; margin-bottom:1rem; align-items:flex-start;">
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--primary); color:white; font-weight:700; font-size:0.85rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+            <div style="color:var(--text-muted); line-height:1.5;">Lade die <strong style="color:var(--text);">heilungsjournal.html</strong> Datei herunter.</div>
+          </div>
+          <div style="display:flex; gap:0.75rem; margin-bottom:1rem; align-items:flex-start;">
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--primary); color:white; font-weight:700; font-size:0.85rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+            <div style="color:var(--text-muted); line-height:1.5;">In Chrome öffnen: <code style="background:var(--surface2); padding:0.1rem 0.4rem; border-radius:4px; font-size:0.78rem;">file:///sdcard/Download/heilungsjournal.html</code></div>
+          </div>
+          <div style="display:flex; gap:0.75rem; margin-bottom:1rem; align-items:flex-start;">
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--sage); color:white; font-weight:700; font-size:0.85rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
+            <div style="color:var(--text-muted); line-height:1.5;">Chrome ⋮ → <strong style="color:var(--text);">App installieren</strong> oder <strong style="color:var(--text);">Zum Startbildschirm</strong></div>
+          </div>
+          <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--gold); color:white; font-weight:700; font-size:0.85rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</div>
+            <div style="color:var(--text-muted); line-height:1.5;">Offline-Modus wird beim ersten Öffnen automatisch aktiviert.</div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ─── DANGER ZONE ─── -->
+  <div class="card section-gap" style="border-color:#FF6B8A33;">
+    <div class="card-title" style="color:#FF6B8A;">⚠️ Gefahrenzone</div>
+
+    <!-- Delete all data -->
+    <div style="margin-bottom:1.25rem;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.4rem;">Alle Daten löschen</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem; line-height:1.5;">
+        Löscht alle Schmerzeinträge, Medikamenten-Logs und abgehakte Tage unwiderruflich. Erstelle vorher ein Backup!
+      </div>
+      <button class="btn btn-outline" onclick="confirmDeleteAll()" style="width:100%; justify-content:center; padding:0.8rem; color:#FF6B8A; border-color:#FF6B8A44;">
+        🗑️ Alle Daten löschen…
+      </button>
+    </div>
+
+    <!-- Delete confirmation (hidden) -->
+    <div id="delete-confirm-box" style="display:none; background:#2A0A14; border:1px solid #FF6B8A44; border-radius:10px; padding:1rem; margin-bottom:1.25rem;">
+      <div style="font-weight:600; font-size:0.9rem; color:#FF6B8A; margin-bottom:0.5rem;">⚠️ Bist du sicher?</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
+        Diese Aktion kann nicht rückgängig gemacht werden. Alle <span id="delete-count-preview" style="color:var(--text); font-weight:600;"></span> Einträge werden gelöscht.
+      </div>
+      <div style="display:flex; gap:0.75rem;">
+        <button class="btn btn-outline btn-sm" onclick="executeDeleteAll()" style="flex:1; justify-content:center; color:#FF6B8A; border-color:#FF6B8A;">
+          🗑️ Ja, alles löschen
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('delete-confirm-box').style.display='none'" style="flex:1; justify-content:center;">
+          Abbrechen
+        </button>
+      </div>
+    </div>
+
+    <!-- Load test data -->
+    <div style="border-top:1px solid var(--border); padding-top:1.25rem;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.4rem;">🧪 Testdaten laden</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem; line-height:1.5;">
+        Lädt einen realistischen Testdatensatz (14 Tage) zum Testen der Charts und Statistiken. Bestehende Daten werden ersetzt.
+      </div>
+      <button class="btn btn-outline" onclick="confirmLoadTestData()" style="width:100%; justify-content:center; padding:0.8rem; color:var(--blue); border-color:var(--blue)44;">
+        🧪 Testdaten laden…
+      </button>
+    </div>
+
+    <!-- Test data confirmation (hidden) -->
+    <div id="testdata-confirm-box" style="display:none; background:var(--blue-dim); border:1px solid #8B8BFF44; border-radius:10px; padding:1rem; margin-top:0.75rem;">
+      <div style="font-weight:600; font-size:0.9rem; color:var(--blue); margin-bottom:0.5rem;">🧪 Testdaten laden?</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
+        Dies ersetzt alle aktuellen Daten durch 14 Tage Testdaten. Bestehende Daten gehen verloren.
+      </div>
+      <div style="display:flex; gap:0.75rem;">
+        <button class="btn btn-outline btn-sm" onclick="executeLoadTestData()" style="flex:1; justify-content:center; color:var(--blue); border-color:var(--blue);">
+          🧪 Ja, Testdaten laden
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('testdata-confirm-box').style.display='none'" style="flex:1; justify-content:center;">
+          Abbrechen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ (condensed) -->
   <div class="card section-gap">
     <div class="card-title">❓ Häufige Fragen</div>
-
     <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
       <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Bleiben meine Daten erhalten?</div>
-      <div style="font-size:0.83rem; color:var(--text-muted);">Ja — alle Daten (Schmerzlogs, abgehakte Tage) sind im Browser-Speicher (localStorage) gespeichert und bleiben auch nach dem Schliessen der App erhalten. Regelmässiges Backup empfohlen!</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Ja — im Browser-Speicher (localStorage). Sie bleiben auch nach dem Schliessen erhalten. Aber: regelmässiges Backup empfohlen!</div>
     </div>
-
     <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
       <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Was passiert wenn ich Chrome-Daten lösche?</div>
-      <div style="font-size:0.83rem; color:var(--text-muted);">Dann gehen die Daten verloren! Deshalb immer vorher ein <strong>Backup erstellen</strong> (Schmerztracker-Tab → Backup → Google Drive).</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Dann gehen die Daten verloren! Erstelle vorher immer ein Backup über den Button oben.</div>
     </div>
-
     <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
-      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Brauche ich Internet?</div>
-      <div style="font-size:0.83rem; color:var(--text-muted);">Nach dem ersten Laden funktioniert die App vollständig offline — ausser die Schriftarten beim ersten Start (optional, nur Optik).</div>
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Wie synchronisiere ich zwischen Geräten?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Backup erstellen → Datei in Google Drive speichern → auf anderem Gerät importieren → «Zusammenführen» wählen.</div>
     </div>
-
     <div style="padding:0.85rem 0;">
-      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Unterschied zu einer APK-App?</div>
-      <div style="font-size:0.83rem; color:var(--text-muted);">Aus Nutzersicht praktisch kein Unterschied — App-Icon auf dem Homescreen, Vollbild, offline. Der einzige Unterschied: keine Installation via Play Store nötig.</div>
-    </div>
-  </div>
-
-  <!-- Backup reminder -->
-  <div class="card" style="border-color:var(--sage-light); background:var(--sage-pale);">
-    <div style="display:flex; gap:0.75rem; align-items:flex-start;">
-      <div style="font-size:1.5rem;">💡</div>
-      <div>
-        <div style="font-weight:600; font-size:0.9rem; color:var(--sage); margin-bottom:0.3rem;">Empfehlung: Wöchentliches Backup</div>
-        <div style="font-size:0.83rem; color:var(--text-muted); line-height:1.5;">Tippe einmal pro Woche auf «Backup → Google Drive» im Schmerztracker-Tab. So sind alle Heilungsdaten sicher — auch wenn du das Tablet wechselst oder zurücksetzt.</div>
-        <button class="btn btn-sage btn-sm" style="margin-top:0.75rem;" onclick="showTab('schmerz'); document.querySelectorAll('.nav-btn')[2].classList.add('active'); document.querySelectorAll('.nav-btn').forEach((b,i)=>{ if(i!==2) b.classList.remove('active'); })">☁️ Jetzt Backup erstellen</button>
-      </div>
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Was bedeutet «Zusammenführen» vs «Ersetzen»?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">«Zusammenführen» kombiniert Einträge beider Geräte (keine Duplikate). «Ersetzen» überschreibt alle lokalen Daten mit dem Backup.</div>
     </div>
   </div>
 
@@ -1488,7 +1598,7 @@ function showTab(name) {
   if (name === 'erfolge')    renderAchievements();
   if (name === 'schmerz')    renderPainTab();
   if (name === 'phasen')     renderPhasenTab();
-  if (name === 'install')    checkSWStatus();
+  if (name === 'install')    { checkSWStatus(); updateDataSummary(); }
   if (name === 'auswertung') {
     // Wait for tab to be fully painted before rendering charts
     requestAnimationFrame(() => {
@@ -3317,6 +3427,298 @@ function renderLastBackupInfo() {
   const el = document.getElementById('last-backup-info');
   if (el && STATE.lastBackup) {
     el.textContent = '✅ Letztes Backup: ' + STATE.lastBackup;
+  }
+}
+
+// ============================================================
+// APP-MANAGER: Backup, Import, Delete, Test Data
+// ============================================================
+
+// Detect device type from user agent / screen
+function detectDevice() {
+  const ua = navigator.userAgent || '';
+  const w = screen.width;
+  if (/Tablet|iPad/i.test(ua) || (w >= 600 && w <= 1100 && 'ontouchstart' in window)) return 'Tablet';
+  if (/Mobile|Android|iPhone/i.test(ua) || (w < 600 && 'ontouchstart' in window)) return 'Mobile';
+  return 'PC';
+}
+
+// Update the data summary on the App-Manager tab
+function updateDataSummary() {
+  const pc = document.getElementById('summary-pain-count');
+  const mc = document.getElementById('summary-med-count');
+  const cc = document.getElementById('summary-checked-count');
+  const dv = document.getElementById('summary-device');
+  if (pc) pc.textContent = (STATE.painLogs || []).length;
+  if (mc) mc.textContent = (STATE.medLogs || []).length;
+  if (cc) cc.textContent = Object.keys(STATE.checkedDays || {}).length;
+  if (dv) dv.textContent = detectDevice();
+}
+
+// Export backup as JSON download with device info + timestamp
+function exportBackup() {
+  const device = detectDevice();
+  const ts = new Date().toISOString();
+  const tsLabel = formatDateDE(today()) + ' ' + nowTime();
+  const data = {
+    app: 'heilungsjournal',
+    version: 2,
+    exportedAt: ts,
+    exportedAtDE: tsLabel,
+    device: device,
+    data: {
+      checkedDays: STATE.checkedDays || {},
+      painLogs: STATE.painLogs || [],
+      medLogs: STATE.medLogs || [],
+      reminderEnabled: STATE.reminderEnabled || false,
+      reminderTimes: STATE.reminderTimes || ['08:00','12:00','16:00','20:00']
+    }
+  };
+  const json = JSON.stringify(data, null, 2);
+  const dateStr = today().replace(/-/g, '');
+  const timeStr = nowTime().replace(':', '');
+  const filename = `Heilungsjournal_${device}_${dateStr}_${timeStr}.json`;
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+
+  STATE.lastBackup = tsLabel;
+  saveState();
+  renderLastBackupInfo();
+  showToast('📤 Backup heruntergeladen: ' + filename);
+}
+
+// Temporary storage for imported data
+let _pendingImport = null;
+
+// Handle file selection for import
+function handleBackupFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+
+      // Support both v1 (flat) and v2 (nested .data) formats
+      let importData;
+      if (parsed.data && (parsed.data.painLogs || parsed.data.checkedDays)) {
+        importData = parsed.data;
+      } else if (parsed.painLogs || parsed.checkedDays) {
+        importData = parsed;
+      } else {
+        showToast('❌ Ungültige Backup-Datei!');
+        event.target.value = '';
+        return;
+      }
+
+      _pendingImport = {
+        meta: parsed,
+        data: {
+          checkedDays: importData.checkedDays || {},
+          painLogs: importData.painLogs || [],
+          medLogs: importData.medLogs || [],
+          reminderEnabled: importData.reminderEnabled || false,
+          reminderTimes: importData.reminderTimes || ['08:00','12:00','16:00','20:00']
+        }
+      };
+
+      // Fill preview
+      const exportDate = parsed.exportedAtDE || (parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleString('de-CH') : '—');
+      document.getElementById('import-date').textContent = exportDate;
+      document.getElementById('import-device').textContent = parsed.device || '—';
+      document.getElementById('import-pain-count').textContent = _pendingImport.data.painLogs.length;
+      document.getElementById('import-med-count').textContent = _pendingImport.data.medLogs.length;
+      document.getElementById('import-checked-count').textContent = Object.keys(_pendingImport.data.checkedDays).length;
+
+      // Date range
+      const allDates = [
+        ..._pendingImport.data.painLogs.map(l => l.date),
+        ..._pendingImport.data.medLogs.map(l => l.date),
+        ...Object.keys(_pendingImport.data.checkedDays)
+      ].filter(Boolean).sort();
+      if (allDates.length > 0) {
+        document.getElementById('import-date-range').textContent =
+          formatDateDE(allDates[0]) + ' – ' + formatDateDE(allDates[allDates.length - 1]);
+      } else {
+        document.getElementById('import-date-range').textContent = '—';
+      }
+
+      document.getElementById('import-preview').style.display = 'block';
+    } catch(err) {
+      showToast('❌ Fehler beim Lesen der Datei!');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Execute import with merge or replace strategy
+function executeImport(mode) {
+  if (!_pendingImport) return;
+
+  const imp = _pendingImport.data;
+
+  if (mode === 'replace') {
+    STATE.checkedDays = imp.checkedDays;
+    STATE.painLogs = imp.painLogs;
+    STATE.medLogs = imp.medLogs;
+    STATE.reminderEnabled = imp.reminderEnabled;
+    STATE.reminderTimes = imp.reminderTimes;
+  } else {
+    // Merge: union of checkedDays, deduplicated logs
+    // CheckedDays: union
+    Object.assign(STATE.checkedDays, imp.checkedDays);
+
+    // PainLogs: deduplicate by date+time+level composite key
+    const painKey = (l) => `${l.date}|${l.time}|${l.level}`;
+    const existingPainKeys = new Set(STATE.painLogs.map(painKey));
+    for (const log of imp.painLogs) {
+      if (!existingPainKeys.has(painKey(log))) {
+        STATE.painLogs.push(log);
+        existingPainKeys.add(painKey(log));
+      }
+    }
+    STATE.painLogs.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+    // MedLogs: deduplicate by date+time+med composite key
+    const medKey = (l) => `${l.date}|${l.time}|${l.med}`;
+    const existingMedKeys = new Set(STATE.medLogs.map(medKey));
+    for (const log of imp.medLogs) {
+      if (!existingMedKeys.has(medKey(log))) {
+        STATE.medLogs.push(log);
+        existingMedKeys.add(medKey(log));
+      }
+    }
+    STATE.medLogs.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  }
+
+  saveState();
+  renderToday();
+  renderReminderTimes();
+  renderLastBackupInfo();
+  updateAchievements();
+  updateDataSummary();
+
+  // Clean up
+  _pendingImport = null;
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('backup-file-input').value = '';
+
+  const modeLabel = mode === 'merge' ? 'zusammengeführt' : 'ersetzt';
+  const total = STATE.painLogs.length + STATE.medLogs.length;
+  showToast(`✅ Import erfolgreich (${modeLabel}) — ${total} Einträge`);
+}
+
+// Delete all data with confirmation
+function confirmDeleteAll() {
+  const total = (STATE.painLogs || []).length + (STATE.medLogs || []).length + Object.keys(STATE.checkedDays || {}).length;
+  document.getElementById('delete-count-preview').textContent = total + ' Daten-Einträge';
+  document.getElementById('delete-confirm-box').style.display = 'block';
+}
+
+function executeDeleteAll() {
+  STATE.checkedDays = {};
+  STATE.painLogs = [];
+  STATE.medLogs = [];
+  STATE.lastBackup = null;
+  saveState();
+  renderToday();
+  renderReminderTimes();
+  updateAchievements();
+  updateDataSummary();
+  document.getElementById('delete-confirm-box').style.display = 'none';
+  showToast('🗑️ Alle Daten wurden gelöscht.');
+}
+
+// Test data
+function confirmLoadTestData() {
+  document.getElementById('testdata-confirm-box').style.display = 'block';
+}
+
+function executeLoadTestData() {
+  // Generate 14 days of realistic recovery data
+  const baseDate = new Date();
+  baseDate.setDate(baseDate.getDate() - 13); // Start 13 days ago
+
+  const painLogs = [];
+  const medLogs = [];
+  const checkedDays = {};
+
+  const meds = ['Tramadol', 'Paracetamol', 'Ibuprofen'];
+  const doses = { 'Tramadol': '50mg', 'Paracetamol': '1000mg', 'Ibuprofen': '400mg' };
+  const times = ['07:30', '08:00', '12:00', '12:30', '16:00', '18:00', '20:00', '21:00', '22:00'];
+  const notes = ['nach dem Aufwachen', 'nach Physiotherapie', 'vor dem Schlafen', 'beim Gehen', 'in Ruhe', 'nach Halskragen-Tragen', ''];
+
+  for (let d = 0; d < 14; d++) {
+    const date = new Date(baseDate);
+    date.setDate(baseDate.getDate() + d);
+    const ds = date.toISOString().split('T')[0];
+
+    // Pain generally decreasing from ~7 to ~3 over 14 days, with some variance
+    const basePain = Math.max(1, Math.round(7 - (d * 0.35) + (Math.random() * 2 - 1)));
+
+    // 2-4 pain entries per day
+    const nPain = 2 + Math.floor(Math.random() * 3);
+    for (let p = 0; p < nPain; p++) {
+      const t = times[Math.floor(Math.random() * times.length)];
+      const level = Math.max(0, Math.min(10, basePain + Math.floor(Math.random() * 3 - 1)));
+      painLogs.push({
+        date: ds,
+        time: t,
+        level: level,
+        note: notes[Math.floor(Math.random() * notes.length)]
+      });
+    }
+
+    // Meds: more in early days, tapering off
+    // First week: Tramadol + Paracetamol 3x/day
+    // Second week: only Paracetamol + sometimes Ibuprofen
+    if (d < 7) {
+      medLogs.push({ date: ds, time: '08:00', med: 'Tramadol', dose: '50mg', note: '' });
+      medLogs.push({ date: ds, time: '20:00', med: 'Tramadol', dose: '50mg', note: '' });
+      medLogs.push({ date: ds, time: '08:00', med: 'Paracetamol', dose: '1000mg', note: '' });
+      medLogs.push({ date: ds, time: '14:00', med: 'Paracetamol', dose: '1000mg', note: '' });
+      medLogs.push({ date: ds, time: '20:00', med: 'Paracetamol', dose: '1000mg', note: '' });
+    } else {
+      medLogs.push({ date: ds, time: '08:00', med: 'Paracetamol', dose: '1000mg', note: '' });
+      medLogs.push({ date: ds, time: '20:00', med: 'Paracetamol', dose: '1000mg', note: '' });
+      if (d % 2 === 0) {
+        medLogs.push({ date: ds, time: '14:00', med: 'Ibuprofen', dose: '400mg', note: '' });
+      }
+    }
+
+    // Check off most days (random few unchecked)
+    if (Math.random() > 0.15) {
+      checkedDays[ds] = true;
+    }
+  }
+
+  STATE.checkedDays = checkedDays;
+  STATE.painLogs = painLogs;
+  STATE.medLogs = medLogs;
+  saveState();
+  renderToday();
+  renderReminderTimes();
+  updateAchievements();
+  updateDataSummary();
+  document.getElementById('testdata-confirm-box').style.display = 'none';
+  showToast('🧪 14 Tage Testdaten geladen!');
+}
+
+// Toggle PWA section visibility
+function togglePWASection() {
+  const content = document.getElementById('pwa-section-content');
+  const toggle = document.getElementById('pwa-section-toggle');
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    toggle.textContent = '▼';
+  } else {
+    content.style.display = 'none';
+    toggle.textContent = '▶';
   }
 }
 
