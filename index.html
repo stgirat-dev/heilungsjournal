@@ -2225,38 +2225,48 @@ function openChartFullscreen(chartId, title) {
   const canvas = chart.canvas;
   const canvasWrap = canvas.parentElement;
 
+  // Save original inline style so we can restore it
+  const origStyle = canvasWrap.style.cssText;
+
   // Insert a placeholder so we know where to put it back
   const placeholder = document.createElement('div');
   placeholder.className = 'fs-placeholder';
-  placeholder.style.cssText = canvasWrap.style.cssText; // preserve height etc.
+  placeholder.style.cssText = origStyle;
   placeholder.style.display = 'flex';
   placeholder.style.alignItems = 'center';
   placeholder.style.justifyContent = 'center';
   placeholder.innerHTML = '<span style="color:#4A4A60; font-size:0.82rem;">Diagramm im Vollbild geöffnet…</span>';
   canvasWrap.parentElement.insertBefore(placeholder, canvasWrap);
 
-  // Save return info
-  _fsReturnInfo = { placeholder, canvasWrap, chartId };
+  // Save return info (including original style)
+  _fsReturnInfo = { placeholder, canvasWrap, chartId, origStyle };
 
   // Move canvas wrapper into overlay
   const fsWrap = document.getElementById('fs-canvas-wrap');
   fsWrap.innerHTML = '';
-  // Override height to fill overlay
-  canvasWrap.style.cssText = 'position:relative; width:100%; height:100%;';
   fsWrap.appendChild(canvasWrap);
 
-  // Set title
+  // Set title & reset zoom button
   document.getElementById('fs-title').textContent = title;
   document.getElementById('fs-zoom-reset').style.display = 'none';
 
-  // Show overlay
+  // Show overlay first so it has layout dimensions
   _fsOverlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // After overlay is visible and laid out, compute the available height
+  // and set it explicitly on the canvas wrapper, then resize the chart.
   requestAnimationFrame(() => {
     _fsOverlay.classList.add('visible');
-    // Trigger Chart.js resize to fill the new container
-    chart.resize();
+    requestAnimationFrame(() => {
+      // Compute available height inside fs-canvas-wrap (minus padding)
+      const wrapRect = fsWrap.getBoundingClientRect();
+      const availH = wrapRect.height - 32; // 1rem padding top+bottom = ~32px
+      const availW = wrapRect.width - 32;
+      canvasWrap.style.cssText = `position:relative; width:${availW}px; height:${availH}px;`;
+      chart.resize();
+    });
   });
-  document.body.style.overflow = 'hidden';
 }
 
 function resetFsZoom() {
@@ -2269,12 +2279,12 @@ function resetFsZoom() {
 function closeChartFullscreen(instant) {
   if (!_fsOverlay || !_fsReturnInfo) return;
 
-  const { placeholder, canvasWrap, chartId } = _fsReturnInfo;
+  const { placeholder, canvasWrap, chartId, origStyle } = _fsReturnInfo;
   const chart = _charts[chartId];
 
   function doReturn() {
-    // Restore original inline style from placeholder
-    canvasWrap.style.cssText = placeholder.style.cssText;
+    // Restore original inline style
+    canvasWrap.style.cssText = origStyle;
     // Put canvas wrapper back where the placeholder is
     placeholder.parentElement.insertBefore(canvasWrap, placeholder);
     placeholder.remove();
