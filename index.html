@@ -2190,12 +2190,19 @@ let _fsChart = null;       // fullscreen Chart.js instance
 let _fsChartId = null;     // which chart is currently fullscreen
 let _chartConfigs = {};    // chartId → { type, data, options }
 
-// Call this right after every `new Chart(...)` to store the config for fullscreen
-function storeChartConfig(chartId, type, data, options) {
-  // Deep-copy data (labels + datasets with plain arrays) but keep options by ref
-  // so callbacks survive
-  _chartConfigs[chartId] = { type, data: JSON.parse(JSON.stringify(data)), options };
+// Wrapper: creates a Chart AND stores a clean copy of the config for fullscreen.
+// MUST be called instead of `new Chart(ctx, cfg)` so the raw data is captured
+// BEFORE Chart.js mutates it with internal proxies.
+function createAndStoreChart(chartId, ctx, cfg) {
+  // Deep-copy data BEFORE Chart.js touches it
+  const rawData = JSON.parse(JSON.stringify(cfg.data));
+  const chart = new Chart(ctx, cfg);
+  _chartConfigs[chartId] = { type: cfg.type, data: rawData, options: cfg.options };
+  return chart;
 }
+
+// Legacy compat — remove storeChartConfig calls
+function storeChartConfig() { /* no-op, handled by createAndStoreChart now */ }
 
 function _ensureFsOverlay() {
   if (_fsOverlay) return;
@@ -2430,7 +2437,7 @@ function renderAuswertung() {
   }
 
   const ctxV = document.getElementById('chart-verlauf').getContext('2d');
-  _charts['verlauf'] = new Chart(ctxV, {
+  _charts['verlauf'] = createAndStoreChart('verlauf', ctxV, {
     type: 'line',
     data: {
       labels: dayLabels,
@@ -2495,7 +2502,7 @@ function renderAuswertung() {
       }
     }
   });
-  storeChartConfig('verlauf', 'line', _charts['verlauf'].data, _charts['verlauf'].options);
+
 
   // ---- Phase comparison (bar) — add Vor-OP bar ----
   destroyChart('phase');
@@ -2517,7 +2524,7 @@ function renderAuswertung() {
   ];
 
   const ctxP = document.getElementById('chart-phase').getContext('2d');
-  _charts['phase'] = new Chart(ctxP, {
+  _charts['phase'] = createAndStoreChart('phase', ctxP, {
     type: 'bar',
     data: {
       labels: phaseLabels,
@@ -2544,7 +2551,7 @@ function renderAuswertung() {
       }
     }
   });
-  storeChartConfig('phase', 'bar', _charts['phase'].data, _charts['phase'].options);
+
 
   // ---- Tageszeit ----
   destroyChart('tageszeit');
@@ -2568,7 +2575,7 @@ function renderAuswertung() {
   });
 
   const ctxT = document.getElementById('chart-tageszeit').getContext('2d');
-  _charts['tageszeit'] = new Chart(ctxT, {
+  _charts['tageszeit'] = createAndStoreChart('tageszeit', ctxT, {
     type: 'bar',
     data: {
       labels: slots.map(s => s.short),
@@ -2591,7 +2598,7 @@ function renderAuswertung() {
       plugins: { legend:{display:false}, ...zoomPanConfig('tageszeit') }
     }
   });
-  storeChartConfig('tageszeit', 'bar', _charts['tageszeit'].data, _charts['tageszeit'].options);
+
 
   const legend = document.getElementById('tageszeit-legend');
   if (legend) legend.innerHTML = slots.map((s,i) => `
@@ -2883,7 +2890,7 @@ function renderDailyStats() {
       colors14.push(avg !== null ? getPainColor(Math.round(avg)) : 'rgba(255,255,255,0.08)');
     }
 
-    _charts['daily14'] = new Chart(fresh.getContext('2d'), {
+    _charts['daily14'] = createAndStoreChart('daily14', fresh.getContext('2d'), {
       type: 'bar',
       data: {
         labels: labels14,
@@ -2899,7 +2906,7 @@ function renderDailyStats() {
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? ctx.parsed.y + '/10' : 'kein Eintrag' } }, ...zoomPanConfig('daily14') }
       }
     });
-    storeChartConfig('daily14', 'bar', _charts['daily14'].data, _charts['daily14'].options);
+
   })();
 
   // Daily table
@@ -3123,7 +3130,7 @@ function renderMedCharts() {
     showZoomResetBtn('med-timeline');
   }
 
-  _charts['med-timeline'] = new Chart(fresh.getContext('2d'), {
+  _charts['med-timeline'] = createAndStoreChart('med-timeline', fresh.getContext('2d'), {
     type: 'line',
     data: {
       labels,
@@ -3183,7 +3190,7 @@ function renderMedCharts() {
       },
     },
   });
-  storeChartConfig('med-timeline', 'line', _charts['med-timeline'].data, _charts['med-timeline'].options);
+
 
   // Legend
   if (legEl) {
