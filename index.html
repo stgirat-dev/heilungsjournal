@@ -5,57 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Heilungsjournal · Andreia</title>
 <meta name="description" content="Persönliches Heilungsjournal nach Densschrauben-OP">
-<meta name="theme-color" content="#B87049">
+<meta name="theme-color" content="#00D4AA">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Heilungsjournal">
 <meta name="application-name" content="Heilungsjournal">
-<meta name="msapplication-TileColor" content="#B87049">
+<meta name="msapplication-TileColor" content="#00D4AA">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
 <style>
 /* ─── DESIGN SYSTEM ──────────────────────────────── */
 :root {
-  --bg:           #0D1117;
-  --surface:      #161B27;
-  --surface2:     #1C2333;
-  --surface3:     #222B3E;
-  --primary:      #E8714A;
-  --primary-dim:  #3A1E14;
-  --primary-glow: rgba(232,113,74,0.15);
-  --green:        #3CB46E;
-  --green-dim:    #0E2418;
-  --blue:         #4A9FD4;
-  --blue-dim:     #0E2030;
-  --purple:       #9B7FD4;
-  --purple-dim:   #1A1530;
-  --gold:         #D4A84A;
-  --gold-dim:     #251C08;
-  --text:         #EEF0F5;
-  --text-sub:     #9AA5B8;
-  --text-dim:     #5A6476;
-  --border:       #1E2A3A;
-  --border-bright:#2A3A50;
-  --red:          #E05050;
-  --red-dim:      #2A1010;
+  --bg:           #020204;
+  --surface:      #08080C;
+  --surface2:     #0E0E14;
+  --surface3:     #141420;
+  --primary:      #00D4AA;
+  --primary-dim:  #0A2A22;
+  --primary-glow: rgba(0,212,170,0.15);
+  --green:        #00D4AA;
+  --green-dim:    #0A2A22;
+  --blue:         #8B8BFF;
+  --blue-dim:     #12122A;
+  --purple:       #8B8BFF;
+  --purple-dim:   #12122A;
+  --gold:         #FFB347;
+  --gold-dim:     #2A1C08;
+  --text:         #F2F2F8;
+  --text-sub:     #8A8AA0;
+  --text-dim:     #4A4A60;
+  --border:       #16161E;
+  --border-bright:#22222E;
+  --red:          #FF6B8A;
+  --red-dim:      #0A2A22;
 
   /* aliases for compatibility */
-  --paper: #161B27;
-  --paper2: #1C2333;
-  --sage: #3CB46E;
-  --sage-light: #1A4A30;
-  --sage-pale: #0E2418;
-  --text-muted: #9AA5B8;
-  --border-light: #1A2030;
+  --paper: #08080C;
+  --paper2: #0E0E14;
+  --sage: #00D4AA;
+  --sage-light: #0A2A22;
+  --sage-pale: #061A16;
+  --text-muted: #8A8AA0;
+  --border-light: #12121A;
 
   /* Phase colors */
-  --phase-op:  #E08070; --phase-op-bg:  #2A1810;
-  --phase-sp:  #D4A84A; --phase-sp-bg:  #251C08;
-  --phase-er:  #3CB46E; --phase-er-bg:  #0E2418;
-  --phase-za:  #4A9FD4; --phase-za-bg:  #0E2030;
-  --phase-re:  #9B7FD4; --phase-re-bg:  #1A1530;
-  --phase-vr:  #E8714A; --phase-vr-bg:  #3A1E14;
+  --phase-op:  #FF6B8A; --phase-op-bg:  #2A0A14;
+  --phase-sp:  #FFB347; --phase-sp-bg:  #2A1C08;
+  --phase-er:  #00D4AA; --phase-er-bg:  #0A2A22;
+  --phase-za:  #8B8BFF; --phase-za-bg:  #12122A;
+  --phase-re:  #B08BFF; --phase-re-bg:  #1A122A;
+  --phase-vr:  #00D4AA; --phase-vr-bg:  #0A2A22;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -129,6 +131,36 @@ main { max-width: 1080px; margin: 0 auto; padding: 1.4rem 1.75rem; }
 .list-item:last-child { border-bottom: none; }
 .list-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 0.4em; flex-shrink: 0; }
 
+/* GLASSMORPHISM TOOLTIP */
+#glassmorphism-tooltip {
+  position: absolute; pointer-events: none; z-index: 50;
+  background: rgba(8,8,12,0.92);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,212,170,0.25);
+  border-radius: 10px; padding: 0.55rem 0.75rem;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.03);
+  font-family: 'DM Sans', sans-serif;
+  transition: opacity 0.15s ease, left 0.1s ease, top 0.1s ease;
+  min-width: 160px; max-width: 260px;
+}
+#glassmorphism-tooltip .tt-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0.4rem; padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+#glassmorphism-tooltip .tt-time { font-size: 0.7rem; color: #00D4AA; font-weight: 600; }
+#glassmorphism-tooltip .tt-badge {
+  font-size: 0.58rem; background: rgba(0,212,170,0.12); color: #00D4AA;
+  padding: 0.1rem 0.35rem; border-radius: 4px; font-weight: 600;
+}
+#glassmorphism-tooltip .tt-row {
+  display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem;
+}
+#glassmorphism-tooltip .tt-row:last-child { margin-bottom: 0; }
+#glassmorphism-tooltip .tt-icon { font-size: 0.72rem; width: 17px; text-align: center; }
+#glassmorphism-tooltip .tt-label { font-size: 0.78rem; color: #F2F2F8; font-weight: 500; }
+#glassmorphism-tooltip .tt-value { margin-left: auto; font-size: 0.76rem; font-weight: 600; }
+
 /* QUOTE */
 .quote-card { background: linear-gradient(135deg,var(--primary-dim),var(--green-dim)); border: 1px solid var(--border-bright); border-radius: 12px; padding: 1.2rem; position: relative; overflow: hidden; }
 .quote-card::before { content: '"'; position: absolute; top: -0.75rem; left: 0.75rem; font-family: 'Lora',serif; font-size: 4rem; color: var(--primary); line-height: 1; opacity: 0.2; }
@@ -192,7 +224,7 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 .phase-item::before { content: ''; position: absolute; left: -1.5rem; top: 1.1rem; width: 12px; height: 12px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--border-bright); }
 .phase-item.current::before { border-color: var(--primary); background: var(--primary-dim); }
 .phase-card { border-radius: 11px; padding: 1rem; border: 1px solid; }
-.phase-card.current { box-shadow: 0 0 0 1px var(--primary), 0 8px 32px rgba(232,113,74,0.1); }
+.phase-card.current { box-shadow: 0 0 0 1px var(--primary), 0 8px 32px rgba(0,212,170,0.1); }
 .phase-card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
 .phase-icon { font-size: 1.35rem; }
 .phase-card-name { font-size: 0.92rem; font-weight: 700; }
@@ -300,7 +332,7 @@ option { background: var(--surface2); color: var(--text); }
   <div class="header-logo">🌿</div>
   <div class="header-text">
     <h1>Heilungsjournal · Andreia</h1>
-    <p id="header-sub">Anteriore Densschrauben-Fixation · Dr. Mica, USZ Zürich</p>
+    <p id="header-sub">Anteriore Densschrauben-Fixation · Dr. Mica, USZ Zürich · <span style="color:var(--text-dim)">v2.0.0</span></p>
   </div>
   <div class="header-right">
     <div class="streak-badge" id="streak-badge" style="display:none">🔥 <span id="streak-num">0</span> Tage</div>
@@ -451,11 +483,11 @@ option { background: var(--surface2); color: var(--text); }
         <div class="divider"></div>
         <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
           <div class="legend-item"><div class="legend-dot" style="background:#E08070"></div>OP-Tag</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#D4A84A"></div>Spital</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#3CB46E"></div>Frühe Erholung</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#4A9FD4"></div>Zunehmende Aktivität</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#9B7FD4"></div>Rehabilitation</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#E8714A"></div>Volle Rückkehr</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#FFB347"></div>Spital</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#00D4AA"></div>Frühe Erholung</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#8B8BFF"></div>Zunehmende Aktivität</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#B08BFF"></div>Rehabilitation</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#00D4AA"></div>Volle Rückkehr</div>
         </div>
       </div>
     </div>
@@ -680,9 +712,12 @@ option { background: var(--surface2); color: var(--text); }
 
   <!-- Tagesschmerzverlauf + Medikamente -->
   <div class="card section-gap">
-    <div class="card-title">💊 Tagesschmerzverlauf &amp; Medikamente</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+      <div class="card-title" style="margin-bottom:0">💊 Tagesschmerzverlauf &amp; Medikamente</div>
+      <button id="med-zoom-reset" onclick="resetMedZoom()" style="display:none; padding:0.25rem 0.6rem; border-radius:6px; border:1px solid #22222E; background:#0E0E14; color:#8A8AA0; font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:500; cursor:pointer; transition:all 0.15s;">⟲ Zoom zurücksetzen</button>
+    </div>
     <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.5rem;">
-      Alle Schmerzeinträge chronologisch &nbsp;·&nbsp; ▼ Dreiecke = Medikamenteneinnahme
+      Alle Schmerzeinträge chronologisch &nbsp;·&nbsp; ▼ Dreiecke = Medikamenteneinnahme &nbsp;·&nbsp; Scroll-Zoom / Pinch zum Zoomen
     </div>
     <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem; font-size:0.72rem; color:var(--text-sub);"></div>
     <div style="position:relative;height:240px;">
@@ -985,6 +1020,23 @@ option { background: var(--surface2); color: var(--text); }
 <div id="toast"></div>
 
 <script>
+// ============================================================
+// HEILUNGSJOURNAL · Andreia
+// ============================================================
+// Version history:
+//   v1.0.0  — Initial release: PWA with pain/med tracking,
+//             calendar, phases, achievements, CSV export
+//   v2.0.0  — 2026-03-15:
+//     - NEW: Electric Midnight theme (dark black + mint/amber accents)
+//     - NEW: Glassmorphism tooltip on med-timeline chart
+//     - NEW: Zoom & pan on med-timeline chart (scroll/pinch + reset)
+//     - NEW: Medication dose shown in chart tooltips
+//     - FIX: renderWeeklyTable crash (prev?.avg !== null bug)
+//     - FIX: chart-med-timeline & chart-daily14 not rendering
+//     - UX:  Tagesschmerzverlauf & Tages-Statistiken moved to top
+// ============================================================
+const APP_VERSION = '2.0.0';
+
 // ============================================================
 // DATA
 // ============================================================
@@ -1440,8 +1492,8 @@ function renderToday() {
     ptag.style.borderColor = '#DDD';
   } else {
     ptag.textContent = '✅ Heilung abgeschlossen';
-    ptag.style.background = '#0E2418';
-    ptag.style.color = '#3CB46E';
+    ptag.style.background = '#0A2A22';
+    ptag.style.color = '#00D4AA';
     ptag.style.borderColor = '#1A4A30';
   }
 
@@ -1452,7 +1504,7 @@ function renderToday() {
   const pp = phase ? getPhaseProgress(phase) : 0;
   const pf = document.getElementById('phase-progress-fill');
   pf.style.width = pp + '%';
-  pf.style.background = phase ? phase.color : '#E8714A';
+  pf.style.background = phase ? phase.color : '#00D4AA';
   document.getElementById('phase-progress-label').textContent = phase ? phase.name : '–';
   document.getElementById('phase-progress-pct').textContent = pp + '%';
 
@@ -1487,15 +1539,15 @@ function renderToday() {
   }
 
   if (displayPhase) {
-    document.getElementById('today-allowed').innerHTML   = makeList(displayPhase.allowed, '#3CB46E');
+    document.getElementById('today-allowed').innerHTML   = makeList(displayPhase.allowed, '#00D4AA');
     document.getElementById('today-forbidden').innerHTML = makeList(displayPhase.forbidden, '#C45050');
     document.getElementById('today-med').innerHTML = `
       <div class="list-item"><div class="list-dot" style="background:#8872A8"></div><div>${displayPhase.medication}</div></div>
       <div class="list-item"><div class="list-dot" style="background:#5A8FAA"></div><div>${displayPhase.orthesis}</div></div>`;
-    document.getElementById('today-milestones').innerHTML = makeList(displayPhase.milestones, '#E8714A');
+    document.getElementById('today-milestones').innerHTML = makeList(displayPhase.milestones, '#00D4AA');
     document.getElementById('today-hints').innerHTML      = makeList(displayPhase.hints, '#C49A50');
   } else {
-    const msg = '<div style="font-size:0.85rem;color:#9AA5B8;font-style:italic;padding:0.5rem 0;">Bald geht es los!</div>';
+    const msg = '<div style="font-size:0.85rem;color:#8A8AA0;font-style:italic;padding:0.5rem 0;">Bald geht es los!</div>';
     ['today-allowed','today-forbidden','today-med','today-milestones','today-hints'].forEach(id => {
       document.getElementById(id).innerHTML = msg;
     });
@@ -1526,7 +1578,7 @@ function updateQuickSlider(val) {
   val = parseInt(val);
   const info = PAIN_INFO[val];
   const slider = document.getElementById('quick-slider');
-  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, #1E2A3A ${val*10}%)`;
+  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, #16161E ${val*10}%)`;
   slider.style.color = info.color;
   document.getElementById('quick-pain-label').textContent = `${val}/10 — ${info.label}`;
   document.getElementById('quick-pain-label').style.color = info.color;
@@ -1628,13 +1680,13 @@ function renderCalendar() {
     const isCurrent = now >= phStart && now <= phEnd;
     const isPast = now > phEnd;
     return `
-      <div style="display:flex; align-items:center; gap:0.75rem; padding:0.55rem 0; border-bottom:1px solid #1A2030;">
+      <div style="display:flex; align-items:center; gap:0.75rem; padding:0.55rem 0; border-bottom:1px solid #12121A;">
         <div style="width:10px; height:10px; border-radius:3px; background:${ph.color}; flex-shrink:0;"></div>
         <div style="flex:1;">
-          <div style="font-size:0.85rem; font-weight:${isCurrent?'600':'400'}; color:${isCurrent?ph.color:'#EEF0F5'};">
-            ${ph.icon} ${ph.name} <span style="font-size:0.75rem; color:#9AA5B8;">(${ph.week})</span>
+          <div style="font-size:0.85rem; font-weight:${isCurrent?'600':'400'}; color:${isCurrent?ph.color:'#F2F2F8'};">
+            ${ph.icon} ${ph.name} <span style="font-size:0.75rem; color:#8A8AA0;">(${ph.week})</span>
           </div>
-          <div style="font-size:0.72rem; color:#9AA5B8;">${ph.dates}</div>
+          <div style="font-size:0.72rem; color:#8A8AA0;">${ph.dates}</div>
         </div>
         ${isCurrent ? `<span style="font-size:0.72rem; font-weight:600; color:${ph.color}; background:${ph.bg}; padding:0.15rem 0.5rem; border-radius:8px;">Aktiv</span>` : ''}
         ${isPast ? '<span style="font-size:0.9rem;">✅</span>' : ''}
@@ -1669,7 +1721,7 @@ function updatePainSlider(val) {
   val = parseInt(val);
   const info = PAIN_INFO[val];
   const slider = document.getElementById('pain-slider');
-  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, #1E2A3A ${val*10}%)`;
+  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, #16161E ${val*10}%)`;
   slider.style.color = info.color;
   document.getElementById('slider-emoji').textContent  = info.emoji;
   document.getElementById('slider-number').textContent = val;
@@ -1703,7 +1755,7 @@ function renderTodayEntries() {
   const avg  = document.getElementById('today-avg-pain');
 
   if (!entries.length && !meds.length) {
-    wrap.innerHTML = '<div style="font-size:0.85rem; color:#9AA5B8; font-style:italic; padding:1rem 0; text-align:center;">Noch keine Einträge heute.</div>';
+    wrap.innerHTML = '<div style="font-size:0.85rem; color:#8A8AA0; font-style:italic; padding:1rem 0; text-align:center;">Noch keine Einträge heute.</div>';
     avg.textContent = '';
     return;
   }
@@ -1745,7 +1797,7 @@ function renderPainChart() {
     const dStr = dateStr(d);
     const avg = avgPainForDay(dStr);
     const h = avg !== null ? Math.round((avg / 10) * 70) : 4;
-    const col = avg !== null ? getPainColor(Math.round(avg)) : '#1E2A3A';
+    const col = avg !== null ? getPainColor(Math.round(avg)) : '#16161E';
     const label = getDayLabel(i);
     html += `
       <div class="chart-bar-wrap">
@@ -1759,12 +1811,12 @@ function renderPainChart() {
 function renderPainReference() {
   const ref = document.getElementById('pain-reference');
   ref.innerHTML = PAIN_INFO.map((p, i) => `
-    <div style="border-bottom:1px solid #1A2030; padding:0.45rem 0;">
+    <div style="border-bottom:1px solid #12121A; padding:0.45rem 0;">
       <div style="display:flex; align-items:center; gap:0.65rem;">
         <div style="width:28px; height:28px; border-radius:50%; background:${p.color}; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; color:white; flex-shrink:0;">${i}</div>
         <div>
           <div style="font-size:0.82rem;">${p.emoji} <strong>${p.label}</strong> — ${p.desc}</div>
-          <div style="font-size:0.75rem; color:#9AA5B8; font-style:italic; margin-top:0.1rem;">z.B. ${p.example}</div>
+          <div style="font-size:0.75rem; color:#8A8AA0; font-style:italic; margin-top:0.1rem;">z.B. ${p.example}</div>
         </div>
       </div>
     </div>`).join('');
@@ -1780,22 +1832,22 @@ function selectMed(btn) {
   _selectedMed  = btn.dataset.med;
   _selectedDose = null;
   document.querySelectorAll('.med-btn').forEach(b => {
-    b.style.background = '#1C2333';
-    b.style.borderColor = '#1E2A3A';
+    b.style.background = '#0E0E14';
+    b.style.borderColor = '#16161E';
     b.style.fontWeight = '500';
-    b.style.color = '#9AA5B8';
+    b.style.color = '#8A8AA0';
   });
-  btn.style.background = '#1A1530';
-  btn.style.borderColor = '#9B7FD4';
+  btn.style.background = '#12122A';
+  btn.style.borderColor = '#8B8BFF';
   btn.style.fontWeight = '600';
-  btn.style.color = '#9B7FD4';
+  btn.style.color = '#8B8BFF';
 
   ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
     document.getElementById('dose-'+m).style.display = 'none');
   document.getElementById('dose-'+_selectedMed.toLowerCase()).style.display = 'block';
   document.getElementById('med-selected-display').style.display = 'none';
   document.querySelectorAll('.dose-btn').forEach(b => {
-    b.style.background = '#1C2333'; b.style.borderColor = '#1E2A3A'; b.style.fontWeight = '400'; b.style.color = '#EEF0F5';
+    b.style.background = '#0E0E14'; b.style.borderColor = '#16161E'; b.style.fontWeight = '400'; b.style.color = '#F2F2F8';
   });
 }
 
@@ -1803,10 +1855,10 @@ function selectDose(dose) {
   _selectedDose = dose;
   document.querySelectorAll('.dose-btn').forEach(b => {
     const active = b.dataset.dose === dose;
-    b.style.background   = active ? '#1A1530' : '#1C2333';
-    b.style.borderColor  = active ? '#9B7FD4' : '#1E2A3A';
+    b.style.background   = active ? '#12122A' : '#0E0E14';
+    b.style.borderColor  = active ? '#8B8BFF' : '#16161E';
     b.style.fontWeight   = active ? '700' : '400';
-    b.style.color        = active ? '#9B7FD4' : '#EEF0F5';
+    b.style.color        = active ? '#8B8BFF' : '#F2F2F8';
   });
   updateMedDisplay();
 }
@@ -1837,7 +1889,7 @@ function addMedEntry() {
   document.getElementById('med-other-text').value = '';
   document.getElementById('med-selected-display').style.display = 'none';
   document.querySelectorAll('.med-btn').forEach(b => {
-    b.style.background='#0D1117'; b.style.borderColor='#1E2A3A'; b.style.fontWeight='400'; b.style.color='#EEF0F5';
+    b.style.background='#020204'; b.style.borderColor='#16161E'; b.style.fontWeight='400'; b.style.color='#F2F2F8';
   });
   ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
     document.getElementById('dose-'+m).style.display = 'none');
@@ -1890,9 +1942,9 @@ function renderPhasenTab() {
           <div class="phase-icon">${ph.icon}</div>
           <div>
             <div class="phase-card-name" style="color:${ph.color}">${ph.name}</div>
-            <div class="phase-card-dates" style="color:#9AA5B8;">${ph.dates}</div>
+            <div class="phase-card-dates" style="color:#8A8AA0;">${ph.dates}</div>
           </div>
-          <div class="phase-card-week" style="color:#EEF0F5;">${ph.week}</div>
+          <div class="phase-card-week" style="color:#F2F2F8;">${ph.week}</div>
           ${isCurrent ? `<span style="margin-left:0.5rem; font-size:0.75rem; font-weight:700; background:${ph.color}; color:white; padding:0.2rem 0.55rem; border-radius:10px;">● Aktiv</span>` : ''}
           ${isPast ? '<span style="font-size:1.2rem; margin-left:0.5rem;">✅</span>' : ''}
         </div>
@@ -1920,7 +1972,7 @@ function renderPhasenTab() {
           <div class="phase-info-block">
             <div class="phase-info-block-title">📋 Meilensteine</div>
             <ul>${ph.milestones.map(m=>`<li>${m}</li>`).join('')}</ul>
-            <div style="margin-top:0.5rem; font-size:0.75rem; color:#9AA5B8; padding-left:0.8rem;">🦺 ${ph.orthesis}</div>
+            <div style="margin-top:0.5rem; font-size:0.75rem; color:#8A8AA0; padding-left:0.8rem;">🦺 ${ph.orthesis}</div>
           </div>
         </div>
       </div>
@@ -2036,6 +2088,20 @@ let _charts = {};
 
 function destroyChart(id) {
   if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+  // Clean up external tooltip if it exists
+  if (id === 'med-timeline') {
+    const tt = document.getElementById('glassmorphism-tooltip');
+    if (tt) tt.remove();
+    const btn = document.getElementById('med-zoom-reset');
+    if (btn) btn.style.display = 'none';
+  }
+}
+function resetMedZoom() {
+  if (_charts['med-timeline']) {
+    _charts['med-timeline'].resetZoom();
+    const btn = document.getElementById('med-zoom-reset');
+    if (btn) btn.style.display = 'none';
+  }
 }
 
 // Main analytics renderer: KPIs, extended stats, all charts, tables
@@ -2072,20 +2138,20 @@ function renderAuswertung() {
   function kpi(icon, val, label, sub, color) {
     return `<div class="card" style="text-align:center; padding:1.1rem 0.75rem;">
       <div style="font-size:1.6rem; margin-bottom:0.3rem;">${icon}</div>
-      <div style="font-family:'Lora',serif; font-size:1.6rem; font-weight:700; color:${color||'#E8714A'}; line-height:1;">${val}</div>
+      <div style="font-family:'Lora',serif; font-size:1.6rem; font-weight:700; color:${color||'#00D4AA'}; line-height:1;">${val}</div>
       <div style="font-size:0.82rem; font-weight:600; margin-top:0.25rem;">${label}</div>
-      <div style="font-size:0.72rem; color:#9AA5B8; margin-top:0.1rem;">${sub}</div>
+      <div style="font-size:0.72rem; color:#8A8AA0; margin-top:0.1rem;">${sub}</div>
     </div>`;
   }
 
   // Extended stats row
   const statsHtml = stats ? `
-    <div class="card section-gap" style="background:#1C2333;">
+    <div class="card section-gap" style="background:#0E0E14;">
       <div class="card-label">📐 Erweiterte Statistik — alle Einträge (n=${stats.n})</div>
       <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; margin-top:0.5rem; flex-wrap:wrap;">
         ${[
           ['Median',    stats.median+'/10', '#5A8FAA'],
-          ['Ø Mean',    stats.mean+'/10',   '#E8714A'],
+          ['Ø Mean',    stats.mean+'/10',   '#00D4AA'],
           ['σ Std.abw.',stats.sd,           '#8872A8'],
           ['Varianz',   stats.variance,     '#C49A50'],
           ['Min',       stats.min+'/10',    '#5A9068'],
@@ -2094,9 +2160,9 @@ function renderAuswertung() {
           ['Vor OP Ø',  avgPre!==null?avgPre+'/10':'–', '#5A8FAA'],
           ['Nach OP Ø', avgPost!==null?avgPost+'/10':'–','#6D9B74'],
         ].map(([l,v,c])=>`
-          <div style="text-align:center; padding:0.6rem 0.4rem; background:#0D1117; border-radius:10px;">
+          <div style="text-align:center; padding:0.6rem 0.4rem; background:#020204; border-radius:10px;">
             <div style="font-size:1.1rem; font-weight:700; color:${c}; font-family:'Lora',serif;">${v}</div>
-            <div style="font-size:0.68rem; color:#9AA5B8; margin-top:0.15rem;">${l}</div>
+            <div style="font-size:0.68rem; color:#8A8AA0; margin-top:0.15rem;">${l}</div>
           </div>`).join('')}
       </div>
     </div>` : '';
@@ -2133,7 +2199,7 @@ function renderAuswertung() {
           <div style="font-size:2rem; font-weight:700; color:${col}; font-family:'Lora',serif;">${arrow} ${Math.abs(diff)}</div>
           <div>
             <div style="font-weight:600; font-size:0.9rem;">${msg}</div>
-            <div style="font-size:0.78rem; color:#9AA5B8; margin-top:0.2rem;">Vor OP: Ø ${avgPre}/10 · Nach OP: Ø ${avgPost}/10</div>
+            <div style="font-size:0.78rem; color:#8A8AA0; margin-top:0.2rem;">Vor OP: Ø ${avgPre}/10 · Nach OP: Ø ${avgPost}/10</div>
           </div>
         </div>`;
       compWrap.style.display = 'block';
@@ -2345,8 +2411,8 @@ function renderAuswertung() {
 // Renders weekly statistics table starting from first log entry
 function renderWeeklyTable() {
   const table = document.getElementById('weekly-table');
-  const TH = s => `<th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.78rem;font-weight:600;color:#9AA5B8;border-bottom:2px solid #1E2A3A;white-space:nowrap;">${s}</th>`;
-  const TD = (s, style='') => `<td style="padding:0.45rem 0.75rem;border-bottom:1px solid #1A2030;font-size:0.82rem;${style}">${s}</td>`;
+  const TH = s => `<th style="text-align:left;padding:0.5rem 0.75rem;font-size:0.78rem;font-weight:600;color:#8A8AA0;border-bottom:2px solid #16161E;white-space:nowrap;">${s}</th>`;
+  const TD = (s, style='') => `<td style="padding:0.45rem 0.75rem;border-bottom:1px solid #12121A;font-size:0.82rem;${style}">${s}</td>`;
 
   let html = `<thead><tr>${TH('Woche')}${TH('KW')}${TH('Phase')}${TH('Einträge')}${TH('Ø Schmerz')}${TH('Min')}${TH('Max')}${TH('Trend')}</tr></thead><tbody>`;
 
@@ -2399,13 +2465,13 @@ function renderWeeklyTable() {
              : '<span style="color:#9A8070">→ stabil</span>';
     }
     const isCurrentWeek = i === rows.length - 1;
-    const rowBg = r.isOPWeek ? 'background:#FBF0EC;' : r.isPreOP ? 'background:#EBF3F8;' : isCurrentWeek ? 'background:#3A1E14;' : '';
+    const rowBg = r.isOPWeek ? 'background:#2A1C08;' : r.isPreOP ? 'background:#12122A;' : isCurrentWeek ? 'background:#0A2A22;' : '';
     html += `<tr style="${rowBg}">
       ${TD(r.isPreOP ? 'Vor OP' : r.isOPWeek ? '🔴 OP-Woche' : 'Woche '+(r.weekIdx - rows.filter(x=>x.isPreOP||x.isOPWeek).length), isCurrentWeek ? 'font-weight:600;' : '')}
       ${TD('KW '+r.kw)}
       ${TD(`<span style="color:${r.phaseColor};font-weight:500;">${r.phaseName}</span>`)}
       ${TD(r.count || '0')}
-      ${TD(r.avg !== null ? `<strong>${r.avg}/10</strong>` : '<span style="color:#9AA5B8">–</span>')}
+      ${TD(r.avg !== null ? `<strong>${r.avg}/10</strong>` : '<span style="color:#8A8AA0">–</span>')}
       ${TD(r.min !== null ? r.min : '–')}
       ${TD(r.max !== null ? r.max : '–')}
       ${TD(trend)}
@@ -2474,7 +2540,7 @@ function renderLogTable() {
   if (empty) empty.style.display = 'none';
   if (countEl) countEl.textContent = `${filtered.length} Einträge (${filtered.filter(l=>l._type==='pain').length} 🌡 Schmerz · ${filtered.filter(l=>l._type==='med').length} 💊 Medikament)`;
 
-  const TH = s => `<th style="text-align:left;padding:0.45rem 0.6rem;font-size:0.73rem;font-weight:600;color:#9AA5B8;border-bottom:2px solid #1E2A3A;position:sticky;top:0;background:#161B27;white-space:nowrap;">${s}</th>`;
+  const TH = s => `<th style="text-align:left;padding:0.45rem 0.6rem;font-size:0.73rem;font-weight:600;color:#8A8AA0;border-bottom:2px solid #16161E;position:sticky;top:0;background:#08080C;white-space:nowrap;">${s}</th>`;
   let html = `<thead><tr>${TH('Typ')}${TH('Datum')}${TH('Zeit')}${TH('Phase')}${TH('Eintrag')}${TH('Notiz')}${TH('')}</tr></thead><tbody>`;
 
   filtered.forEach(l => {
@@ -2496,18 +2562,18 @@ function renderLogTable() {
     const actionBtns = `
       <div style="display:flex;gap:0.3rem;">
         <button onclick="openEditModal('${l._type}',${l._idx},'${l.date}','${l.time||''}')"
-          title="Bearbeiten" style="background:none;border:1px solid #1E2A3A;cursor:pointer;font-size:0.85rem;color:#9AA5B8;padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='#E8714A';this.style.color='#E8714A'" onmouseout="this.style.borderColor='#1E2A3A';this.style.color='#9AA5B8'">✏️</button>
+          title="Bearbeiten" style="background:none;border:1px solid #16161E;cursor:pointer;font-size:0.85rem;color:#8A8AA0;padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='#00D4AA';this.style.color='#00D4AA'" onmouseout="this.style.borderColor='#16161E';this.style.color='#8A8AA0'">✏️</button>
         <button onclick="deleteEntry('${l._type}',${l._idx})"
-          title="Löschen" style="background:none;border:1px solid #1E2A3A;cursor:pointer;font-size:0.85rem;color:#9AA5B8;padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='#C05018';this.style.color='#C05018'" onmouseout="this.style.borderColor='#1E2A3A';this.style.color='#9AA5B8'">🗑</button>
+          title="Löschen" style="background:none;border:1px solid #16161E;cursor:pointer;font-size:0.85rem;color:#8A8AA0;padding:0.2rem 0.45rem;border-radius:6px;" onmouseover="this.style.borderColor='#FF6B8A';this.style.color='#FF6B8A'" onmouseout="this.style.borderColor='#16161E';this.style.color='#8A8AA0'">🗑</button>
       </div>`;
 
-    html += `<tr style="border-bottom:1px solid #1A2030;${rowBg}">
+    html += `<tr style="border-bottom:1px solid #12121A;${rowBg}">
       <td style="padding:0.4rem 0.6rem;">${typeBadge}</td>
       <td style="padding:0.4rem 0.6rem;font-size:0.8rem;white-space:nowrap;">${formatDateDE(l.date)}</td>
-      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;color:#9AA5B8;">${l.time||'–'}</td>
-      <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'#9AA5B8'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.8rem;color:#8A8AA0;">${l.time||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'#8A8AA0'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
       <td style="padding:0.4rem 0.6rem;font-size:0.82rem;">${entryCell}</td>
-      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:#9AA5B8;font-style:${l.note?'italic':'normal'};">${l.note||'–'}</td>
+      <td style="padding:0.4rem 0.6rem;font-size:0.76rem;color:#8A8AA0;font-style:${l.note?'italic':'normal'};">${l.note||'–'}</td>
       <td style="padding:0.4rem 0.5rem;">${actionBtns}</td>
     </tr>`;
   });
@@ -2624,8 +2690,8 @@ function renderDailyStats() {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 9 }, color: '#9AA5B8' } },
-          x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#9AA5B8' } }
+          y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 9 }, color: '#8A8AA0' } },
+          x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#8A8AA0' } }
         },
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? ctx.parsed.y + '/10' : 'kein Eintrag' } } }
       }
@@ -2644,7 +2710,7 @@ function renderDailyStats() {
   if (emptyEl) emptyEl.style.display='none';
 
   const allDates = [...new Set(STATE.painLogs.map(l=>l.date))].sort().reverse();
-  const TH = s => `<th style="text-align:left;padding:0.4rem 0.6rem;font-size:0.72rem;font-weight:600;color:#5A6476;border-bottom:1px solid #1E2A3A;white-space:nowrap;">${s}</th>`;
+  const TH = s => `<th style="text-align:left;padding:0.4rem 0.6rem;font-size:0.72rem;font-weight:600;color:#4A4A60;border-bottom:1px solid #16161E;white-space:nowrap;">${s}</th>`;
 
   let html = `<thead><tr>${TH('Datum')}${TH('Phase')}${TH('n')}${TH('Ø')}${TH('Median')}${TH('σ')}${TH('Min')}${TH('Max')}${TH('')}</tr></thead><tbody>`;
 
@@ -2654,31 +2720,31 @@ function renderDailyStats() {
     const s = calcStats(levels);
     const ph = getCurrentPhase(parseDate(ds));
     const isToday = ds === today();
-    const bg = isToday ? 'background:#3A1E14;' : '';
+    const bg = isToday ? 'background:#0A2A22;' : '';
     const medToday = STATE.medLogs.filter(l=>l.date===ds);
 
     html += `
       <tr style="${bg} cursor:pointer;" onclick="toggleDayDetail('${ds}')">
-        <td style="padding:0.4rem 0.6rem;font-size:0.8rem;font-weight:${isToday?'700':'400'};color:#EEF0F5;">${formatDateDE(ds)}${isToday?' 🔵':''}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'#4A9FD4'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#EEF0F5;">${s.n}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.8rem;font-weight:${isToday?'700':'400'};color:#F2F2F8;">${formatDateDE(ds)}${isToday?' 🔵':''}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:${ph?ph.color:'#8B8BFF'};">${ph?ph.icon+' '+ph.name:'Vor OP'}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#F2F2F8;">${s.n}</td>
         <td style="padding:0.4rem 0.6rem;font-size:0.82rem;font-weight:600;color:${getPainColor(Math.round(s.mean))};">${s.mean}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#4A9FD4;">${s.median}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#9B7FD4;">${s.sd}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#3CB46E;">${s.min}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#E05050;">${s.max}</td>
-        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:#5A6476;">▾</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#8B8BFF;">${s.median}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#B08BFF;">${s.sd}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#00D4AA;">${s.min}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.82rem;color:#FF6B8A;">${s.max}</td>
+        <td style="padding:0.4rem 0.6rem;font-size:0.75rem;color:#4A4A60;">▾</td>
       </tr>
       <tr id="detail-${ds}" style="display:none;">
-        <td colspan="9" style="padding:0.5rem 1rem 0.75rem; background:#1C2333;">
-          <div style="font-size:0.75rem; color:#5A6476; margin-bottom:0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">Alle Messungen</div>
+        <td colspan="9" style="padding:0.5rem 1rem 0.75rem; background:#0E0E14;">
+          <div style="font-size:0.75rem; color:#4A4A60; margin-bottom:0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">Alle Messungen</div>
           ${dayLogs.map(l=>`
             <div style="display:inline-flex; align-items:center; gap:0.4rem; margin:0.15rem 0.25rem 0.15rem 0; padding:0.22rem 0.55rem; background:${getPainColor(l.level)}20; border:1px solid ${getPainColor(l.level)}40; border-radius:6px; font-size:0.76rem;">
               <span style="font-weight:700;color:${getPainColor(l.level)}">${l.level}/10</span>
-              <span style="color:#5A6476">${l.time}</span>
-              ${l.note?`<span style="color:#9AA5B8;font-style:italic">${l.note}</span>`:''}
+              <span style="color:#4A4A60">${l.time}</span>
+              ${l.note?`<span style="color:#8A8AA0;font-style:italic">${l.note}</span>`:''}
             </div>`).join('')}
-          ${medToday.length ? `<div style="margin-top:0.5rem; font-size:0.77rem; color:#9B7FD4;">💊 ${medToday.map(m=>`${m.med} ${m.dose}`).join(' · ')}</div>` : ''}
+          ${medToday.length ? `<div style="margin-top:0.5rem; font-size:0.77rem; color:#B08BFF;">💊 ${medToday.map(m=>`${m.med} ${m.dose}`).join(' · ')}</div>` : ''}
         </td>
       </tr>`;
   });
@@ -2705,10 +2771,10 @@ function toggleDayDetail(ds) {
 // downward-triangle scatter points at y=10.6 (just above the pain scale).
 function renderMedCharts() {
   const MED_COLORS = {
-    'Tramadol':    '#9B7FD4',
-    'Paracetamol': '#D4A84A',
-    'Ibuprofen':   '#E08070',
-    'Anderes':     '#4A9FD4',
+    'Tramadol':    '#B08BFF',
+    'Paracetamol': '#FFB347',
+    'Ibuprofen':   '#FF6B8A',
+    'Anderes':     '#8B8BFF',
   };
 
   const emptyEl = document.getElementById('med-timeline-empty');
@@ -2783,6 +2849,80 @@ function renderMedCharts() {
     };
   });
 
+  // Glassmorphism external tooltip handler
+  function externalTooltipHandler(context) {
+    const { chart, tooltip } = context;
+    let el = document.getElementById('glassmorphism-tooltip');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'glassmorphism-tooltip';
+      chart.canvas.parentNode.appendChild(el);
+    }
+    if (tooltip.opacity === 0) { el.style.opacity = '0'; return; }
+
+    const dataIndex = tooltip.dataPoints?.[0]?.dataIndex;
+    if (dataIndex == null) { el.style.opacity = '0'; return; }
+    const lbl = labels[dataIndex] || '';
+    const painVal = painByLabel[lbl];
+
+    // Determine current phase for badge
+    const painLog = STATE.painLogs.find(l => toLabel(l.date, l.time) === lbl);
+    let phaseName = 'Vor OP';
+    if (painLog) {
+      const ph = getCurrentPhase(parseDate(painLog.date));
+      if (ph) phaseName = ph.name;
+    }
+
+    let html = '<div class="tt-header">';
+    html += '<span class="tt-time">' + lbl.replace(' ', ' · ') + '</span>';
+    html += '<span class="tt-badge">' + phaseName + '</span>';
+    html += '</div>';
+
+    if (painVal != null) {
+      const info = PAIN_INFO[Math.round(painVal)];
+      html += '<div class="tt-row">';
+      html += '<span class="tt-icon">🔴</span>';
+      html += '<span class="tt-label">Schmerz</span>';
+      html += '<span class="tt-value" style="color:' + getPainColor(Math.round(painVal)) + '">' + painVal + '/10</span>';
+      html += '</div>';
+      if (info) {
+        html += '<div style="font-size:0.68rem;color:#8A8AA0;margin:-0.1rem 0 0.15rem 1.55rem;">' + info.label + '</div>';
+      }
+    }
+
+    // Med entries at this time
+    const medsAtTime = STATE.medLogs.filter(l => toLabel(l.date, l.time) === lbl);
+    medsAtTime.forEach(m => {
+      const col = MED_COLORS[m.med] || '#8B8BFF';
+      html += '<div class="tt-row">';
+      html += '<span class="tt-icon">💊</span>';
+      html += '<span class="tt-label" style="color:' + col + '">' + m.med + '</span>';
+      html += '<span class="tt-value" style="color:#8A8AA0">' + (m.dose || '') + '</span>';
+      html += '</div>';
+    });
+
+    el.innerHTML = html;
+    el.style.opacity = '1';
+
+    const pos = chart.canvas.getBoundingClientRect();
+    const left = tooltip.caretX;
+    const top = tooltip.caretY;
+    // Keep tooltip within chart bounds
+    const ttWidth = el.offsetWidth || 180;
+    const maxLeft = chart.canvas.clientWidth - ttWidth - 8;
+    el.style.left = Math.min(Math.max(4, left - ttWidth / 2), maxLeft) + 'px';
+    el.style.top = Math.max(4, top - el.offsetHeight - 12) + 'px';
+  }
+
+  // Show/hide zoom reset button
+  function updateZoomResetBtn() {
+    const btn = document.getElementById('med-zoom-reset');
+    if (!btn || !_charts['med-timeline']) return;
+    const chart = _charts['med-timeline'];
+    const isZoomed = chart.isZoomedOrPanned?.() || false;
+    btn.style.display = isZoomed ? 'inline-block' : 'none';
+  }
+
   _charts['med-timeline'] = new Chart(fresh.getContext('2d'), {
     type: 'line',
     data: {
@@ -2791,8 +2931,8 @@ function renderMedCharts() {
         {
           label: 'Schmerzniveau',
           data: painData,
-          borderColor: '#E8714A',
-          backgroundColor: 'rgba(232,113,74,0.07)',
+          borderColor: '#00D4AA',
+          backgroundColor: 'rgba(0,212,170,0.07)',
           pointBackgroundColor: painColors,
           pointBorderColor: painColors,
           pointRadius: labels.map(lbl => painByLabel[lbl] != null ? 5 : 0),
@@ -2814,27 +2954,30 @@ function renderMedCharts() {
         y: {
           min: 0, max: 11,
           grid: { color: 'rgba(255,255,255,0.05)' },
-          ticks: { font: { size: 9 }, color: '#9AA5B8', callback: v => v <= 10 ? v : '' },
+          ticks: { font: { size: 9 }, color: '#8A8AA0', callback: v => v <= 10 ? v : '' },
         },
         x: {
           grid: { display: false },
-          ticks: { font: { size: 8 }, color: '#9AA5B8', maxTicksLimit: 20, maxRotation: 45 },
+          ticks: { font: { size: 8 }, color: '#8A8AA0', maxTicksLimit: 20, maxRotation: 45 },
         },
       },
       plugins: {
         legend: { display: false },
         tooltip: {
-          callbacks: {
-            label: ctx => {
-              if (ctx.dataset.label === 'Schmerzniveau') {
-                const v = ctx.parsed.y;
-                if (v == null) return '';
-                return 'Schmerz: ' + v + '/10 — ' + (PAIN_INFO[Math.round(v)]?.label || '');
-              }
-              const lbl = labels[ctx.dataIndex];
-              const dose = medDoseByKey[lbl + '|' + ctx.dataset.label] || '';
-              return '💊 ' + ctx.dataset.label + (dose ? ' · ' + dose : '');
-            },
+          enabled: false,
+          external: externalTooltipHandler,
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: 'x',
+            onPanComplete: updateZoomResetBtn,
+          },
+          zoom: {
+            wheel: { enabled: true, modifierKey: null },
+            pinch: { enabled: true },
+            mode: 'x',
+            onZoomComplete: updateZoomResetBtn,
           },
         },
       },
@@ -2844,7 +2987,7 @@ function renderMedCharts() {
   // Legend
   if (legEl) {
     legEl.innerHTML = [
-      '<div style="display:flex;align-items:center;gap:0.35rem;"><div style="width:18px;height:3px;background:#E8714A;border-radius:2px;"></div><span>Schmerzverlauf</span></div>',
+      '<div style="display:flex;align-items:center;gap:0.35rem;"><div style="width:18px;height:3px;background:#00D4AA;border-radius:2px;"></div><span>Schmerzverlauf</span></div>',
       ...usedMeds.map(med => {
         const col = MED_COLORS[med] || '#888';
         return `<div style="display:flex;align-items:center;gap:0.35rem;"><div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid ${col};"></div><span>${med}</span></div>`;
@@ -3152,7 +3295,7 @@ function updateSWStatus(ok) {
   el.textContent = ok
     ? '✅ Offline-Modus aktiv — App funktioniert ohne Internet'
     : '⚠️ Offline-Modus nicht aktiv (funktioniert nur über HTTPS oder localhost)';
-  el.style.color = ok ? '#3CB46E' : '#9AA5B8';
+  el.style.color = ok ? '#00D4AA' : '#8A8AA0';
 }
 
 function checkSWStatus() {
@@ -3226,7 +3369,7 @@ function initPWA() {
     updateInstallStatus('installed');
     // Hide install nav button since we're already in app mode
     const btn = document.getElementById('install-nav-btn');
-    if (btn) { btn.textContent = '✅ App aktiv'; btn.style.color = '#3CB46E'; }
+    if (btn) { btn.textContent = '✅ App aktiv'; btn.style.color = '#00D4AA'; }
   } else if (!('serviceWorker' in navigator)) {
     updateInstallStatus('notsup');
   } else {
