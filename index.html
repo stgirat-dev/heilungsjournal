@@ -2197,7 +2197,8 @@ function createAndStoreChart(chartId, ctx, cfg) {
   // Deep-copy data BEFORE Chart.js touches it
   const rawData = JSON.parse(JSON.stringify(cfg.data));
   const chart = new Chart(ctx, cfg);
-  _chartConfigs[chartId] = { type: cfg.type, data: rawData, options: cfg.options };
+  // Store config + local plugins (plugins array contains live objects, keep by ref)
+  _chartConfigs[chartId] = { type: cfg.type, data: rawData, options: cfg.options, plugins: cfg.plugins || [] };
   return chart;
 }
 
@@ -2273,6 +2274,7 @@ function openChartFullscreen(chartId, title) {
 
       _fsChart = new Chart(canvas.getContext('2d'), {
         type: cfg.type,
+        plugins: cfg.plugins || [],
         data: JSON.parse(JSON.stringify(cfg.data)),
         options: fsOptions,
       });
