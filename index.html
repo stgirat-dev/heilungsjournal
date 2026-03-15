@@ -931,11 +931,44 @@ option { background: var(--surface2); color: var(--text); }
 <!-- ======================== APP-MANAGER ======================== -->
 <div class="tab" id="tab-install">
 
+  <!-- ─── BACKUP LOCATION ─── -->
+  <div class="card section-gap">
+    <div class="card-title">📁 Backup-Speicherort</div>
+    <div id="backup-location-status" style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1rem; font-size:0.83rem;">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <span id="backup-loc-icon" style="font-size:1.2rem;">⚪</span>
+        <span id="backup-loc-text" style="color:var(--text-muted);">Nicht eingerichtet</span>
+      </div>
+      <div id="backup-loc-detail" style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem;"></div>
+    </div>
+    <!-- Buttons: show based on device capability -->
+    <div id="backup-loc-setup" style="display:flex; gap:0.75rem; margin-bottom:0.5rem;">
+      <button id="btn-pick-folder" class="btn btn-outline" onclick="pickBackupFolder()" style="flex:1; justify-content:center; padding:0.8rem; font-size:0.88rem;">
+        📂 Ordner wählen
+      </button>
+      <button id="btn-pick-gdrive" class="btn btn-outline" onclick="setGDriveMode()" style="flex:1; justify-content:center; padding:0.8rem; font-size:0.88rem;">
+        ☁️ Google Drive
+      </button>
+    </div>
+    <div id="backup-loc-change" style="display:none;">
+      <button class="btn btn-outline btn-sm" onclick="changeBackupLocation()" style="width:100%; justify-content:center;">
+        🔄 Speicherort ändern
+      </button>
+    </div>
+    <div style="font-size:0.73rem; color:var(--text-dim); margin-top:0.5rem; line-height:1.4;" id="backup-loc-hint">
+      <strong>PC:</strong> Wähle deinen Google Drive Sync-Ordner (oder beliebigen Ordner).<br>
+      <strong>Tablet/Mobile:</strong> Wähle Google Drive — Backups werden über das Teilen-Menü gesichert.
+    </div>
+  </div>
+
   <!-- ─── DATA MANAGEMENT ─── -->
   <div class="card section-gap">
     <div class="card-title">💾 Datensicherung</div>
-    <div style="font-size:0.83rem; color:var(--text-muted); margin-bottom:1.25rem;">
-      Sichere deine Daten als JSON-Datei und speichere sie in deinem Google Drive Ordner. So kannst du sie auf jedem Gerät wiederherstellen.
+
+    <!-- Test data warning banner -->
+    <div id="testdata-active-banner" style="display:none; background:var(--blue-dim); border:1px solid #8B8BFF44; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1rem; font-size:0.8rem;">
+      <span style="color:var(--blue); font-weight:600;">🧪 Testdaten aktiv</span>
+      <span style="color:var(--text-muted);"> — Backups enthalten nur Testdaten, nicht deine echten Einträge.</span>
     </div>
 
     <!-- Current data summary -->
@@ -960,18 +993,24 @@ option { background: var(--surface2); color: var(--text); }
 
     <!-- Export button -->
     <button class="btn btn-sage" onclick="exportBackup()" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.95rem; margin-bottom:0.75rem;">
-      📤 Backup erstellen &amp; herunterladen
+      <span id="export-btn-text">📤 Backup erstellen</span>
     </button>
-    <div style="font-size:0.75rem; color:var(--text-dim); text-align:center; margin-bottom:1.5rem;">
-      Speichere die heruntergeladene Datei in deinem Google Drive Ordner
-    </div>
+    <div id="export-hint" style="font-size:0.75rem; color:var(--text-dim); text-align:center; margin-bottom:1.5rem;"></div>
 
     <!-- Import section -->
     <div style="border-top:1px solid var(--border); padding-top:1.25rem;">
       <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.75rem;">📥 Backup importieren</div>
+
+      <!-- Folder backup list (shown when folder mode active) -->
+      <div id="folder-backup-list" style="display:none; margin-bottom:1rem;">
+        <div id="folder-backup-items" style="max-height:200px; overflow-y:auto;"></div>
+        <button class="btn btn-outline btn-sm" onclick="refreshFolderBackups()" style="width:100%; justify-content:center; margin-top:0.5rem;">🔄 Liste aktualisieren</button>
+      </div>
+
+      <!-- File picker (always available as fallback) -->
       <input type="file" id="backup-file-input" accept=".json" style="display:none;" onchange="handleBackupFileSelect(event)">
       <button class="btn btn-outline" onclick="document.getElementById('backup-file-input').click()" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.95rem;">
-        📂 JSON-Datei auswählen
+        <span id="import-btn-text">📂 JSON-Datei auswählen</span>
       </button>
 
       <!-- Import preview (hidden until file selected) -->
@@ -1113,9 +1152,9 @@ option { background: var(--surface2); color: var(--text); }
     <div style="border-top:1px solid var(--border); padding-top:1.25rem;">
       <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.4rem;">🧪 Testdaten laden</div>
       <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem; line-height:1.5;">
-        Lädt einen realistischen Testdatensatz (14 Tage) zum Testen der Charts und Statistiken. Bestehende Daten werden ersetzt.
+        Lädt einen realistischen Testdatensatz (14 Tage). Deine echten Daten werden vorher automatisch gesichert — ausser es sind bereits Testdaten aktiv.
       </div>
-      <button class="btn btn-outline" onclick="confirmLoadTestData()" style="width:100%; justify-content:center; padding:0.8rem; color:var(--blue); border-color:var(--blue)44;">
+      <button class="btn btn-outline" onclick="confirmLoadTestData()" style="width:100%; justify-content:center; padding:0.8rem; color:var(--blue); border-color:#8B8BFF44;">
         🧪 Testdaten laden…
       </button>
     </div>
@@ -1123,9 +1162,7 @@ option { background: var(--surface2); color: var(--text); }
     <!-- Test data confirmation (hidden) -->
     <div id="testdata-confirm-box" style="display:none; background:var(--blue-dim); border:1px solid #8B8BFF44; border-radius:10px; padding:1rem; margin-top:0.75rem;">
       <div style="font-weight:600; font-size:0.9rem; color:var(--blue); margin-bottom:0.5rem;">🧪 Testdaten laden?</div>
-      <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
-        Dies ersetzt alle aktuellen Daten durch 14 Tage Testdaten. Bestehende Daten gehen verloren.
-      </div>
+      <div id="testdata-confirm-msg" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;"></div>
       <div style="display:flex; gap:0.75rem;">
         <button class="btn btn-outline btn-sm" onclick="executeLoadTestData()" style="flex:1; justify-content:center; color:var(--blue); border-color:var(--blue);">
           🧪 Ja, Testdaten laden
@@ -1137,24 +1174,32 @@ option { background: var(--surface2); color: var(--text); }
     </div>
   </div>
 
-  <!-- FAQ (condensed) -->
+  <!-- FAQ -->
   <div class="card section-gap">
     <div class="card-title">❓ Häufige Fragen</div>
     <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
-      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Bleiben meine Daten erhalten?</div>
-      <div style="font-size:0.83rem; color:var(--text-muted);">Ja — im Browser-Speicher (localStorage). Sie bleiben auch nach dem Schliessen erhalten. Aber: regelmässiges Backup empfohlen!</div>
-    </div>
-    <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
-      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Was passiert wenn ich Chrome-Daten lösche?</div>
-      <div style="font-size:0.83rem; color:var(--text-muted);">Dann gehen die Daten verloren! Erstelle vorher immer ein Backup über den Button oben.</div>
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Wie richte ich den Backup-Ordner ein?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Am PC: «Ordner wählen» klicken und deinen Google Drive Sync-Ordner auswählen. Am Tablet: «Google Drive» wählen — Backups werden über das Teilen-Menü gesichert, Import über den Datei-Picker (Google Drive erscheint als Quelle).</div>
     </div>
     <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
       <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Wie synchronisiere ich zwischen Geräten?</div>
-      <div style="font-size:0.83rem; color:var(--text-muted);">Backup erstellen → Datei in Google Drive speichern → auf anderem Gerät importieren → «Zusammenführen» wählen.</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Auf Gerät A: Backup erstellen (wird in Google Drive gespeichert). Auf Gerät B: Backup importieren (aus Google Drive laden) → «Zusammenführen» wählen. So werden Einträge beider Geräte kombiniert.</div>
+    </div>
+    <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Was passiert mit meinen Daten bei Testdaten?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Deine echten Daten werden automatisch gesichert, bevor Testdaten geladen werden. Sind bereits Testdaten aktiv, wird kein Backup erstellt — so gelangen keine Testdaten in dein Backup.</div>
+    </div>
+    <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Was bedeutet «Zusammenführen» vs «Ersetzen»?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">«Zusammenführen» kombiniert Einträge beider Geräte ohne Duplikate. «Ersetzen» überschreibt alle lokalen Daten komplett mit dem Backup.</div>
+    </div>
+    <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Bleiben meine Daten erhalten?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Ja — im Browser-Speicher (localStorage). Sie bleiben nach dem Schliessen erhalten. Aber bei «Chrome-Daten löschen» gehen sie verloren — darum regelmässig sichern!</div>
     </div>
     <div style="padding:0.85rem 0;">
-      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Was bedeutet «Zusammenführen» vs «Ersetzen»?</div>
-      <div style="font-size:0.83rem; color:var(--text-muted);">«Zusammenführen» kombiniert Einträge beider Geräte (keine Duplikate). «Ersetzen» überschreibt alle lokalen Daten mit dem Backup.</div>
+      <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.3rem;">Muss ich den Backup-Ordner auf jedem Gerät neu wählen?</div>
+      <div style="font-size:0.83rem; color:var(--text-muted);">Ja, jedes Gerät merkt sich seinen eigenen Speicherort. Am PC wählst du den lokalen Google Drive Ordner, am Tablet setzt du den Google Drive Modus.</div>
     </div>
   </div>
 
@@ -1486,6 +1531,9 @@ let STATE = {
   medLogs: [],
   reminderEnabled: false,
   reminderTimes: ['08:00', '12:00', '16:00', '20:00'],
+  backupMode: null,       // 'folder' | 'gdrive' | null
+  backupFolderName: null,  // display name of chosen folder
+  isTestData: false,       // true when test data is loaded
 };
 
 // Load state from localStorage; ensure medLogs exists for backward compatibility
@@ -3434,7 +3482,7 @@ function renderLastBackupInfo() {
 // APP-MANAGER: Backup, Import, Delete, Test Data
 // ============================================================
 
-// Detect device type from user agent / screen
+// --- Device Detection ---
 function detectDevice() {
   const ua = navigator.userAgent || '';
   const w = screen.width;
@@ -3443,7 +3491,159 @@ function detectDevice() {
   return 'PC';
 }
 
-// Update the data summary on the App-Manager tab
+// --- IndexedDB for directory handle (can't go in localStorage) ---
+function _openSettingsDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('heilungsjournal_settings', 1);
+    req.onupgradeneeded = (e) => { e.target.result.createObjectStore('settings'); };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function storeDirHandle(handle) {
+  const db = await _openSettingsDB();
+  return new Promise((resolve) => {
+    const tx = db.transaction('settings', 'readwrite');
+    tx.objectStore('settings').put(handle, 'backupDirHandle');
+    tx.oncomplete = () => resolve();
+  });
+}
+async function getDirHandle() {
+  try {
+    const db = await _openSettingsDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('settings', 'readonly');
+      const r = tx.objectStore('settings').get('backupDirHandle');
+      r.onsuccess = () => resolve(r.result || null);
+      r.onerror = () => resolve(null);
+    });
+  } catch(e) { return null; }
+}
+async function clearDirHandle() {
+  try {
+    const db = await _openSettingsDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('settings', 'readwrite');
+      tx.objectStore('settings').delete('backupDirHandle');
+      tx.oncomplete = () => resolve();
+    });
+  } catch(e) {}
+}
+
+// --- Verify we still have permission to saved directory ---
+async function verifyDirPermission(handle) {
+  if (!handle) return false;
+  try {
+    if ((await handle.queryPermission({ mode: 'readwrite' })) === 'granted') return true;
+    if ((await handle.requestPermission({ mode: 'readwrite' })) === 'granted') return true;
+  } catch(e) {}
+  return false;
+}
+
+// --- Backup Location UI ---
+function hasFileSystemAccess() {
+  return typeof window.showDirectoryPicker === 'function';
+}
+
+async function pickBackupFolder() {
+  if (!hasFileSystemAccess()) {
+    showToast('❌ Ordner-Auswahl wird auf diesem Gerät nicht unterstützt. Nutze «Google Drive».');
+    return;
+  }
+  try {
+    const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    await storeDirHandle(handle);
+    STATE.backupMode = 'folder';
+    STATE.backupFolderName = handle.name;
+    saveState();
+    updateBackupLocationUI();
+    showToast('📂 Backup-Ordner festgelegt: ' + handle.name);
+  } catch(e) {
+    if (e.name !== 'AbortError') showToast('❌ Ordner-Auswahl fehlgeschlagen');
+  }
+}
+
+function setGDriveMode() {
+  STATE.backupMode = 'gdrive';
+  STATE.backupFolderName = null;
+  saveState();
+  clearDirHandle();
+  updateBackupLocationUI();
+  showToast('☁️ Google Drive Modus aktiviert');
+}
+
+function changeBackupLocation() {
+  STATE.backupMode = null;
+  STATE.backupFolderName = null;
+  saveState();
+  clearDirHandle();
+  updateBackupLocationUI();
+}
+
+function updateBackupLocationUI() {
+  const icon = document.getElementById('backup-loc-icon');
+  const text = document.getElementById('backup-loc-text');
+  const detail = document.getElementById('backup-loc-detail');
+  const setup = document.getElementById('backup-loc-setup');
+  const change = document.getElementById('backup-loc-change');
+  const hint = document.getElementById('backup-loc-hint');
+  const exportBtn = document.getElementById('export-btn-text');
+  const exportHint = document.getElementById('export-hint');
+  const importBtn = document.getElementById('import-btn-text');
+  const folderList = document.getElementById('folder-backup-list');
+
+  if (!icon) return; // tab not rendered yet
+
+  const mode = STATE.backupMode;
+  if (mode === 'folder') {
+    icon.textContent = '📂';
+    text.style.color = '#00D4AA';
+    text.textContent = STATE.backupFolderName || 'Lokaler Ordner';
+    detail.textContent = 'Backups werden direkt in diesen Ordner geschrieben und gelesen.';
+    setup.style.display = 'none';
+    change.style.display = 'block';
+    hint.style.display = 'none';
+    exportBtn.textContent = '📤 Backup in Ordner speichern';
+    exportHint.textContent = '';
+    importBtn.textContent = '📂 Oder: andere JSON-Datei wählen';
+    folderList.style.display = 'block';
+    refreshFolderBackups();
+  } else if (mode === 'gdrive') {
+    icon.textContent = '☁️';
+    text.style.color = '#00D4AA';
+    text.textContent = 'Google Drive (via Teilen)';
+    detail.textContent = 'Export: Teilen-Dialog öffnet sich → Google Drive wählen. Import: Datei-Picker zeigt Google Drive.';
+    setup.style.display = 'none';
+    change.style.display = 'block';
+    hint.style.display = 'none';
+    exportBtn.textContent = '📤 Backup erstellen & teilen';
+    exportHint.textContent = 'Wähle im Teilen-Dialog «Google Drive» als Ziel';
+    importBtn.textContent = '📂 Aus Google Drive importieren';
+    folderList.style.display = 'none';
+  } else {
+    icon.textContent = '⚪';
+    text.style.color = '#8A8AA0';
+    text.textContent = 'Nicht eingerichtet';
+    detail.textContent = '';
+    setup.style.display = 'flex';
+    change.style.display = 'none';
+    hint.style.display = 'block';
+    exportBtn.textContent = '📤 Backup erstellen & herunterladen';
+    exportHint.textContent = 'Richte zuerst einen Speicherort ein für automatisches Speichern';
+    importBtn.textContent = '📂 JSON-Datei auswählen';
+    folderList.style.display = 'none';
+
+    // Hide folder button on devices without File System Access
+    const folderBtn = document.getElementById('btn-pick-folder');
+    if (folderBtn) folderBtn.style.display = hasFileSystemAccess() ? 'flex' : 'none';
+  }
+
+  // Update testdata banner
+  const banner = document.getElementById('testdata-active-banner');
+  if (banner) banner.style.display = STATE.isTestData ? 'block' : 'none';
+}
+
+// --- Data Summary ---
 function updateDataSummary() {
   const pc = document.getElementById('summary-pain-count');
   const mc = document.getElementById('summary-med-count');
@@ -3453,18 +3653,17 @@ function updateDataSummary() {
   if (mc) mc.textContent = (STATE.medLogs || []).length;
   if (cc) cc.textContent = Object.keys(STATE.checkedDays || {}).length;
   if (dv) dv.textContent = detectDevice();
+  updateBackupLocationUI();
 }
 
-// Export backup as JSON download with device info + timestamp
-function exportBackup() {
+// --- Create backup data object ---
+function createBackupPayload() {
   const device = detectDevice();
-  const ts = new Date().toISOString();
-  const tsLabel = formatDateDE(today()) + ' ' + nowTime();
-  const data = {
+  return {
     app: 'heilungsjournal',
     version: 2,
-    exportedAt: ts,
-    exportedAtDE: tsLabel,
+    exportedAt: new Date().toISOString(),
+    exportedAtDE: formatDateDE(today()) + ' ' + nowTime(),
     device: device,
     data: {
       checkedDays: STATE.checkedDays || {},
@@ -3474,10 +3673,88 @@ function exportBackup() {
       reminderTimes: STATE.reminderTimes || ['08:00','12:00','16:00','20:00']
     }
   };
+}
+
+function generateBackupFilename() {
+  const device = detectDevice();
+  const d = today().replace(/-/g, '');
+  const t = nowTime().replace(':', '');
+  return `Heilungsjournal_${device}_${d}_${t}.json`;
+}
+
+// --- Export: three modes ---
+async function exportBackup() {
+  const mode = STATE.backupMode;
+
+  if (mode === 'folder') {
+    await exportToFolder();
+  } else if (mode === 'gdrive') {
+    await exportViaShare();
+  } else {
+    exportAsDownload();
+  }
+}
+
+async function exportToFolder() {
+  try {
+    const handle = await getDirHandle();
+    if (!handle || !(await verifyDirPermission(handle))) {
+      showToast('⚠️ Ordner-Zugriff verloren. Bitte neu wählen.');
+      STATE.backupMode = null;
+      saveState();
+      updateBackupLocationUI();
+      return;
+    }
+    const data = createBackupPayload();
+    const json = JSON.stringify(data, null, 2);
+    const filename = generateBackupFilename();
+    const fileHandle = await handle.getFileHandle(filename, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(json);
+    await writable.close();
+
+    STATE.lastBackup = data.exportedAtDE;
+    saveState();
+    renderLastBackupInfo();
+    refreshFolderBackups();
+    showToast('📂 Backup gespeichert: ' + filename);
+  } catch(e) {
+    showToast('❌ Fehler beim Speichern: ' + e.message);
+  }
+}
+
+async function exportViaShare() {
+  const data = createBackupPayload();
   const json = JSON.stringify(data, null, 2);
-  const dateStr = today().replace(/-/g, '');
-  const timeStr = nowTime().replace(':', '');
-  const filename = `Heilungsjournal_${device}_${dateStr}_${timeStr}.json`;
+  const filename = generateBackupFilename();
+
+  if (navigator.canShare) {
+    try {
+      const file = new File([json], filename, { type: 'application/json' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: 'Heilungsjournal Backup',
+          text: `Backup vom ${data.exportedAtDE}`,
+          files: [file],
+        });
+        STATE.lastBackup = data.exportedAtDE;
+        saveState();
+        renderLastBackupInfo();
+        showToast('☁️ Backup geteilt!');
+        return;
+      }
+    } catch(e) {
+      if (e.name === 'AbortError') return; // User cancelled
+    }
+  }
+  // Fallback to download
+  exportAsDownload();
+}
+
+function exportAsDownload() {
+  const data = createBackupPayload();
+  const json = JSON.stringify(data, null, 2);
+  const filename = generateBackupFilename();
   const blob = new Blob([json], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -3485,81 +3762,176 @@ function exportBackup() {
   a.click();
   URL.revokeObjectURL(a.href);
 
-  STATE.lastBackup = tsLabel;
+  STATE.lastBackup = data.exportedAtDE;
   saveState();
   renderLastBackupInfo();
   showToast('📤 Backup heruntergeladen: ' + filename);
 }
 
-// Temporary storage for imported data
+// Silent backup (for auto-backup before test data) — returns true on success
+async function silentBackup() {
+  try {
+    const mode = STATE.backupMode;
+    if (mode === 'folder') {
+      const handle = await getDirHandle();
+      if (handle && await verifyDirPermission(handle)) {
+        const data = createBackupPayload();
+        const json = JSON.stringify(data, null, 2);
+        const filename = 'Heilungsjournal_AutoBackup_' + today().replace(/-/g, '') + '_' + nowTime().replace(':', '') + '.json';
+        const fh = await handle.getFileHandle(filename, { create: true });
+        const w = await fh.createWritable();
+        await w.write(json);
+        await w.close();
+        STATE.lastBackup = data.exportedAtDE;
+        saveState();
+        return true;
+      }
+    }
+    // Fallback: download
+    const data = createBackupPayload();
+    const json = JSON.stringify(data, null, 2);
+    const filename = 'Heilungsjournal_AutoBackup_' + today().replace(/-/g, '') + '_' + nowTime().replace(':', '') + '.json';
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    STATE.lastBackup = data.exportedAtDE;
+    saveState();
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+// --- Folder: list backups ---
+async function refreshFolderBackups() {
+  const container = document.getElementById('folder-backup-items');
+  if (!container) return;
+
+  const handle = await getDirHandle();
+  if (!handle || !(await verifyDirPermission(handle))) {
+    container.innerHTML = '<div style="font-size:0.8rem; color:var(--text-dim); padding:0.5rem;">Ordner-Zugriff nicht verfügbar.</div>';
+    return;
+  }
+
+  const backups = [];
+  try {
+    for await (const entry of handle.values()) {
+      if (entry.kind === 'file' && entry.name.startsWith('Heilungsjournal_') && entry.name.endsWith('.json')) {
+        backups.push(entry);
+      }
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="font-size:0.8rem; color:var(--text-dim); padding:0.5rem;">Fehler beim Lesen des Ordners.</div>';
+    return;
+  }
+
+  backups.sort((a, b) => b.name.localeCompare(a.name));
+
+  if (backups.length === 0) {
+    container.innerHTML = '<div style="font-size:0.8rem; color:var(--text-dim); padding:0.5rem;">Keine Backups im Ordner gefunden.</div>';
+    return;
+  }
+
+  container.innerHTML = backups.slice(0, 15).map((entry, i) => {
+    // Parse filename: Heilungsjournal_Device_YYYYMMDD_HHMM.json
+    const m = entry.name.match(/Heilungsjournal_(.+?)_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})/);
+    let label = entry.name;
+    if (m) {
+      label = `${m[1]} — ${m[4]}.${m[3]}.${m[2]} ${m[5]}:${m[6]}`;
+    }
+    const isAuto = entry.name.includes('AutoBackup');
+    return `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.6rem; background:var(--surface3); border-radius:8px; margin-bottom:0.4rem; font-size:0.8rem;">
+      <span style="color:var(--text); flex:1;">${isAuto ? '🔄 ' : '📄 '}${label}</span>
+      <button class="btn btn-outline btn-sm" onclick="importFromFolder(${i})" style="padding:0.3rem 0.7rem; font-size:0.75rem;">Laden</button>
+    </div>`;
+  }).join('');
+
+  // Store references for import
+  window._folderBackupEntries = backups.slice(0, 15);
+}
+
+async function importFromFolder(index) {
+  if (!window._folderBackupEntries || !window._folderBackupEntries[index]) return;
+  try {
+    const entry = window._folderBackupEntries[index];
+    const file = await entry.getFile();
+    const text = await file.text();
+    processImportJSON(text);
+  } catch(e) {
+    showToast('❌ Fehler beim Lesen: ' + e.message);
+  }
+}
+
+// --- Import ---
 let _pendingImport = null;
 
-// Handle file selection for import
 function handleBackupFileSelect(event) {
   const file = event.target.files[0];
   if (!file) return;
-
   const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const parsed = JSON.parse(e.target.result);
-
-      // Support both v1 (flat) and v2 (nested .data) formats
-      let importData;
-      if (parsed.data && (parsed.data.painLogs || parsed.data.checkedDays)) {
-        importData = parsed.data;
-      } else if (parsed.painLogs || parsed.checkedDays) {
-        importData = parsed;
-      } else {
-        showToast('❌ Ungültige Backup-Datei!');
-        event.target.value = '';
-        return;
-      }
-
-      _pendingImport = {
-        meta: parsed,
-        data: {
-          checkedDays: importData.checkedDays || {},
-          painLogs: importData.painLogs || [],
-          medLogs: importData.medLogs || [],
-          reminderEnabled: importData.reminderEnabled || false,
-          reminderTimes: importData.reminderTimes || ['08:00','12:00','16:00','20:00']
-        }
-      };
-
-      // Fill preview
-      const exportDate = parsed.exportedAtDE || (parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleString('de-CH') : '—');
-      document.getElementById('import-date').textContent = exportDate;
-      document.getElementById('import-device').textContent = parsed.device || '—';
-      document.getElementById('import-pain-count').textContent = _pendingImport.data.painLogs.length;
-      document.getElementById('import-med-count').textContent = _pendingImport.data.medLogs.length;
-      document.getElementById('import-checked-count').textContent = Object.keys(_pendingImport.data.checkedDays).length;
-
-      // Date range
-      const allDates = [
-        ..._pendingImport.data.painLogs.map(l => l.date),
-        ..._pendingImport.data.medLogs.map(l => l.date),
-        ...Object.keys(_pendingImport.data.checkedDays)
-      ].filter(Boolean).sort();
-      if (allDates.length > 0) {
-        document.getElementById('import-date-range').textContent =
-          formatDateDE(allDates[0]) + ' – ' + formatDateDE(allDates[allDates.length - 1]);
-      } else {
-        document.getElementById('import-date-range').textContent = '—';
-      }
-
-      document.getElementById('import-preview').style.display = 'block';
-    } catch(err) {
-      showToast('❌ Fehler beim Lesen der Datei!');
-    }
-  };
+  reader.onload = (e) => { processImportJSON(e.target.result); };
   reader.readAsText(file);
 }
 
-// Execute import with merge or replace strategy
+function processImportJSON(jsonText) {
+  try {
+    const parsed = JSON.parse(jsonText);
+
+    // Support v1 (flat) and v2 (nested .data)
+    let importData;
+    if (parsed.data && (parsed.data.painLogs || parsed.data.checkedDays)) {
+      importData = parsed.data;
+    } else if (parsed.painLogs || parsed.checkedDays) {
+      importData = parsed;
+    } else {
+      showToast('❌ Ungültige Backup-Datei!');
+      return;
+    }
+
+    _pendingImport = {
+      meta: parsed,
+      data: {
+        checkedDays: importData.checkedDays || {},
+        painLogs: importData.painLogs || [],
+        medLogs: importData.medLogs || [],
+        reminderEnabled: importData.reminderEnabled || false,
+        reminderTimes: importData.reminderTimes || ['08:00','12:00','16:00','20:00']
+      }
+    };
+
+    // Fill preview
+    const exportDate = parsed.exportedAtDE || (parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleString('de-CH') : '—');
+    document.getElementById('import-date').textContent = exportDate;
+    document.getElementById('import-device').textContent = parsed.device || '—';
+    document.getElementById('import-pain-count').textContent = _pendingImport.data.painLogs.length;
+    document.getElementById('import-med-count').textContent = _pendingImport.data.medLogs.length;
+    document.getElementById('import-checked-count').textContent = Object.keys(_pendingImport.data.checkedDays).length;
+
+    const allDates = [
+      ..._pendingImport.data.painLogs.map(l => l.date),
+      ..._pendingImport.data.medLogs.map(l => l.date),
+      ...Object.keys(_pendingImport.data.checkedDays)
+    ].filter(Boolean).sort();
+    if (allDates.length > 0) {
+      document.getElementById('import-date-range').textContent =
+        formatDateDE(allDates[0]) + ' – ' + formatDateDE(allDates[allDates.length - 1]);
+    } else {
+      document.getElementById('import-date-range').textContent = '—';
+    }
+
+    document.getElementById('import-preview').style.display = 'block';
+    // Scroll preview into view
+    document.getElementById('import-preview').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch(err) {
+    showToast('❌ Fehler beim Lesen der Datei!');
+  }
+}
+
 function executeImport(mode) {
   if (!_pendingImport) return;
-
   const imp = _pendingImport.data;
 
   if (mode === 'replace') {
@@ -3569,11 +3941,7 @@ function executeImport(mode) {
     STATE.reminderEnabled = imp.reminderEnabled;
     STATE.reminderTimes = imp.reminderTimes;
   } else {
-    // Merge: union of checkedDays, deduplicated logs
-    // CheckedDays: union
     Object.assign(STATE.checkedDays, imp.checkedDays);
-
-    // PainLogs: deduplicate by date+time+level composite key
     const painKey = (l) => `${l.date}|${l.time}|${l.level}`;
     const existingPainKeys = new Set(STATE.painLogs.map(painKey));
     for (const log of imp.painLogs) {
@@ -3583,8 +3951,6 @@ function executeImport(mode) {
       }
     }
     STATE.painLogs.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-
-    // MedLogs: deduplicate by date+time+med composite key
     const medKey = (l) => `${l.date}|${l.time}|${l.med}`;
     const existingMedKeys = new Set(STATE.medLogs.map(medKey));
     for (const log of imp.medLogs) {
@@ -3596,6 +3962,8 @@ function executeImport(mode) {
     STATE.medLogs.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   }
 
+  // Importing real data clears the test data flag
+  STATE.isTestData = false;
   saveState();
   renderToday();
   renderReminderTimes();
@@ -3603,7 +3971,6 @@ function executeImport(mode) {
   updateAchievements();
   updateDataSummary();
 
-  // Clean up
   _pendingImport = null;
   document.getElementById('import-preview').style.display = 'none';
   document.getElementById('backup-file-input').value = '';
@@ -3613,7 +3980,7 @@ function executeImport(mode) {
   showToast(`✅ Import erfolgreich (${modeLabel}) — ${total} Einträge`);
 }
 
-// Delete all data with confirmation
+// --- Delete All ---
 function confirmDeleteAll() {
   const total = (STATE.painLogs || []).length + (STATE.medLogs || []).length + Object.keys(STATE.checkedDays || {}).length;
   document.getElementById('delete-count-preview').textContent = total + ' Daten-Einträge';
@@ -3625,6 +3992,7 @@ function executeDeleteAll() {
   STATE.painLogs = [];
   STATE.medLogs = [];
   STATE.lastBackup = null;
+  STATE.isTestData = false;
   saveState();
   renderToday();
   renderReminderTimes();
@@ -3634,22 +4002,46 @@ function executeDeleteAll() {
   showToast('🗑️ Alle Daten wurden gelöscht.');
 }
 
-// Test data
+// --- Test Data ---
 function confirmLoadTestData() {
-  document.getElementById('testdata-confirm-box').style.display = 'block';
+  const box = document.getElementById('testdata-confirm-box');
+  const msg = document.getElementById('testdata-confirm-msg');
+  const hasRealData = !STATE.isTestData && ((STATE.painLogs || []).length > 0 || (STATE.medLogs || []).length > 0);
+
+  if (STATE.isTestData) {
+    msg.innerHTML = 'Es sind bereits Testdaten aktiv. Die aktuellen Testdaten werden durch neue ersetzt. <strong>Kein Backup nötig.</strong>';
+  } else if (hasRealData) {
+    msg.innerHTML = 'Deine <strong>' + STATE.painLogs.length + ' Schmerz- und ' + STATE.medLogs.length + ' Medikamenten-Einträge</strong> werden vorher automatisch gesichert, bevor die Testdaten geladen werden.';
+  } else {
+    msg.innerHTML = 'Es werden 14 Tage Testdaten geladen. Aktuell sind keine Daten vorhanden.';
+  }
+
+  box.style.display = 'block';
 }
 
-function executeLoadTestData() {
+async function executeLoadTestData() {
+  // Auto-backup real data first (but NOT if already test data!)
+  const hasRealData = !STATE.isTestData && ((STATE.painLogs || []).length > 0 || (STATE.medLogs || []).length > 0);
+  if (hasRealData) {
+    showToast('💾 Sichere echte Daten…');
+    const ok = await silentBackup();
+    if (ok) {
+      showToast('✅ Auto-Backup erstellt!');
+    } else {
+      showToast('⚠️ Auto-Backup fehlgeschlagen — Testdaten werden trotzdem geladen');
+    }
+    // Small delay so user sees the toast
+    await new Promise(r => setTimeout(r, 800));
+  }
+
   // Generate 14 days of realistic recovery data
   const baseDate = new Date();
-  baseDate.setDate(baseDate.getDate() - 13); // Start 13 days ago
+  baseDate.setDate(baseDate.getDate() - 13);
 
   const painLogs = [];
   const medLogs = [];
   const checkedDays = {};
 
-  const meds = ['Tramadol', 'Paracetamol', 'Ibuprofen'];
-  const doses = { 'Tramadol': '50mg', 'Paracetamol': '1000mg', 'Ibuprofen': '400mg' };
   const times = ['07:30', '08:00', '12:00', '12:30', '16:00', '18:00', '20:00', '21:00', '22:00'];
   const notes = ['nach dem Aufwachen', 'nach Physiotherapie', 'vor dem Schlafen', 'beim Gehen', 'in Ruhe', 'nach Halskragen-Tragen', ''];
 
@@ -3658,25 +4050,14 @@ function executeLoadTestData() {
     date.setDate(baseDate.getDate() + d);
     const ds = date.toISOString().split('T')[0];
 
-    // Pain generally decreasing from ~7 to ~3 over 14 days, with some variance
     const basePain = Math.max(1, Math.round(7 - (d * 0.35) + (Math.random() * 2 - 1)));
-
-    // 2-4 pain entries per day
     const nPain = 2 + Math.floor(Math.random() * 3);
     for (let p = 0; p < nPain; p++) {
       const t = times[Math.floor(Math.random() * times.length)];
       const level = Math.max(0, Math.min(10, basePain + Math.floor(Math.random() * 3 - 1)));
-      painLogs.push({
-        date: ds,
-        time: t,
-        level: level,
-        note: notes[Math.floor(Math.random() * notes.length)]
-      });
+      painLogs.push({ date: ds, time: t, level: level, note: notes[Math.floor(Math.random() * notes.length)] });
     }
 
-    // Meds: more in early days, tapering off
-    // First week: Tramadol + Paracetamol 3x/day
-    // Second week: only Paracetamol + sometimes Ibuprofen
     if (d < 7) {
       medLogs.push({ date: ds, time: '08:00', med: 'Tramadol', dose: '50mg', note: '' });
       medLogs.push({ date: ds, time: '20:00', med: 'Tramadol', dose: '50mg', note: '' });
@@ -3691,15 +4072,13 @@ function executeLoadTestData() {
       }
     }
 
-    // Check off most days (random few unchecked)
-    if (Math.random() > 0.15) {
-      checkedDays[ds] = true;
-    }
+    if (Math.random() > 0.15) checkedDays[ds] = true;
   }
 
   STATE.checkedDays = checkedDays;
   STATE.painLogs = painLogs;
   STATE.medLogs = medLogs;
+  STATE.isTestData = true;
   saveState();
   renderToday();
   renderReminderTimes();
