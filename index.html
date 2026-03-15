@@ -131,6 +131,47 @@ main { max-width: 1080px; margin: 0 auto; padding: 1.4rem 1.75rem; }
 .list-item:last-child { border-bottom: none; }
 .list-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 0.4em; flex-shrink: 0; }
 
+/* FULLSCREEN OVERLAY */
+.chart-fullscreen-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(2,2,4,0.97); z-index: 9999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 1.5rem; opacity: 0; transition: opacity 0.25s ease;
+}
+.chart-fullscreen-overlay.visible { opacity: 1; }
+.chart-fullscreen-overlay .fs-header {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1200px;
+  margin-bottom: 1rem;
+}
+.chart-fullscreen-overlay .fs-title { font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 700; color: #F2F2F8; }
+.chart-fullscreen-overlay .fs-actions { display: flex; gap: 0.5rem; }
+.chart-fullscreen-overlay .fs-btn {
+  padding: 0.35rem 0.75rem; border-radius: 8px; border: 1px solid #22222E;
+  background: #0E0E14; color: #8A8AA0; font-family: 'DM Sans',sans-serif;
+  font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.chart-fullscreen-overlay .fs-btn:hover { border-color: #00D4AA; color: #00D4AA; background: #0A2A22; }
+.chart-fullscreen-overlay .fs-canvas-wrap {
+  width: 100%; max-width: 1200px; flex: 1; min-height: 0;
+  position: relative; background: #08080C; border: 1px solid #16161E; border-radius: 14px; padding: 1rem;
+}
+.chart-fullscreen-overlay .fs-hint {
+  font-size: 0.72rem; color: #4A4A60; margin-top: 0.75rem; text-align: center;
+}
+
+/* CHART TOOLBAR */
+.chart-toolbar {
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.chart-tool-btn {
+  padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid #22222E;
+  background: #0E0E14; color: #8A8AA0; font-family: 'DM Sans',sans-serif;
+  font-size: 0.7rem; font-weight: 500; cursor: pointer; transition: all 0.15s;
+  line-height: 1.4;
+}
+.chart-tool-btn:hover { border-color: #00D4AA; color: #00D4AA; background: #0A2A22; }
+.chart-tool-btn.zoom-reset { display: none; }
+
 /* GLASSMORPHISM TOOLTIP */
 #glassmorphism-tooltip {
   position: absolute; pointer-events: none; z-index: 50;
@@ -332,7 +373,7 @@ option { background: var(--surface2); color: var(--text); }
   <div class="header-logo">🌿</div>
   <div class="header-text">
     <h1>Heilungsjournal · Andreia</h1>
-    <p id="header-sub">Anteriore Densschrauben-Fixation · Dr. Mica, USZ Zürich · <span style="color:var(--text-dim)">v2.0.0</span></p>
+    <p id="header-sub">Anteriore Densschrauben-Fixation · Dr. Mica, USZ Zürich</p>
   </div>
   <div class="header-right">
     <div class="streak-badge" id="streak-badge" style="display:none">🔥 <span id="streak-num">0</span> Tage</div>
@@ -714,7 +755,10 @@ option { background: var(--surface2); color: var(--text); }
   <div class="card section-gap">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
       <div class="card-title" style="margin-bottom:0">💊 Tagesschmerzverlauf &amp; Medikamente</div>
-      <button id="med-zoom-reset" onclick="resetMedZoom()" style="display:none; padding:0.25rem 0.6rem; border-radius:6px; border:1px solid #22222E; background:#0E0E14; color:#8A8AA0; font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:500; cursor:pointer; transition:all 0.15s;">⟲ Zoom zurücksetzen</button>
+      <div class="chart-toolbar">
+        <button class="chart-tool-btn zoom-reset" data-chart="med-timeline" onclick="resetChartZoom('med-timeline')">⟲ Reset</button>
+        <button class="chart-tool-btn" onclick="openChartFullscreen('med-timeline','💊 Tagesschmerzverlauf & Medikamente')">⛶</button>
+      </div>
     </div>
     <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.5rem;">
       Alle Schmerzeinträge chronologisch &nbsp;·&nbsp; ▼ Dreiecke = Medikamenteneinnahme &nbsp;·&nbsp; Scroll-Zoom / Pinch zum Zoomen
@@ -730,7 +774,13 @@ option { background: var(--surface2); color: var(--text); }
 
   <!-- Tages-Statistiken -->
   <div class="card section-gap">
-    <div class="card-title">📅 Tages-Statistiken</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+      <div class="card-title" style="margin-bottom:0">📅 Tages-Statistiken</div>
+      <div class="chart-toolbar">
+        <button class="chart-tool-btn zoom-reset" data-chart="daily14" onclick="resetChartZoom('daily14')">⟲ Reset</button>
+        <button class="chart-tool-btn" onclick="openChartFullscreen('daily14','📅 Tages-Statistiken — 14 Tage')">⛶</button>
+      </div>
+    </div>
     <div style="font-size:0.82rem; color:var(--text-sub); margin-bottom:0.75rem;">Tages-Durchschnitt — letzte 14 Tage</div>
     <div style="position:relative;height:160px;margin-bottom:1.25rem;"><canvas id="chart-daily14"></canvas></div>
     <div style="overflow-x:auto; max-height:400px; overflow-y:auto;">
@@ -744,20 +794,36 @@ option { background: var(--surface2); color: var(--text); }
   <!-- Line chart: Verlauf über alle Wochen -->
   <div class="card section-gap">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-      <div class="card-title" style="margin-bottom:0">📈 Schmerzverauf — alle Wochen</div>
-      <div style="font-size:0.78rem; color:var(--text-sub);">Tages-Durchschnitt</div>
+      <div class="card-title" style="margin-bottom:0">📈 Schmerzverlauf — alle Wochen</div>
+      <div class="chart-toolbar">
+        <span style="font-size:0.78rem; color:#8A8AA0;">Tages-Durchschnitt</span>
+        <button class="chart-tool-btn zoom-reset" data-chart="verlauf" onclick="resetChartZoom('verlauf')">⟲ Reset</button>
+        <button class="chart-tool-btn" onclick="openChartFullscreen('verlauf','📈 Schmerzverlauf — alle Wochen')">⛶</button>
+      </div>
     </div>
     <div style="position:relative;height:220px;"><canvas id="chart-verlauf"></canvas></div>  </div>
 
   <div class="g2 section-gap" style="align-items:start;">
     <!-- Phase comparison -->
     <div class="card">
-      <div class="card-title">🗂 Schmerz pro Phase</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+        <div class="card-title" style="margin-bottom:0">🗂 Schmerz pro Phase</div>
+        <div class="chart-toolbar">
+          <button class="chart-tool-btn zoom-reset" data-chart="phase" onclick="resetChartZoom('phase')">⟲ Reset</button>
+          <button class="chart-tool-btn" onclick="openChartFullscreen('phase','🗂 Schmerz pro Phase')">⛶</button>
+        </div>
+      </div>
       <div style="position:relative;height:200px;"><canvas id="chart-phase"></canvas></div>
     </div>
     <!-- Time of day -->
     <div class="card">
-      <div class="card-title">🕐 Tageszeit-Muster</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+        <div class="card-title" style="margin-bottom:0">🕐 Tageszeit-Muster</div>
+        <div class="chart-toolbar">
+          <button class="chart-tool-btn zoom-reset" data-chart="tageszeit" onclick="resetChartZoom('tageszeit')">⟲ Reset</button>
+          <button class="chart-tool-btn" onclick="openChartFullscreen('tageszeit','🕐 Tageszeit-Muster')">⛶</button>
+        </div>
+      </div>
       <div style="position:relative;height:200px;"><canvas id="chart-tageszeit"></canvas></div>
       <div style="font-size:0.75rem; color:var(--text-sub); margin-top:0.75rem; display:flex; gap:1rem; flex-wrap:wrap;" id="tageszeit-legend"></div>
     </div>
@@ -1020,23 +1086,6 @@ option { background: var(--surface2); color: var(--text); }
 <div id="toast"></div>
 
 <script>
-// ============================================================
-// HEILUNGSJOURNAL · Andreia
-// ============================================================
-// Version history:
-//   v1.0.0  — Initial release: PWA with pain/med tracking,
-//             calendar, phases, achievements, CSV export
-//   v2.0.0  — 2026-03-15:
-//     - NEW: Electric Midnight theme (dark black + mint/amber accents)
-//     - NEW: Glassmorphism tooltip on med-timeline chart
-//     - NEW: Zoom & pan on med-timeline chart (scroll/pinch + reset)
-//     - NEW: Medication dose shown in chart tooltips
-//     - FIX: renderWeeklyTable crash (prev?.avg !== null bug)
-//     - FIX: chart-med-timeline & chart-daily14 not rendering
-//     - UX:  Tagesschmerzverlauf & Tages-Statistiken moved to top
-// ============================================================
-const APP_VERSION = '2.0.0';
-
 // ============================================================
 // DATA
 // ============================================================
@@ -2092,17 +2141,134 @@ function destroyChart(id) {
   if (id === 'med-timeline') {
     const tt = document.getElementById('glassmorphism-tooltip');
     if (tt) tt.remove();
-    const btn = document.getElementById('med-zoom-reset');
-    if (btn) btn.style.display = 'none';
+  }
+  // Hide zoom-reset button for this chart
+  const rb = document.querySelector(`.chart-tool-btn.zoom-reset[data-chart="${id}"]`);
+  if (rb) rb.style.display = 'none';
+}
+
+// ── Universal Zoom Reset ──
+function resetChartZoom(id) {
+  if (_charts[id]) {
+    _charts[id].resetZoom();
+    const rb = document.querySelector(`.chart-tool-btn.zoom-reset[data-chart="${id}"]`);
+    if (rb) rb.style.display = 'none';
+    // Also reset fullscreen copy if open
+    const fsCanvas = document.getElementById('fs-chart-canvas');
+    if (fsCanvas && fsCanvas._fsChartId === id && fsCanvas._fsChart) {
+      fsCanvas._fsChart.resetZoom();
+    }
   }
 }
-function resetMedZoom() {
-  if (_charts['med-timeline']) {
-    _charts['med-timeline'].resetZoom();
-    const btn = document.getElementById('med-zoom-reset');
-    if (btn) btn.style.display = 'none';
+
+function showZoomResetBtn(chartId) {
+  const rb = document.querySelector(`.chart-tool-btn.zoom-reset[data-chart="${chartId}"]`);
+  if (rb) rb.style.display = 'inline-block';
+}
+
+// ── Zoom/Pan config helper — returns plugin block for Chart.js ──
+function zoomPanConfig(chartId) {
+  return {
+    zoom: {
+      pan: { enabled: true, mode: 'x', onPanComplete: () => showZoomResetBtn(chartId) },
+      zoom: {
+        wheel: { enabled: true, modifierKey: null },
+        pinch: { enabled: true },
+        mode: 'x',
+        onZoomComplete: () => showZoomResetBtn(chartId),
+      },
+    },
+  };
+}
+
+// ── Fullscreen Chart ──
+let _fsOverlay = null;
+
+function openChartFullscreen(chartId, title) {
+  const src = _charts[chartId];
+  if (!src) return;
+
+  // Create overlay if needed
+  if (!_fsOverlay) {
+    _fsOverlay = document.createElement('div');
+    _fsOverlay.className = 'chart-fullscreen-overlay';
+    _fsOverlay.innerHTML = `
+      <div class="fs-header">
+        <div class="fs-title" id="fs-title"></div>
+        <div class="fs-actions">
+          <button class="fs-btn" id="fs-zoom-reset" style="display:none" onclick="resetFsZoom()">⟲ Zoom zurücksetzen</button>
+          <button class="fs-btn" onclick="closeChartFullscreen()">✕ Schliessen</button>
+        </div>
+      </div>
+      <div class="fs-canvas-wrap"><canvas id="fs-chart-canvas"></canvas></div>
+      <div class="fs-hint">Scroll-Zoom / Pinch zum Zoomen · Ziehen zum Navigieren · ESC zum Schliessen</div>`;
+    document.body.appendChild(_fsOverlay);
+    // ESC key
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && _fsOverlay.classList.contains('visible')) closeChartFullscreen(); });
+  }
+
+  document.getElementById('fs-title').textContent = title;
+  document.getElementById('fs-zoom-reset').style.display = 'none';
+  _fsOverlay.style.display = 'flex';
+  requestAnimationFrame(() => _fsOverlay.classList.add('visible'));
+  document.body.style.overflow = 'hidden';
+
+  // Clone chart config & render in fullscreen canvas
+  const fsCanvas = document.getElementById('fs-chart-canvas');
+  // Destroy previous fullscreen chart
+  if (fsCanvas._fsChart) { fsCanvas._fsChart.destroy(); fsCanvas._fsChart = null; }
+  fsCanvas._fsChartId = chartId;
+
+  const cfg = structuredClone(src.config);
+  // Ensure zoom/pan is active in fullscreen
+  if (!cfg.options) cfg.options = {};
+  if (!cfg.options.plugins) cfg.options.plugins = {};
+  cfg.options.plugins.zoom = {
+    pan: { enabled: true, mode: 'x', onPanComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; } },
+    zoom: {
+      wheel: { enabled: true, modifierKey: null },
+      pinch: { enabled: true },
+      mode: 'x',
+      onZoomComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; },
+    },
+  };
+  // Disable external tooltip in fullscreen (use default)
+  if (cfg.options.plugins.tooltip && cfg.options.plugins.tooltip.enabled === false) {
+    cfg.options.plugins.tooltip = { enabled: true };
+  }
+  // Fix: rebuild legend generateLabels as functions (structuredClone loses them)
+  if (cfg.options.plugins.legend && cfg.options.plugins.legend.labels) {
+    delete cfg.options.plugins.legend.labels.generateLabels;
+  }
+  // Fix: rebuild tooltip callbacks
+  if (cfg.options.plugins.tooltip && cfg.options.plugins.tooltip.callbacks) {
+    delete cfg.options.plugins.tooltip.callbacks;
+  }
+
+  fsCanvas._fsChart = new Chart(fsCanvas.getContext('2d'), cfg);
+}
+
+function resetFsZoom() {
+  const fsCanvas = document.getElementById('fs-chart-canvas');
+  if (fsCanvas && fsCanvas._fsChart) {
+    fsCanvas._fsChart.resetZoom();
+    document.getElementById('fs-zoom-reset').style.display = 'none';
   }
 }
+
+function closeChartFullscreen() {
+  if (!_fsOverlay) return;
+  _fsOverlay.classList.remove('visible');
+  document.body.style.overflow = '';
+  setTimeout(() => {
+    if (_fsOverlay) _fsOverlay.style.display = 'none';
+    const fsCanvas = document.getElementById('fs-chart-canvas');
+    if (fsCanvas && fsCanvas._fsChart) { fsCanvas._fsChart.destroy(); fsCanvas._fsChart = null; }
+  }, 250);
+}
+
+// Legacy compat
+function resetMedZoom() { resetChartZoom('med-timeline'); }
 
 // Main analytics renderer: KPIs, extended stats, all charts, tables
 // Called with double requestAnimationFrame to ensure canvas dimensions are ready
@@ -2292,7 +2458,8 @@ function renderAuswertung() {
           callbacks: {
             label: ctx => ctx.parsed.y !== null ? `${ctx.parsed.y}/10 — ${PAIN_INFO[Math.round(ctx.parsed.y)]?.label||''}` : '',
           }
-        }
+        },
+        ...zoomPanConfig('verlauf'),
       }
     }
   });
@@ -2339,7 +2506,8 @@ function renderAuswertung() {
       },
       plugins: {
         legend:{display:false},
-        tooltip:{ callbacks:{ label: ctx => ctx.parsed.y !== null ? ctx.parsed.y+'/10' : 'Keine Daten' } }
+        tooltip:{ callbacks:{ label: ctx => ctx.parsed.y !== null ? ctx.parsed.y+'/10' : 'Keine Daten' } },
+        ...zoomPanConfig('phase'),
       }
     }
   });
@@ -2386,7 +2554,7 @@ function renderAuswertung() {
              ticks:{font:{size:10},color:'#9A8070'} },
         x: { grid:{display:false}, ticks:{font:{size:9},color:'#9A8070'} }
       },
-      plugins: { legend:{display:false} }
+      plugins: { legend:{display:false}, ...zoomPanConfig('tageszeit') }
     }
   });
 
@@ -2693,7 +2861,7 @@ function renderDailyStats() {
           y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 9 }, color: '#8A8AA0' } },
           x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#8A8AA0' } }
         },
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? ctx.parsed.y + '/10' : 'kein Eintrag' } } }
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? ctx.parsed.y + '/10' : 'kein Eintrag' } }, ...zoomPanConfig('daily14') }
       }
     });
   })();
@@ -2914,13 +3082,9 @@ function renderMedCharts() {
     el.style.top = Math.max(4, top - el.offsetHeight - 12) + 'px';
   }
 
-  // Show/hide zoom reset button
+  // Show/hide zoom reset button (uses unified system)
   function updateZoomResetBtn() {
-    const btn = document.getElementById('med-zoom-reset');
-    if (!btn || !_charts['med-timeline']) return;
-    const chart = _charts['med-timeline'];
-    const isZoomed = chart.isZoomedOrPanned?.() || false;
-    btn.style.display = isZoomed ? 'inline-block' : 'none';
+    showZoomResetBtn('med-timeline');
   }
 
   _charts['med-timeline'] = new Chart(fresh.getContext('2d'), {
