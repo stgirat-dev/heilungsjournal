@@ -2164,6 +2164,11 @@ function resetChartZoom(id) {
 function showZoomResetBtn(chartId) {
   const rb = document.querySelector(`.chart-tool-btn.zoom-reset[data-chart="${chartId}"]`);
   if (rb) rb.style.display = 'inline-block';
+  // Also show fullscreen reset if this chart is currently in fullscreen
+  if (_fsReturnInfo && _fsReturnInfo.chartId === chartId) {
+    const fsBtn = document.getElementById('fs-zoom-reset');
+    if (fsBtn) fsBtn.style.display = 'inline-block';
+  }
 }
 
 // ── Zoom/Pan config helper — returns plugin block for Chart.js ──
@@ -2182,89 +2187,111 @@ function zoomPanConfig(chartId) {
 }
 
 // ── Fullscreen Chart ──
+// Strategy: MOVE the original canvas container into the overlay (preserving
+// the live Chart.js instance with all callbacks/data), then move it back on close.
 let _fsOverlay = null;
+let _fsReturnInfo = null;   // { placeholder, canvasWrap, chartId }
+
+function _ensureFsOverlay() {
+  if (_fsOverlay) return;
+  _fsOverlay = document.createElement('div');
+  _fsOverlay.className = 'chart-fullscreen-overlay';
+  _fsOverlay.innerHTML = `
+    <div class="fs-header">
+      <div class="fs-title" id="fs-title"></div>
+      <div class="fs-actions">
+        <button class="fs-btn" id="fs-zoom-reset" style="display:none" onclick="resetFsZoom()">⟲ Zoom zurücksetzen</button>
+        <button class="fs-btn" onclick="closeChartFullscreen()">✕ Schliessen</button>
+      </div>
+    </div>
+    <div class="fs-canvas-wrap" id="fs-canvas-wrap"></div>
+    <div class="fs-hint">Scroll-Zoom / Pinch zum Zoomen · Ziehen zum Navigieren · ESC zum Schliessen</div>`;
+  document.body.appendChild(_fsOverlay);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && _fsOverlay.classList.contains('visible')) closeChartFullscreen();
+  });
+}
 
 function openChartFullscreen(chartId, title) {
-  const src = _charts[chartId];
-  if (!src) return;
+  const chart = _charts[chartId];
+  if (!chart) return;
 
-  // Create overlay if needed
-  if (!_fsOverlay) {
-    _fsOverlay = document.createElement('div');
-    _fsOverlay.className = 'chart-fullscreen-overlay';
-    _fsOverlay.innerHTML = `
-      <div class="fs-header">
-        <div class="fs-title" id="fs-title"></div>
-        <div class="fs-actions">
-          <button class="fs-btn" id="fs-zoom-reset" style="display:none" onclick="resetFsZoom()">⟲ Zoom zurücksetzen</button>
-          <button class="fs-btn" onclick="closeChartFullscreen()">✕ Schliessen</button>
-        </div>
-      </div>
-      <div class="fs-canvas-wrap"><canvas id="fs-chart-canvas"></canvas></div>
-      <div class="fs-hint">Scroll-Zoom / Pinch zum Zoomen · Ziehen zum Navigieren · ESC zum Schliessen</div>`;
-    document.body.appendChild(_fsOverlay);
-    // ESC key
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && _fsOverlay.classList.contains('visible')) closeChartFullscreen(); });
-  }
+  // If already fullscreen, close first
+  if (_fsReturnInfo) closeChartFullscreen(true);
 
+  _ensureFsOverlay();
+
+  // Find the canvas's direct parent (the position:relative wrapper div)
+  const canvas = chart.canvas;
+  const canvasWrap = canvas.parentElement;
+
+  // Insert a placeholder so we know where to put it back
+  const placeholder = document.createElement('div');
+  placeholder.className = 'fs-placeholder';
+  placeholder.style.cssText = canvasWrap.style.cssText; // preserve height etc.
+  placeholder.style.display = 'flex';
+  placeholder.style.alignItems = 'center';
+  placeholder.style.justifyContent = 'center';
+  placeholder.innerHTML = '<span style="color:#4A4A60; font-size:0.82rem;">Diagramm im Vollbild geöffnet…</span>';
+  canvasWrap.parentElement.insertBefore(placeholder, canvasWrap);
+
+  // Save return info
+  _fsReturnInfo = { placeholder, canvasWrap, chartId };
+
+  // Move canvas wrapper into overlay
+  const fsWrap = document.getElementById('fs-canvas-wrap');
+  fsWrap.innerHTML = '';
+  // Override height to fill overlay
+  canvasWrap.style.cssText = 'position:relative; width:100%; height:100%;';
+  fsWrap.appendChild(canvasWrap);
+
+  // Set title
   document.getElementById('fs-title').textContent = title;
   document.getElementById('fs-zoom-reset').style.display = 'none';
+
+  // Show overlay
   _fsOverlay.style.display = 'flex';
-  requestAnimationFrame(() => _fsOverlay.classList.add('visible'));
+  requestAnimationFrame(() => {
+    _fsOverlay.classList.add('visible');
+    // Trigger Chart.js resize to fill the new container
+    chart.resize();
+  });
   document.body.style.overflow = 'hidden';
-
-  // Clone chart config & render in fullscreen canvas
-  const fsCanvas = document.getElementById('fs-chart-canvas');
-  // Destroy previous fullscreen chart
-  if (fsCanvas._fsChart) { fsCanvas._fsChart.destroy(); fsCanvas._fsChart = null; }
-  fsCanvas._fsChartId = chartId;
-
-  const cfg = structuredClone(src.config);
-  // Ensure zoom/pan is active in fullscreen
-  if (!cfg.options) cfg.options = {};
-  if (!cfg.options.plugins) cfg.options.plugins = {};
-  cfg.options.plugins.zoom = {
-    pan: { enabled: true, mode: 'x', onPanComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; } },
-    zoom: {
-      wheel: { enabled: true, modifierKey: null },
-      pinch: { enabled: true },
-      mode: 'x',
-      onZoomComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; },
-    },
-  };
-  // Disable external tooltip in fullscreen (use default)
-  if (cfg.options.plugins.tooltip && cfg.options.plugins.tooltip.enabled === false) {
-    cfg.options.plugins.tooltip = { enabled: true };
-  }
-  // Fix: rebuild legend generateLabels as functions (structuredClone loses them)
-  if (cfg.options.plugins.legend && cfg.options.plugins.legend.labels) {
-    delete cfg.options.plugins.legend.labels.generateLabels;
-  }
-  // Fix: rebuild tooltip callbacks
-  if (cfg.options.plugins.tooltip && cfg.options.plugins.tooltip.callbacks) {
-    delete cfg.options.plugins.tooltip.callbacks;
-  }
-
-  fsCanvas._fsChart = new Chart(fsCanvas.getContext('2d'), cfg);
 }
 
 function resetFsZoom() {
-  const fsCanvas = document.getElementById('fs-chart-canvas');
-  if (fsCanvas && fsCanvas._fsChart) {
-    fsCanvas._fsChart.resetZoom();
+  if (_fsReturnInfo && _charts[_fsReturnInfo.chartId]) {
+    _charts[_fsReturnInfo.chartId].resetZoom();
     document.getElementById('fs-zoom-reset').style.display = 'none';
   }
 }
 
-function closeChartFullscreen() {
-  if (!_fsOverlay) return;
-  _fsOverlay.classList.remove('visible');
+function closeChartFullscreen(instant) {
+  if (!_fsOverlay || !_fsReturnInfo) return;
+
+  const { placeholder, canvasWrap, chartId } = _fsReturnInfo;
+  const chart = _charts[chartId];
+
+  function doReturn() {
+    // Restore original inline style from placeholder
+    canvasWrap.style.cssText = placeholder.style.cssText;
+    // Put canvas wrapper back where the placeholder is
+    placeholder.parentElement.insertBefore(canvasWrap, placeholder);
+    placeholder.remove();
+    _fsReturnInfo = null;
+    _fsOverlay.style.display = 'none';
+    // Trigger resize so chart re-fits original container
+    if (chart) requestAnimationFrame(() => chart.resize());
+  }
+
   document.body.style.overflow = '';
-  setTimeout(() => {
-    if (_fsOverlay) _fsOverlay.style.display = 'none';
-    const fsCanvas = document.getElementById('fs-chart-canvas');
-    if (fsCanvas && fsCanvas._fsChart) { fsCanvas._fsChart.destroy(); fsCanvas._fsChart = null; }
-  }, 250);
+  if (instant) {
+    _fsOverlay.classList.remove('visible');
+    doReturn();
+  } else {
+    _fsOverlay.classList.remove('visible');
+    setTimeout(doReturn, 250);
+  }
 }
 
 // Legacy compat
