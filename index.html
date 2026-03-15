@@ -2988,6 +2988,14 @@ function renderMedCharts() {
     'Anderes':     '#8B8BFF',
   };
 
+  // Morse-style dash patterns per medication (unique rhythm for each)
+  const MED_DASHES = {
+    'Tramadol':    [10, 4],             // long dash
+    'Paracetamol': [3, 4],              // short dots
+    'Ibuprofen':   [10, 4, 3, 4],      // dash-dot
+    'Anderes':     [3, 4, 3, 4, 10, 4],// dot-dot-dash
+  };
+
   const emptyEl = document.getElementById('med-timeline-empty');
   const legEl   = document.getElementById('med-timeline-legend');
 
@@ -3130,8 +3138,51 @@ function renderMedCharts() {
     showZoomResetBtn('med-timeline');
   }
 
+  // Plugin: draw vertical dashed lines at each medication intake
+  // Build lookup: labelIndex → [{ color, dash }]
+  const medLineData = [];
+  STATE.medLogs.forEach(l => {
+    const lbl = toLabel(l.date, l.time);
+    const idx = labels.indexOf(lbl);
+    if (idx === -1) return;
+    medLineData.push({
+      idx,
+      color: MED_COLORS[l.med] || '#888888',
+      dash: MED_DASHES[l.med] || [6, 4],
+    });
+  });
+
+  const medVerticalLinesPlugin = {
+    id: 'medVerticalLines',
+    beforeDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      if (!chartArea || !scales.x) return;
+      const xScale = scales.x;
+      const top = chartArea.top;
+      const bottom = chartArea.bottom;
+
+      ctx.save();
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.35;
+
+      medLineData.forEach(({ idx, color, dash }) => {
+        const x = xScale.getPixelForValue(idx);
+        if (x < chartArea.left || x > chartArea.right) return;
+        ctx.strokeStyle = color;
+        ctx.setLineDash(dash);
+        ctx.beginPath();
+        ctx.moveTo(x, top);
+        ctx.lineTo(x, bottom);
+        ctx.stroke();
+      });
+
+      ctx.restore();
+    }
+  };
+
   _charts['med-timeline'] = createAndStoreChart('med-timeline', fresh.getContext('2d'), {
     type: 'line',
+    plugins: [medVerticalLinesPlugin],
     data: {
       labels,
       datasets: [
@@ -3192,13 +3243,17 @@ function renderMedCharts() {
   });
 
 
-  // Legend
+  // Legend (with dash pattern preview via inline SVG)
   if (legEl) {
     legEl.innerHTML = [
       '<div style="display:flex;align-items:center;gap:0.35rem;"><div style="width:18px;height:3px;background:#00D4AA;border-radius:2px;"></div><span>Schmerzverlauf</span></div>',
       ...usedMeds.map(med => {
         const col = MED_COLORS[med] || '#888';
-        return `<div style="display:flex;align-items:center;gap:0.35rem;"><div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid ${col};"></div><span>${med}</span></div>`;
+        const dash = (MED_DASHES[med] || [6,4]).join(',');
+        return `<div style="display:flex;align-items:center;gap:0.35rem;">` +
+          `<div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:10px solid ${col};"></div>` +
+          `<svg width="14" height="20" style="flex-shrink:0;"><line x1="7" y1="0" x2="7" y2="20" stroke="${col}" stroke-width="1.5" stroke-dasharray="${dash}" opacity="0.6"/></svg>` +
+          `<span>${med}</span></div>`;
       }),
     ].join('');
   }
