@@ -2335,9 +2335,12 @@ function renderAuswertung() {
   // ---- Weekly stats table ----
   renderWeeklyTable();
   renderLogTable();
-  // Render directly — the double-rAF in showTab() already guarantees layout
-  renderDailyStats();
-  renderMedCharts();
+  // Charts that depend on canvas dimensions: defer one more rAF so the
+  // browser completes layout after the tab becomes visible
+  requestAnimationFrame(() => {
+    renderDailyStats();
+    renderMedCharts();
+  });
 }
 
 // Renders weekly statistics table starting from first log entry
@@ -2390,7 +2393,7 @@ function renderWeeklyTable() {
   rows.forEach((r, i) => {
     const prev = rows[i-1];
     let trend = '–';
-    if (r.avg !== null && prev?.avg !== null) {
+    if (prev && r.avg !== null && prev.avg !== null) {
       const diff = parseFloat(r.avg) - parseFloat(prev.avg);
       trend = diff < -0.3 ? '<span style="color:#5A9068">↓ besser</span>'
              : diff > 0.3  ? '<span style="color:#C05018">↑ höher</span>'
@@ -2543,8 +2546,7 @@ function saveEdit() {
   closeEditModal();
   renderLogTable();
   renderTodayEntries();
-  renderDailyStats();
-  renderMedCharts();
+  requestAnimationFrame(() => { renderDailyStats(); renderMedCharts(); });
   showToast('✅ Eintrag aktualisiert');
 }
 
@@ -2561,8 +2563,7 @@ function deleteEntry(type, idx) {
   renderLogTable();
   renderTodayEntries();
   renderPainChart();
-  renderDailyStats();
-  renderMedCharts();
+  requestAnimationFrame(() => { renderDailyStats(); renderMedCharts(); });
   showToast('🗑 Eintrag gelöscht');
 }
 
@@ -2630,7 +2631,6 @@ function renderDailyStats() {
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? ctx.parsed.y + '/10' : 'kein Eintrag' } } }
       }
     });
-    _charts['daily14'].resize();
   })();
 
   // Daily table
@@ -2727,7 +2727,6 @@ function renderMedCharts() {
   destroyChart('med-timeline');
   const fresh = document.getElementById('chart-med-timeline');
   if (!fresh) return;
-  fresh.style.display = '';  // ensure canvas is visible after empty-state hide
 
   // Build label: "DD.MM HH:MM"
   function toLabel(date, time) {
@@ -2834,7 +2833,6 @@ function renderMedCharts() {
       },
     },
   });
-  _charts['med-timeline'].resize();
 
   // Legend
   if (legEl) {
