@@ -151,8 +151,6 @@ main { max-width: 1080px; margin: 0 auto; padding: 1.4rem 1.75rem; }
   font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s;
 }
 .chart-fullscreen-overlay .fs-btn:hover { border-color: #00D4AA; color: #00D4AA; background: #0A2A22; }
-/* VERSION BADGE — klein, dezent, monospace */
-.version-tag { font-size: 0.6rem; color: #2e2e42; font-family: 'DM Mono', monospace; letter-spacing: 0.04em; line-height: 1; }
 .chart-fullscreen-overlay .fs-canvas-wrap {
   width: 100%; max-width: 1200px; flex: 1; min-height: 0;
   position: relative; background: #08080C; border: 1px solid #16161E; border-radius: 14px; padding: 1rem;
@@ -388,7 +386,6 @@ option { background: var(--surface2); color: var(--text); }
   <div class="header-right">
     <div class="streak-badge" id="streak-badge" style="display:none">🔥 <span id="streak-num">0</span> Tage</div>
     <div class="day-counter" id="day-counter">Vor der OP</div>
-    <div class="version-tag" id="app-ver-header"></div>
   </div>
 </header>
 
@@ -1277,7 +1274,6 @@ option { background: var(--surface2); color: var(--text); }
       <button class="btn btn-primary" onclick="saveEdit()" style="flex:1; justify-content:center;">💾 Speichern</button>
       <button class="btn btn-outline" onclick="closeEditModal()" style="flex:1; justify-content:center;">Abbrechen</button>
     </div>
-    <div class="version-tag" id="app-ver-modal" style="text-align:right; margin-top:0.6rem;"></div>
   </div>
 </div>
 
@@ -1294,11 +1290,6 @@ option { background: var(--surface2); color: var(--text); }
 <div id="toast"></div>
 
 <script>
-// ============================================================
-// VERSION
-// ============================================================
-const APP_VERSION = '2.8.2';
-
 // ============================================================
 // DATA
 // ============================================================
@@ -2510,10 +2501,7 @@ function _ensureFsOverlay() {
   _fsOverlay.className = 'chart-fullscreen-overlay';
   _fsOverlay.innerHTML = `
     <div class="fs-header">
-      <div style="display:flex; align-items:baseline; gap:0.5rem;">
-        <div class="fs-title" id="fs-title"></div>
-        <span class="version-tag" id="app-ver-fs"></span>
-      </div>
+      <div class="fs-title" id="fs-title"></div>
       <div class="fs-actions">
         <button class="fs-btn" id="fs-zoom-reset" style="display:none" onclick="resetFsZoom()">⟲ Zoom zurücksetzen</button>
         <button class="fs-btn" onclick="closeChartFullscreen()">✕ Schliessen</button>
@@ -2536,7 +2524,6 @@ function _ensureFsOverlay() {
     </div>
     <div class="fs-hint">Scroll-Zoom / Pinch zum Zoomen · Ziehen zum Navigieren · ESC zum Schliessen</div>`;
   document.body.appendChild(_fsOverlay);
-  _applyVersionBadges();   // FS-Badge nach Overlay-Erstellung setzen
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && _fsOverlay.classList.contains('visible')) closeChartFullscreen();
   });
@@ -4934,17 +4921,8 @@ function showToast(msg) {
 // INIT
 // ============================================================
 // App entry point: load state, render initial view, start reminder interval
-function _applyVersionBadges() {
-  // Setzt APP_VERSION auf alle Versionsbadge-Elemente (auch im Fullscreen-Overlay falls offen)
-  ['app-ver-header', 'app-ver-modal', 'app-ver-fs'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = 'v' + APP_VERSION;
-  });
-}
-
 function init() {
   loadState();
-  _applyVersionBadges();
   updateAchievements();
   renderToday();
   renderReminderTimes();
