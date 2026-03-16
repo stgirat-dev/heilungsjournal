@@ -851,18 +851,7 @@ option { background: var(--surface2); color: var(--text); }
     </div>
     <div style="position:relative;height:220px;"><canvas id="chart-verlauf"></canvas></div>  </div>
 
-  <div class="g2 section-gap" style="align-items:start;">
-    <!-- Phase comparison -->
-    <div class="card">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
-        <div class="card-title" style="margin-bottom:0">🗂 Schmerz pro Phase</div>
-        <div class="chart-toolbar">
-          <button class="chart-tool-btn zoom-reset" data-chart="phase" onclick="resetChartZoom('phase')">⟲ Reset</button>
-          <button class="chart-tool-btn" onclick="openChartFullscreen('phase','🗂 Schmerz pro Phase')">⛶</button>
-        </div>
-      </div>
-      <div style="position:relative;height:200px;"><canvas id="chart-phase"></canvas></div>
-    </div>
+  <div class="g2 section-gap" style="align-items:stretch;">
     <!-- Time of day -->
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
@@ -874,6 +863,17 @@ option { background: var(--surface2); color: var(--text); }
       </div>
       <div style="position:relative;height:200px;"><canvas id="chart-tageszeit"></canvas></div>
       <div style="font-size:0.75rem; color:var(--text-sub); margin-top:0.75rem; display:flex; gap:1rem; flex-wrap:wrap;" id="tageszeit-legend"></div>
+    </div>
+    <!-- Phase comparison -->
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+        <div class="card-title" style="margin-bottom:0">🗂 Schmerz pro Phase</div>
+        <div class="chart-toolbar">
+          <button class="chart-tool-btn zoom-reset" data-chart="phase" onclick="resetChartZoom('phase')">⟲ Reset</button>
+          <button class="chart-tool-btn" onclick="openChartFullscreen('phase','🗂 Schmerz pro Phase')">⛶</button>
+        </div>
+      </div>
+      <div style="position:relative;height:200px;"><canvas id="chart-phase"></canvas></div>
     </div>
   </div>
 
@@ -2480,7 +2480,7 @@ function zoomPanConfig(chartId) {
     zoom: {
       pan: { enabled: true, mode: 'x', onPanComplete: () => showZoomResetBtn(chartId) },
       zoom: {
-        wheel: { enabled: true, speed: 0.05, modifierKey: null },
+        wheel: { enabled: true, speed: 0.025, modifierKey: null },
         pinch: { enabled: true },
         mode: 'x',
         threshold: 20,
@@ -2572,7 +2572,7 @@ function openChartFullscreen(chartId, title) {
           zoom: {
             pan: { enabled: true, mode: 'x', onPanComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; } },
             zoom: {
-              wheel: { enabled: true, speed: 0.05, modifierKey: null },
+              wheel: { enabled: true, speed: 0.025, modifierKey: null },
               pinch: { enabled: true },
               mode: 'x',
               threshold: 20,
@@ -3621,7 +3621,7 @@ function renderMedCharts() {
             onPanComplete: updateZoomResetBtn,
           },
           zoom: {
-            wheel: { enabled: true, speed: 0.05, modifierKey: null },
+            wheel: { enabled: true, speed: 0.025, modifierKey: null },
             pinch: { enabled: true },
             mode: 'x',
             threshold: 20,
