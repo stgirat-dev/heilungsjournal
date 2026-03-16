@@ -159,6 +159,14 @@ main { max-width: 1080px; margin: 0 auto; padding: 1.4rem 1.75rem; }
   font-size: 0.72rem; color: #4A4A60; margin-top: 0.75rem; text-align: center;
 }
 
+/* FULLSCREEN RANGE BUTTONS */
+.fs-range-btn {
+  background: #1a1a24; color: #8A8AA0; border: 1px solid #2a2a3a; border-radius: 20px;
+  padding: 0.28rem 0.85rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.fs-range-btn:hover { background: #222232; color: #b0b0c8; border-color: #3a3a4a; }
+.fs-range-btn.active { background: rgba(0,212,170,0.12); border-color: #00D4AA; color: #00D4AA; font-weight: 600; }
+
 /* CHART TOOLBAR */
 .chart-toolbar {
   display: flex; align-items: center; gap: 0.4rem;
@@ -721,39 +729,6 @@ option { background: var(--surface2); color: var(--text); }
         <button class="btn btn-outline btn-sm mt05" onclick="requestNotifPermission()">🔔 Browser-Benachrichtigungen erlauben</button>
       </div>
 
-      <!-- Backup & Restore -->
-      <div class="card section-gap" style="border-color: var(--sage-light);">
-        <div class="card-title">☁️ Backup & Wiederherstellen</div>
-
-        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">
-          Alle Daten (Schmerzlogs, abgehakte Tage, Einstellungen) als JSON-Datei sichern — direkt in Google Drive speichern via Android Share-Funktion.
-        </div>
-
-        <!-- Backup buttons -->
-        <button class="btn btn-sage" onclick="backupToGoogleDrive()" style="width:100%; margin-bottom:0.6rem; justify-content:center; font-size:0.9rem; padding:0.8rem;">
-          ☁️ Backup → Google Drive
-        </button>
-        <button class="btn btn-outline" onclick="exportBackupJSON()" style="width:100%; margin-bottom:1rem; justify-content:center;">
-          ⬇ Backup als Datei herunterladen
-        </button>
-
-        <div class="divider"></div>
-
-        <!-- Restore -->
-        <div class="card-label" style="margin-top:0.75rem;">Daten wiederherstellen</div>
-        <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.6rem;">
-          Backup-JSON-Datei auswählen — alle bestehenden Daten werden überschrieben!
-        </div>
-        <label style="display:block; cursor:pointer;">
-          <input type="file" id="restore-file-input" accept=".json" onchange="restoreFromJSON(this)" style="display:none;">
-          <div class="btn btn-outline" style="width:100%; justify-content:center; text-align:center;">
-            📂 Backup-Datei auswählen & wiederherstellen
-          </div>
-        </label>
-
-        <!-- Last backup info -->
-        <div id="last-backup-info" style="margin-top:0.85rem; font-size:0.75rem; color:var(--text-muted); text-align:center;"></div>
-      </div>
     </div>
 
     <div>
@@ -2526,7 +2501,21 @@ function _ensureFsOverlay() {
         <button class="fs-btn" onclick="closeChartFullscreen()">✕ Schliessen</button>
       </div>
     </div>
+    <div id="fs-range-row" style="display:none; align-items:center; gap:0.45rem; width:100%; max-width:1200px; margin-bottom:0.75rem; flex-wrap:wrap;">
+      <span style="color:#6a6a80; font-size:0.75rem; margin-right:0.2rem;">Zeitraum:</span>
+      <button class="fs-range-btn" data-days="1">1T</button>
+      <button class="fs-range-btn" data-days="2">2T</button>
+      <button class="fs-range-btn" data-days="3">3T</button>
+      <button class="fs-range-btn" data-days="5">5T</button>
+      <button class="fs-range-btn" data-days="7">7T</button>
+      <button class="fs-range-btn" data-days="all">Alles</button>
+    </div>
     <div class="fs-canvas-wrap" id="fs-canvas-wrap"><canvas id="fs-canvas"></canvas></div>
+    <div id="fs-scrollbar-wrap" style="display:none; width:100%; max-width:1200px; padding:0 2px; margin-top:6px; user-select:none;">
+      <div id="fs-scr-track" style="position:relative; height:5px; background:#1a1a26; border-radius:3px; cursor:pointer;">
+        <div id="fs-scr-thumb" style="position:absolute; top:0; height:100%; min-width:24px; background:rgba(0,212,170,0.3); border:1px solid rgba(0,212,170,0.55); border-radius:3px; cursor:grab;"></div>
+      </div>
+    </div>
     <div class="fs-hint">Scroll-Zoom / Pinch zum Zoomen · Ziehen zum Navigieren · ESC zum Schliessen</div>`;
   document.body.appendChild(_fsOverlay);
   document.addEventListener('keydown', e => {
@@ -2535,6 +2524,9 @@ function _ensureFsOverlay() {
 }
 
 function openChartFullscreen(chartId, title) {
+  // Special time-axis fullscreen for med-timeline
+  if (chartId === 'med-timeline') { _openMedTimelineFullscreen(); return; }
+
   const cfg = _chartConfigs[chartId];
   if (!cfg) return;
 
@@ -2602,6 +2594,14 @@ function resetFsZoom() {
 function closeChartFullscreen(instant) {
   if (!_fsOverlay) return;
 
+  // Clean up med-timeline event handlers + hide controls
+  if (_fsMedMoveHandler) { document.removeEventListener('mousemove', _fsMedMoveHandler); _fsMedMoveHandler = null; }
+  if (_fsMedUpHandler)   { document.removeEventListener('mouseup',   _fsMedUpHandler);   _fsMedUpHandler   = null; }
+  const rr = document.getElementById('fs-range-row');
+  const sw = document.getElementById('fs-scrollbar-wrap');
+  if (rr) rr.style.display = 'none';
+  if (sw) sw.style.display = 'none';
+
   function doClose() {
     if (_fsChart) { _fsChart.destroy(); _fsChart = null; }
     _fsChartId = null;
@@ -2620,6 +2620,299 @@ function closeChartFullscreen(instant) {
 
 // Legacy compat
 function resetMedZoom() { resetChartZoom('med-timeline'); }
+
+// ── Med-Timeline Fullscreen (Zeit-Achse) ─────────────────────────────────────
+let _fsMedMoveHandler = null, _fsMedUpHandler = null;
+
+function _openMedTimelineFullscreen() {
+  _ensureFsOverlay();
+  document.getElementById('fs-title').textContent = '💊 Tagesschmerzverlauf & Medikamente';
+  document.getElementById('fs-zoom-reset').style.display = 'none';
+  document.getElementById('fs-range-row').style.display  = 'flex';
+  document.getElementById('fs-scrollbar-wrap').style.display = 'block';
+
+  _fsOverlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  _fsChartId = 'med-timeline';
+
+  const wrap = document.getElementById('fs-canvas-wrap');
+  wrap.innerHTML = '<canvas id="fs-canvas"></canvas>';
+
+  requestAnimationFrame(() => {
+    _fsOverlay.classList.add('visible');
+    requestAnimationFrame(() => { _buildFsMedChart(); });
+  });
+}
+
+function _buildFsMedChart() {
+  const HOUR = 3600000, DAY = 86400000;
+  const WD   = ['So.','Mo.','Di.','Mi.','Do.','Fr.','Sa.'];
+  const MED_COLORS_FS = { 'Tramadol':'#B08BFF', 'Paracetamol':'#FFB347', 'Ibuprofen':'#FF6B8A', 'Anderes':'#8B8BFF' };
+
+  // ── Parse STATE data to timestamps ───────────────────────────────────────
+  function toTs(dateStr, timeStr) {
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const [h,mi]  = (timeStr||'00:00').split(':').map(Number);
+    return new Date(y, m-1, d, h, mi, 0, 0).getTime();
+  }
+  const painPts = STATE.painLogs.map(l => ({ x: toTs(l.date,l.time), y: l.level })).sort((a,b)=>a.x-b.x);
+  const medPts  = STATE.medLogs.map(l  => ({ x: toTs(l.date,l.time), med: l.med  })).sort((a,b)=>a.x-b.x);
+  if (!painPts.length) return;
+
+  const allTs  = [...painPts.map(p=>p.x), ...medPts.map(m=>m.x)];
+  const tsMin  = Math.min(...allTs) - 30*60000;
+  const tsMax  = Math.max(...allTs) + 30*60000;
+  const totalDays = (tsMax - tsMin) / DAY;
+  const initDays  = totalDays <= 3 ? 'all' : 3;
+  const initMin   = initDays === 'all' ? tsMin : tsMax - 3*DAY;
+
+  // ── Plugins ──────────────────────────────────────────────────────────────
+  const plugDayBg = {
+    id: 'fsDayBg',
+    beforeDraw(chart) {
+      const { ctx, chartArea: ca, scales: { x } } = chart;
+      if (!ca) return;
+      ctx.save();
+      let d = new Date(x.min); d.setHours(0,0,0,0);
+      while (d.getTime() < x.max) {
+        const l7  = d.getTime() + 7*HOUR,  l22 = d.getTime() + 22*HOUR;
+        const xl  = Math.max(x.getPixelForValue(l7), ca.left);
+        const xr  = Math.min(x.getPixelForValue(l22), ca.right);
+        if (xr > xl) { ctx.fillStyle='rgba(255,255,255,0.028)'; ctx.fillRect(xl, ca.top, xr-xl, ca.height); }
+        d.setDate(d.getDate()+1);
+      }
+      ctx.restore();
+    }
+  };
+
+  const plugDayLines = {
+    id: 'fsDayLines',
+    afterDraw(chart) {
+      const { ctx, chartArea: ca, scales: { x } } = chart;
+      if (!ca) return;
+      ctx.save();
+      ctx.lineWidth = 1.2;
+      const winDays = (x.max - x.min) / DAY;
+      let d = new Date(x.min); d.setHours(0,0,0,0);
+      while (d.getTime() <= x.max + DAY) {
+        const mid  = d.getTime();
+        const noon = mid + 12*HOUR;
+        // 00:00 — durchgehend blau
+        if (mid >= x.min && mid <= x.max) {
+          ctx.setLineDash([]);
+          ctx.strokeStyle = 'rgba(68,136,255,0.38)';
+          const px = x.getPixelForValue(mid);
+          ctx.beginPath(); ctx.moveTo(px, ca.top); ctx.lineTo(px, ca.bottom); ctx.stroke();
+        }
+        // 12:00 — gepunktet gelb, nur bei ≤ 3 Tagen (sanftes Fade 2→3 Tage)
+        if (noon >= x.min && noon <= x.max && winDays <= 3) {
+          const fade = Math.max(0, 1 - Math.max(0, winDays - 2));
+          ctx.setLineDash([2,6]);
+          ctx.strokeStyle = 'rgba(255,217,102,' + (0.32 * fade).toFixed(2) + ')';
+          const px = x.getPixelForValue(noon);
+          ctx.beginPath(); ctx.moveTo(px, ca.top); ctx.lineTo(px, ca.bottom); ctx.stroke();
+        }
+        d.setDate(d.getDate()+1);
+      }
+      ctx.restore();
+    }
+  };
+
+  const plugMedLines = {
+    id: 'fsMedLines',
+    beforeDatasetsDraw(chart) {
+      const { ctx, chartArea: ca, scales: { x } } = chart;
+      if (!ca) return;
+      ctx.save(); ctx.lineWidth = 1;
+      for (const m of medPts) {
+        if (m.x < x.min || m.x > x.max) continue;
+        ctx.setLineDash([3,4]);
+        ctx.strokeStyle = (MED_COLORS_FS[m.med]||'#888888') + '50';
+        const px = x.getPixelForValue(m.x);
+        ctx.beginPath(); ctx.moveTo(px, ca.top+22); ctx.lineTo(px, ca.bottom); ctx.stroke();
+      }
+      ctx.restore();
+    }
+  };
+
+  const plugMedMarkers = {
+    id: 'fsMedMarkers',
+    afterDraw(chart) {
+      const { ctx, chartArea: ca, scales: { x } } = chart;
+      if (!ca) return;
+      const SZ=6, Y0=ca.top+7;
+      ctx.save();
+      for (const m of medPts) {
+        if (m.x < x.min || m.x > x.max) continue;
+        ctx.fillStyle = MED_COLORS_FS[m.med]||'#888888';
+        const px = x.getPixelForValue(m.x);
+        ctx.beginPath();
+        ctx.moveTo(px, Y0+SZ); ctx.lineTo(px-SZ, Y0); ctx.lineTo(px+SZ, Y0);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+    }
+  };
+
+  const plugPainCircles = {
+    id: 'fsPainCircles',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      const meta = chart.getDatasetMeta(0);
+      if (!meta || !meta.data) return;
+      ctx.save();
+      meta.data.forEach((el, i) => {
+        const v = chart.data.datasets[0].data[i]?.y;
+        if (v == null) return;
+        const lv = Math.round(v);
+        ctx.fillStyle = getPainColor(lv);
+        ctx.beginPath(); ctx.arc(el.x, el.y, 11, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.stroke();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(lv), el.x, el.y);
+      });
+      ctx.restore();
+    }
+  };
+
+  // ── Chart ─────────────────────────────────────────────────────────────────
+  _fsChart = new Chart(document.getElementById('fs-canvas').getContext('2d'), {
+    type: 'line',
+    plugins: [plugDayBg, plugMedLines, plugDayLines, plugMedMarkers, plugPainCircles],
+    data: {
+      datasets: [{
+        data: painPts,
+        borderColor: '#00D4AA',
+        backgroundColor: 'rgba(0,212,170,0.07)',
+        pointBackgroundColor: painPts.map(p => getPainColor(Math.round(p.y))),
+        pointBorderColor: 'transparent',
+        pointRadius: 11, pointHoverRadius: 13,
+        tension: 0.3, fill: true, borderWidth: 2, spanGaps: true, order: 1,
+      }]
+    },
+    options: {
+      animation: false, responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 24, bottom: 4, left: 8, right: 12 } },
+      scales: {
+        x: {
+          type: 'linear', min: initMin, max: tsMax,
+          grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+          border: { color: 'rgba(255,255,255,0.08)' },
+          afterBuildTicks(axis) {
+            const tks = []; const d = new Date(axis.min); d.setHours(12,0,0,0);
+            if (d.getTime() < axis.min) d.setDate(d.getDate()+1);
+            while (d.getTime() <= axis.max) { tks.push({ value: d.getTime() }); d.setDate(d.getDate()+1); }
+            axis.ticks = tks;
+          },
+          ticks: {
+            color: '#8A8AA0', font: { size: 11 }, maxRotation: 0,
+            callback(val) {
+              const d = new Date(val);
+              return WD[d.getDay()] + ' ' + String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.';
+            }
+          }
+        },
+        y: {
+          min: 0, max: 10,
+          grid: { color: 'rgba(255,255,255,0.06)' }, border: { display: false },
+          ticks: { color: '#8A8AA0', font: { size: 11 }, stepSize: 2 }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a28', titleColor: '#e8e8f0', bodyColor: '#8A8AA0',
+          borderColor: '#2a2a3a', borderWidth: 1,
+          callbacks: {
+            title: items => {
+              const d = new Date(items[0].parsed.x);
+              return d.toLocaleString('de-CH', { weekday:'short', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+            },
+            label: item => item.parsed.y != null ? 'Schmerz: ' + item.parsed.y : ''
+          }
+        },
+        zoom: {
+          pan: { enabled: true, mode: 'x', onPan: _fsSyncScrollbar },
+          zoom: {
+            wheel: { enabled: true, speed: 0.025 },
+            pinch: { enabled: true }, mode: 'x', threshold: 20,
+            onZoom: _fsSyncScrollbar
+          },
+          limits: { x: { min: tsMin, max: tsMax, minRange: HOUR*6 } }
+        }
+      }
+    }
+  });
+
+  // ── Range buttons ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.fs-range-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.days === (initDays === 'all' ? 'all' : String(initDays)));
+    btn.onclick = () => {
+      document.querySelectorAll('.fs-range-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const days = btn.dataset.days;
+      _fsChart.options.scales.x.min = days === 'all' ? tsMin : tsMax - parseInt(days)*DAY;
+      _fsChart.options.scales.x.max = tsMax;
+      _fsChart.update('none');
+      _fsSyncScrollbar();
+    };
+  });
+
+  // ── Scrollbar ─────────────────────────────────────────────────────────────
+  const track = document.getElementById('fs-scr-track');
+  const thumb = document.getElementById('fs-scr-thumb');
+  let _dragging = false, _dragX0 = 0, _dragLeft0 = 0;
+
+  _fsMedMoveHandler = e => {
+    if (!_dragging) return;
+    const tw  = parseFloat(thumb.style.width);
+    const dx  = ((e.clientX - _dragX0) / track.offsetWidth) * 100;
+    const nl  = Math.max(0, Math.min(_dragLeft0 + dx, 100 - tw));
+    const win = _fsChart.scales.x.max - _fsChart.scales.x.min;
+    _fsChart.options.scales.x.min = tsMin + (nl/100)*(tsMax-tsMin);
+    _fsChart.options.scales.x.max = _fsChart.options.scales.x.min + win;
+    _fsChart.update('none');
+    thumb.style.left = nl + '%';
+  };
+  _fsMedUpHandler = () => { _dragging = false; };
+  document.addEventListener('mousemove', _fsMedMoveHandler);
+  document.addEventListener('mouseup',   _fsMedUpHandler);
+
+  thumb.onmousedown = e => {
+    _dragging = true; _dragX0 = e.clientX;
+    _dragLeft0 = parseFloat(thumb.style.left) || 0;
+    e.preventDefault();
+  };
+  track.onclick = e => {
+    if (e.target === thumb) return;
+    const ratio = (e.clientX - track.getBoundingClientRect().left) / track.offsetWidth;
+    const win   = _fsChart.scales.x.max - _fsChart.scales.x.min;
+    const nm    = Math.max(tsMin, Math.min(tsMin + ratio*(tsMax-tsMin) - win/2, tsMax-win));
+    _fsChart.options.scales.x.min = nm;
+    _fsChart.options.scales.x.max = nm + win;
+    _fsChart.update('none');
+    _fsSyncScrollbar();
+  };
+
+  _fsSyncScrollbar();
+}
+
+function _fsSyncScrollbar() {
+  if (!_fsChart) return;
+  const track = document.getElementById('fs-scr-track');
+  const thumb = document.getElementById('fs-scr-thumb');
+  if (!track || !thumb) return;
+  const lim   = _fsChart.options.plugins.zoom.limits.x;
+  const total = lim.max - lim.min;
+  const win   = _fsChart.scales.x.max - _fsChart.scales.x.min;
+  const tw    = Math.max(4, Math.min(100, (win/total)*100));
+  const tl    = Math.min(((_fsChart.scales.x.min - lim.min)/total)*100, 100-tw);
+  thumb.style.width = tw + '%';
+  thumb.style.left  = tl + '%';
+  document.getElementById('fs-scrollbar-wrap').style.opacity = win >= total*0.98 ? '0.4' : '1';
+}
 
 // Main analytics renderer: KPIs, extended stats, all charts, tables
 // Called with double requestAnimationFrame to ensure canvas dimensions are ready
