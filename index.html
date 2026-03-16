@@ -399,6 +399,18 @@ option { background: var(--surface2); color: var(--text); }
   <div class="g2 section-gap" style="align-items:start">
     <!-- LEFT COLUMN -->
     <div>
+      <!-- Quick pain entry -->
+      <div class="card section-gap">
+        <div class="card-title">⚡ Schnell-Schmerzeintrag</div>
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Wie ist dein Schmerzniveau gerade?</div>
+        <input type="range" id="quick-slider" min="0" max="10" value="3" oninput="updateQuickSlider(this.value)" style="margin-bottom:0.5rem;">
+        <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom:0.75rem;">
+          <span>0 – kein Schmerz</span><span>10 – Maximum</span>
+        </div>
+        <div id="quick-pain-label" style="font-size:0.9rem; font-weight:600; margin-bottom:0.75rem; color:var(--primary)"></div>
+        <button class="btn btn-primary" onclick="quickPainEntry()" style="width:100%">Eintragen</button>
+      </div>
+
       <!-- Phase + Check Day -->
       <div class="card section-gap">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
@@ -454,6 +466,54 @@ option { background: var(--surface2); color: var(--text); }
 
     <!-- RIGHT COLUMN -->
     <div>
+      <!-- Quick med entry -->
+      <div class="card section-gap">
+        <div class="card-title">💊 Schnell-Medikament</div>
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Welches Medikament hast du genommen?</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-bottom:0.6rem;" id="qm-med-selector">
+          <button class="qm-btn" data-med="Tramadol"   onclick="selectQMed(this)" style="padding:0.5rem 0.4rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer; transition:all 0.15s; color:var(--text-sub);">💧 Tramadol</button>
+          <button class="qm-btn" data-med="Paracetamol" onclick="selectQMed(this)" style="padding:0.5rem 0.4rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer; transition:all 0.15s; color:var(--text-sub);">🟡 Paracetamol</button>
+          <button class="qm-btn" data-med="Ibuprofen"  onclick="selectQMed(this)" style="padding:0.5rem 0.4rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer; transition:all 0.15s; color:var(--text-sub);">🔴 Ibuprofen</button>
+          <button class="qm-btn" data-med="Anderes"    onclick="selectQMed(this)" style="padding:0.5rem 0.4rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.82rem; cursor:pointer; transition:all 0.15s; color:var(--text-sub);">➕ Anderes</button>
+        </div>
+        <!-- Tramadol Dosis -->
+        <div id="qm-dose-tramadol" style="display:none; margin-bottom:0.55rem;">
+          <div class="card-label">Tropfen</div>
+          <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+            <button onclick="selectQDose('5 Tropfen')"  class="qm-dose-btn" data-dose="5 Tropfen"  style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">5</button>
+            <button onclick="selectQDose('10 Tropfen')" class="qm-dose-btn" data-dose="10 Tropfen" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">10</button>
+            <button onclick="selectQDose('15 Tropfen')" class="qm-dose-btn" data-dose="15 Tropfen" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">15</button>
+            <button onclick="selectQDose('20 Tropfen')" class="qm-dose-btn" data-dose="20 Tropfen" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">20</button>
+            <button onclick="selectQDose('25 Tropfen')" class="qm-dose-btn" data-dose="25 Tropfen" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">25</button>
+            <button onclick="selectQDose('30 Tropfen')" class="qm-dose-btn" data-dose="30 Tropfen" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">30</button>
+          </div>
+        </div>
+        <!-- Paracetamol Dosis -->
+        <div id="qm-dose-paracetamol" style="display:none; margin-bottom:0.55rem;">
+          <div class="card-label">Dosis</div>
+          <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+            <button onclick="selectQDose('500mg')"  class="qm-dose-btn" data-dose="500mg"  style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">500mg</button>
+            <button onclick="selectQDose('1000mg')" class="qm-dose-btn" data-dose="1000mg" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">1000mg</button>
+          </div>
+        </div>
+        <!-- Ibuprofen Dosis -->
+        <div id="qm-dose-ibuprofen" style="display:none; margin-bottom:0.55rem;">
+          <div class="card-label">Dosis</div>
+          <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+            <button onclick="selectQDose('400mg')" class="qm-dose-btn" data-dose="400mg" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">400mg</button>
+            <button onclick="selectQDose('600mg')" class="qm-dose-btn" data-dose="600mg" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">600mg</button>
+            <button onclick="selectQDose('800mg')" class="qm-dose-btn" data-dose="800mg" style="padding:0.28rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--surface2); font-family:'DM Sans',sans-serif; font-size:0.78rem; cursor:pointer; color:var(--text);">800mg</button>
+          </div>
+        </div>
+        <!-- Anderes -->
+        <div id="qm-dose-anderes" style="display:none; margin-bottom:0.55rem;">
+          <div class="card-label">Medikament & Dosis</div>
+          <input type="text" id="qm-other-text" placeholder="z.B. Voltaren 50mg" style="padding:0.4rem 0.6rem; font-size:0.82rem;">
+        </div>
+        <div id="qm-med-display" style="display:none; font-size:0.83rem; font-weight:600; color:#8B8BFF; margin-bottom:0.6rem; padding:0.4rem 0.65rem; background:rgba(139,139,255,0.1); border:1px solid rgba(139,139,255,0.35); border-radius:7px;"></div>
+        <button class="btn btn-primary" onclick="quickMedEntry()" style="width:100%; background:#8B8BFF; border-color:#8B8BFF;">Eintragen</button>
+      </div>
+
       <!-- Quote -->
       <div class="quote-card section-gap">
         <div class="card-label" style="position:relative">Gedanke des Tages</div>
@@ -477,18 +537,6 @@ option { background: var(--surface2); color: var(--text); }
       <div class="card section-gap">
         <div class="card-title">💡 Besondere Hinweise</div>
         <div id="today-hints"></div>
-      </div>
-
-      <!-- Quick pain entry -->
-      <div class="card section-gap">
-        <div class="card-title">⚡ Schnell-Schmerzeintrag</div>
-        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.75rem;">Wie ist dein Schmerzniveau gerade?</div>
-        <input type="range" id="quick-slider" min="0" max="10" value="3" oninput="updateQuickSlider(this.value)" style="margin-bottom:0.5rem;">
-        <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom:0.75rem;">
-          <span>0 – kein Schmerz</span><span>10 – Maximum</span>
-        </div>
-        <div id="quick-pain-label" style="font-size:0.9rem; font-weight:600; margin-bottom:0.75rem; color:var(--primary)"></div>
-        <button class="btn btn-primary" onclick="quickPainEntry()" style="width:100%">Eintragen</button>
       </div>
 
       <!-- Emergency -->
@@ -1224,11 +1272,30 @@ option { background: var(--surface2); color: var(--text); }
       <div class="card-label" style="margin-bottom:0.4rem;">Datum</div>
       <input type="date" id="edit-date" style="width:100%; padding:0.6rem 0.75rem; font-size:0.9rem; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif;">
     </div>
-    <div style="margin-bottom:1.25rem;">
+    <div style="margin-bottom:1rem;">
       <div class="card-label" style="margin-bottom:0.4rem;">Uhrzeit</div>
       <input type="time" id="edit-time" style="width:100%; padding:0.6rem 0.75rem; font-size:0.9rem; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif;">
     </div>
-    <div style="display:flex; gap:0.75rem;">
+    <!-- Pain level section (only for pain entries) -->
+    <div id="edit-pain-section" style="display:none; margin-bottom:1rem;">
+      <div class="card-label" style="margin-bottom:0.4rem;">Schmerzniveau</div>
+      <input type="range" id="edit-pain-level" min="0" max="10" value="5" oninput="updateEditPainLabel(this.value)" style="width:100%; margin-bottom:0.35rem;">
+      <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom:0.4rem;"><span>0 – kein Schmerz</span><span>10 – Maximum</span></div>
+      <div id="edit-pain-label" style="font-size:0.88rem; font-weight:600; margin-bottom:0.2rem;"></div>
+    </div>
+    <!-- Med section (only for med entries) -->
+    <div id="edit-med-section" style="display:none; margin-bottom:1rem;">
+      <div class="card-label" style="margin-bottom:0.4rem;">Medikament</div>
+      <select id="edit-med-name" style="width:100%; padding:0.55rem 0.7rem; font-size:0.88rem; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; margin-bottom:0.75rem;">
+        <option value="Tramadol">💧 Tramadol</option>
+        <option value="Paracetamol">🟡 Paracetamol</option>
+        <option value="Ibuprofen">🔴 Ibuprofen</option>
+        <option value="Anderes">➕ Anderes</option>
+      </select>
+      <div class="card-label" style="margin-bottom:0.4rem;">Dosis</div>
+      <input type="text" id="edit-dose-text" placeholder="z.B. 500mg, 10 Tropfen …" style="width:100%; padding:0.55rem 0.7rem; font-size:0.88rem; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif;">
+    </div>
+    <div style="display:flex; gap:0.75rem; margin-top:0.5rem;">
       <button class="btn btn-primary" onclick="saveEdit()" style="flex:1; justify-content:center;">💾 Speichern</button>
       <button class="btn btn-outline" onclick="closeEditModal()" style="flex:1; justify-content:center;">Abbrechen</button>
     </div>
@@ -1805,6 +1872,82 @@ function quickPainEntry() {
   saveState();
   showToast(`💊 Schmerz ${level}/10 eingetragen`);
   updateAchievements();
+}
+
+// ============================================================
+// QUICK MED ENTRY (Heute-Tab, top-right)
+// ============================================================
+let _qSelectedMed  = null;
+let _qSelectedDose = null;
+
+function selectQMed(btn) {
+  _qSelectedMed  = btn.dataset.med;
+  _qSelectedDose = null;
+  document.querySelectorAll('.qm-btn').forEach(b => {
+    b.style.background   = '#0E0E14';
+    b.style.borderColor  = '#16161E';
+    b.style.fontWeight   = '500';
+    b.style.color        = '#8A8AA0';
+  });
+  btn.style.background  = '#12122A';
+  btn.style.borderColor = '#8B8BFF';
+  btn.style.fontWeight  = '600';
+  btn.style.color       = '#8B8BFF';
+
+  ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
+    document.getElementById('qm-dose-' + m).style.display = 'none');
+  document.getElementById('qm-dose-' + _qSelectedMed.toLowerCase()).style.display = 'block';
+  document.getElementById('qm-med-display').style.display = 'none';
+  document.querySelectorAll('.qm-dose-btn').forEach(b => {
+    b.style.background   = '#0E0E14';
+    b.style.borderColor  = '#16161E';
+    b.style.fontWeight   = '400';
+    b.style.color        = '#F2F2F8';
+  });
+}
+
+function selectQDose(dose) {
+  _qSelectedDose = dose;
+  document.querySelectorAll('.qm-dose-btn').forEach(b => {
+    const active = b.dataset.dose === dose;
+    b.style.background  = active ? '#12122A' : '#0E0E14';
+    b.style.borderColor = active ? '#8B8BFF' : '#16161E';
+    b.style.fontWeight  = active ? '700'     : '400';
+    b.style.color       = active ? '#8B8BFF' : '#F2F2F8';
+  });
+  updateQMedDisplay();
+}
+
+function updateQMedDisplay() {
+  const el = document.getElementById('qm-med-display');
+  if (_qSelectedMed && _qSelectedDose) {
+    el.textContent = `💊 ${_qSelectedMed} · ${_qSelectedDose}`;
+    el.style.display = 'block';
+  }
+}
+
+function quickMedEntry() {
+  if (!_qSelectedMed) { showToast('⚠️ Bitte zuerst ein Medikament auswählen'); return; }
+  let dose = _qSelectedDose;
+  if (_qSelectedMed === 'Anderes') {
+    dose = document.getElementById('qm-other-text').value.trim();
+    if (!dose) { showToast('⚠️ Bitte Medikament & Dosis eingeben'); return; }
+  }
+  if (!dose) { showToast('⚠️ Bitte Dosis auswählen'); return; }
+  const entry = { date: today(), time: nowTime(), med: _qSelectedMed, dose, note: '' };
+  STATE.medLogs.push(entry);
+  saveState();
+  showToast(`💊 ${_qSelectedMed} ${dose} eingetragen`);
+  // Reset form
+  document.getElementById('qm-other-text').value = '';
+  document.getElementById('qm-med-display').style.display = 'none';
+  document.querySelectorAll('.qm-btn').forEach(b => {
+    b.style.background='#020204'; b.style.borderColor='#16161E'; b.style.fontWeight='400'; b.style.color='#F2F2F8';
+  });
+  ['tramadol','paracetamol','ibuprofen','anderes'].forEach(m =>
+    document.getElementById('qm-dose-' + m).style.display = 'none');
+  _qSelectedMed = null; _qSelectedDose = null;
+  renderTodayEntries();
 }
 
 // ============================================================
@@ -2960,11 +3103,38 @@ function renderLogTable() {
   if (table) table.innerHTML = html;
 }
 
+function updateEditPainLabel(val) {
+  val = parseInt(val);
+  const info = PAIN_INFO[val];
+  const slider = document.getElementById('edit-pain-level');
+  slider.style.background = `linear-gradient(to right, ${info.color} ${val*10}%, #16161E ${val*10}%)`;
+  const lbl = document.getElementById('edit-pain-label');
+  lbl.textContent = `${val}/10 — ${info.label}`;
+  lbl.style.color = info.color;
+}
+
 function openEditModal(type, idx, date, time) {
   document.getElementById('edit-type').value = type;
   document.getElementById('edit-idx').value  = idx;
   document.getElementById('edit-date').value = date;
   document.getElementById('edit-time').value = time;
+
+  // Show/hide type-specific fields
+  document.getElementById('edit-pain-section').style.display = type === 'pain' ? 'block' : 'none';
+  document.getElementById('edit-med-section').style.display  = type === 'med'  ? 'block' : 'none';
+
+  if (type === 'pain') {
+    const level = STATE.painLogs[idx]?.level ?? 5;
+    const slider = document.getElementById('edit-pain-level');
+    slider.value = level;
+    updateEditPainLabel(level);
+  } else if (type === 'med') {
+    const entry = STATE.medLogs[idx];
+    if (entry) {
+      document.getElementById('edit-med-name').value  = entry.med  || 'Tramadol';
+      document.getElementById('edit-dose-text').value = entry.dose || '';
+    }
+  }
   document.getElementById('edit-modal').classList.add('open');
 }
 
@@ -2979,11 +3149,16 @@ function saveEdit() {
   const time = document.getElementById('edit-time').value;
   if (!date) { showToast('⚠️ Bitte Datum eingeben'); return; }
   if (type === 'pain' && STATE.painLogs[idx]) {
-    STATE.painLogs[idx].date = date;
-    STATE.painLogs[idx].time = time;
+    STATE.painLogs[idx].date  = date;
+    STATE.painLogs[idx].time  = time;
+    STATE.painLogs[idx].level = parseInt(document.getElementById('edit-pain-level').value);
   } else if (type === 'med' && STATE.medLogs[idx]) {
+    const dose = document.getElementById('edit-dose-text').value.trim();
+    if (!dose) { showToast('⚠️ Bitte Dosis eingeben'); return; }
     STATE.medLogs[idx].date = date;
     STATE.medLogs[idx].time = time;
+    STATE.medLogs[idx].med  = document.getElementById('edit-med-name').value;
+    STATE.medLogs[idx].dose = dose;
   }
   saveState();
   closeEditModal();
