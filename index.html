@@ -844,11 +844,15 @@ option { background: var(--surface2); color: var(--text); }
   <div class="card section-gap">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
       <div class="card-title" style="margin-bottom:0">📓 Journal — Alle Einträge</div>
-      <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV</button>
+      <div style="display:flex; gap:0.5rem; align-items:center;">
+        <button class="btn btn-outline btn-sm" id="journal-filter-toggle" onclick="toggleJournalFilter()" style="font-size:0.75rem; padding:0.3rem 0.65rem;">⚙ Filter ▼</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ CSV</button>
+      </div>
     </div>
     <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.85rem;">🌡 Schmerz-Logs und 💊 Medikamenten-Logs — chronologisch kombiniert</div>
 
-    <!-- Filters -->
+    <!-- Filters (collapsible, default hidden) -->
+    <div id="journal-filter-panel" style="display:none;">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.85rem;">
       <div>
         <div class="card-label">Datum von</div>
@@ -897,6 +901,7 @@ option { background: var(--surface2); color: var(--text); }
         <button class="btn btn-outline btn-sm" onclick="clearLogFilters()" style="width:100%;">✕ Filter zurücksetzen</button>
       </div>
     </div>
+    </div><!-- end journal-filter-panel -->
 
     <div id="log-filter-count" style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.5rem;"></div>
     <div style="overflow-x:auto; max-height:380px; overflow-y:auto;">
@@ -907,6 +912,8 @@ option { background: var(--surface2); color: var(--text); }
     </div>
   </div>
 
+  <!-- Erweiterte Statistik Anker (wird per JS hier eingefügt) -->
+  <div id="extended-stats-target"></div>
 
 </div>
 
@@ -2538,13 +2545,14 @@ function renderAuswertung() {
     kpi('📐', stats ? stats.median+'/10' : '–', 'Median', 'Robuster Mittelwert', '#5A8FAA') +
     kpi('📊', stats ? stats.sd : '–', 'Std.abweichung σ', 'Streuung der Werte', '#8872A8');
 
-  // Insert extended stats after kpis
+  // Insert extended stats at bottom of Auswertung tab (after journal section)
   const existingStats = document.getElementById('extended-stats-wrap');
   if (existingStats) existingStats.remove();
   const wrap = document.createElement('div');
   wrap.id = 'extended-stats-wrap';
   wrap.innerHTML = statsHtml;
-  kpiWrap.after(wrap);
+  const statsTarget = document.getElementById('extended-stats-target');
+  (statsTarget || kpiWrap).after(wrap);
 
   // ---- Vor/Nach Vergleich Banner ----
   const compWrap = document.getElementById('prepost-comparison');
@@ -2645,7 +2653,7 @@ function renderAuswertung() {
       plugins: {
         legend: {
           display: true,
-          labels: { font:{size:11}, color:'#3A2A1C', padding:16,
+          labels: { font:{size:11}, color:'#C4B5A5', padding:16,
             generateLabels: chart => [
               { text:'🔵 Vor OP', fillStyle:'#5A8FAA', strokeStyle:'#5A8FAA', lineWidth:2 },
               { text:'🟠 Nach OP', fillStyle:'#B87049', strokeStyle:'#B87049', lineWidth:2 },
@@ -3005,6 +3013,15 @@ function deleteEntry(type, idx) {
 // Keep old deletePainEntry for backward compat
 function deletePainEntry(idx) { deleteEntry('pain', idx); }
 
+function toggleJournalFilter() {
+  const panel = document.getElementById('journal-filter-panel');
+  const btn   = document.getElementById('journal-filter-toggle');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (btn) btn.textContent = isOpen ? '⚙ Filter ▼' : '⚙ Filter ▲';
+}
+
 function clearLogFilters() {
   const allDates = [
     ...STATE.painLogs.map(l=>l.date),
@@ -3340,9 +3357,44 @@ function renderMedCharts() {
     }
   };
 
+  // Plugin: draw pain level number inside a colored circle at each pain data point (Option B)
+  const painLabelPlugin = {
+    id: 'painLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx, scales, chartArea } = chart;
+      if (!chartArea || !scales.x || !scales.y) return;
+      const painDataset = chart.data.datasets[0]; // index 0 = Schmerzniveau
+      if (!painDataset) return;
+      ctx.save();
+      painDataset.data.forEach((val, i) => {
+        if (val == null) return;
+        const level = Math.round(val);
+        const x = scales.x.getPixelForValue(i);
+        const y = scales.y.getPixelForValue(val);
+        if (x < chartArea.left || x > chartArea.right || y < chartArea.top || y > chartArea.bottom) return;
+        const color = getPainColor(level);
+        // Filled circle (radius 11)
+        ctx.beginPath();
+        ctx.arc(x, y, 11, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // Level number centered in circle
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(level), x, y);
+      });
+      ctx.restore();
+    }
+  };
+
   _charts['med-timeline'] = createAndStoreChart('med-timeline', fresh.getContext('2d'), {
     type: 'line',
-    plugins: [medVerticalLinesPlugin],
+    plugins: [medVerticalLinesPlugin, painLabelPlugin],
     data: {
       labels,
       datasets: [
@@ -3353,8 +3405,8 @@ function renderMedCharts() {
           backgroundColor: 'rgba(0,212,170,0.07)',
           pointBackgroundColor: painColors,
           pointBorderColor: painColors,
-          pointRadius: labels.map(lbl => painByLabel[lbl] != null ? 5 : 0),
-          pointHoverRadius: 7,
+          pointRadius: 0,       // drawn custom by painLabelPlugin
+          pointHoverRadius: 11, // match custom circle radius for hover detection
           tension: 0.3,
           fill: true,
           borderWidth: 2,
