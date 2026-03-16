@@ -2480,9 +2480,10 @@ function zoomPanConfig(chartId) {
     zoom: {
       pan: { enabled: true, mode: 'x', onPanComplete: () => showZoomResetBtn(chartId) },
       zoom: {
-        wheel: { enabled: true, modifierKey: null },
+        wheel: { enabled: true, speed: 0.05, modifierKey: null },
         pinch: { enabled: true },
         mode: 'x',
+        threshold: 20,
         onZoomComplete: () => showZoomResetBtn(chartId),
       },
     },
@@ -2571,9 +2572,10 @@ function openChartFullscreen(chartId, title) {
           zoom: {
             pan: { enabled: true, mode: 'x', onPanComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; } },
             zoom: {
-              wheel: { enabled: true, modifierKey: null },
+              wheel: { enabled: true, speed: 0.05, modifierKey: null },
               pinch: { enabled: true },
               mode: 'x',
+              threshold: 20,
               onZoomComplete: () => { document.getElementById('fs-zoom-reset').style.display = 'inline-block'; },
             },
           },
@@ -3619,9 +3621,10 @@ function renderMedCharts() {
             onPanComplete: updateZoomResetBtn,
           },
           zoom: {
-            wheel: { enabled: true, modifierKey: null },
+            wheel: { enabled: true, speed: 0.05, modifierKey: null },
             pinch: { enabled: true },
             mode: 'x',
+            threshold: 20,
             onZoomComplete: updateZoomResetBtn,
           },
         },
