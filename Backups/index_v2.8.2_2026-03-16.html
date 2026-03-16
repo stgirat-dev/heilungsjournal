@@ -1297,7 +1297,7 @@ option { background: var(--surface2); color: var(--text); }
 // ============================================================
 // VERSION
 // ============================================================
-const APP_VERSION = '2.9.0';
+const APP_VERSION = '2.8.2';
 
 // ============================================================
 // DATA
@@ -2616,14 +2616,6 @@ function closeChartFullscreen(instant) {
   // Clean up med-timeline event handlers + hide controls
   if (_fsMedMoveHandler) { document.removeEventListener('mousemove', _fsMedMoveHandler); _fsMedMoveHandler = null; }
   if (_fsMedUpHandler)   { document.removeEventListener('mouseup',   _fsMedUpHandler);   _fsMedUpHandler   = null; }
-  if (_fsMedCanvasMoveHandler) {
-    const cv = document.getElementById('fs-canvas');
-    if (cv) cv.removeEventListener('mousemove', _fsMedCanvasMoveHandler);
-    if (cv) cv.removeEventListener('mouseleave', _fsMedCanvasMoveHandler);
-    _fsMedCanvasMoveHandler = null;
-  }
-  const _ttEl = document.getElementById('fs-med-tooltip');
-  if (_ttEl) _ttEl.style.opacity = '0';
   const rr = document.getElementById('fs-range-row');
   const sw = document.getElementById('fs-scrollbar-wrap');
   if (rr) rr.style.display = 'none';
@@ -2649,7 +2641,7 @@ function closeChartFullscreen(instant) {
 function resetMedZoom() { resetChartZoom('med-timeline'); }
 
 // ── Med-Timeline Fullscreen (Zeit-Achse) ─────────────────────────────────────
-let _fsMedMoveHandler = null, _fsMedUpHandler = null, _fsMedCanvasMoveHandler = null;
+let _fsMedMoveHandler = null, _fsMedUpHandler = null;
 
 function _openMedTimelineFullscreen() {
   _ensureFsOverlay();
@@ -2674,7 +2666,7 @@ function _openMedTimelineFullscreen() {
 function _buildFsMedChart() {
   const HOUR = 3600000, DAY = 86400000;
   const WD   = ['So.','Mo.','Di.','Mi.','Do.','Fr.','Sa.'];
-  // tension always 0 — straight lines, no splines
+  function calcTension(ms) { return ms > 5*DAY ? 0 : 0.3; }
   const MED_COLORS_FS = { 'Tramadol':'#B08BFF', 'Paracetamol':'#FFB347', 'Ibuprofen':'#FF6B8A', 'Anderes':'#8B8BFF' };
 
   // ── Parse STATE data to timestamps ───────────────────────────────────────
@@ -2684,16 +2676,16 @@ function _buildFsMedChart() {
     return new Date(y, m-1, d, h, mi, 0, 0).getTime();
   }
   const painPts = STATE.painLogs.map(l => ({ x: toTs(l.date,l.time), y: l.level })).sort((a,b)=>a.x-b.x);
-  const medPts  = STATE.medLogs.map(l  => ({ x: toTs(l.date,l.time), med: l.med, dose: l.dose||'' })).sort((a,b)=>a.x-b.x);
+  const medPts  = STATE.medLogs.map(l  => ({ x: toTs(l.date,l.time), med: l.med  })).sort((a,b)=>a.x-b.x);
   if (!painPts.length) return;
 
   const allTs  = [...painPts.map(p=>p.x), ...medPts.map(m=>m.x)];
-  const tsMin  = Math.min(...allTs);
+  const tsMin  = Math.min(...allTs) - 30*60000;
   const tsMax  = Math.max(...allTs) + 30*60000;
   const totalDays = (tsMax - tsMin) / DAY;
   const initDays  = totalDays <= 3 ? 'all' : 3;
-  const initMin   = initDays === 'all' ? tsMin : Math.max(tsMin, tsMax - 3*DAY);
-  const curTension = 0;                              // always straight lines
+  const initMin   = initDays === 'all' ? tsMin : tsMax - 3*DAY;
+  let curTension  = calcTension(tsMax - initMin);   // adaptive: 0 if >5 Tage, 0.3 sonst
 
   // ── Plugins ──────────────────────────────────────────────────────────────
   const plugDayBg = {
@@ -2946,84 +2938,11 @@ function _buildFsMedChart() {
             pinch: { enabled: true }, mode: 'x', threshold: 20,
             onZoom: _fsSyncScrollbar
           },
-          limits: { x: { min: tsMin, max: tsMax + HOUR, minRange: HOUR*6 } }
+          limits: { x: { min: tsMin, max: tsMax, minRange: HOUR*6 } }
         }
       }
     }
   });
-
-  // ── Med-Marker Tooltip (Canvas-Hover) ────────────────────────────────────
-  (function setupMedTooltip() {
-    const canvas = document.getElementById('fs-canvas');
-    const SZ = 6;
-
-    // Create tooltip element once
-    let ttEl = document.getElementById('fs-med-tooltip');
-    if (!ttEl) {
-      ttEl = document.createElement('div');
-      ttEl.id = 'fs-med-tooltip';
-      ttEl.style.cssText = [
-        'position:fixed','z-index:9999','pointer-events:none',
-        'background:#1a1a28','border:1px solid #2a2a3a','border-radius:8px',
-        'padding:7px 11px','font-size:0.8rem','color:#e8e8f0',
-        'box-shadow:0 4px 16px rgba(0,0,0,0.5)',
-        'transition:opacity 0.12s','opacity:0','white-space:nowrap',
-      ].join(';');
-      document.body.appendChild(ttEl);
-    }
-
-    function hide() { ttEl.style.opacity = '0'; }
-
-    _fsMedCanvasMoveHandler = function(e) {
-      if (e.type === 'mouseleave') { hide(); return; }
-      const chart = _fsChart;
-      if (!chart) { hide(); return; }
-      const ca = chart.chartArea;
-      const xScale = chart.scales.x;
-      if (!ca || !xScale) { hide(); return; }
-
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      const Y0 = ca.top + 7;
-
-      // Hit-test: triangle bounding box (px±12, Y0..Y0+SZ+6)
-      let hit = null;
-      const HIT = 12;
-      for (const m of medPts) {
-        if (m.x < xScale.min || m.x > xScale.max) continue;
-        const px = xScale.getPixelForValue(m.x);
-        if (Math.abs(mx - px) <= HIT && my >= Y0 - HIT && my <= Y0 + SZ + HIT) {
-          hit = m; break;
-        }
-      }
-
-      if (!hit) { hide(); return; }
-
-      const d = new Date(hit.x);
-      const timeStr = d.toLocaleString('de-CH', { weekday:'short', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-      const color   = MED_COLORS_FS[hit.med] || '#888888';
-      ttEl.innerHTML =
-        '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;vertical-align:middle"></span>' +
-        '<strong style="color:' + color + '">' + hit.med + '</strong>' +
-        (hit.dose ? '<span style="color:#8A8AA0;margin-left:8px">' + hit.dose + '</span>' : '') +
-        '<br><span style="color:#6a6a80;font-size:0.73rem">' + timeStr + '</span>';
-
-      // Position tooltip near cursor, keep within viewport
-      const TW = 220, TH = 52;
-      let tx = e.clientX + 14;
-      let ty = e.clientY - 30;
-      if (tx + TW > window.innerWidth  - 8) tx = e.clientX - TW - 14;
-      if (ty + TH > window.innerHeight - 8) ty = e.clientY - TH - 8;
-      if (ty < 8) ty = 8;
-      ttEl.style.left = tx + 'px';
-      ttEl.style.top  = ty + 'px';
-      ttEl.style.opacity = '1';
-    };
-
-    canvas.addEventListener('mousemove',  _fsMedCanvasMoveHandler);
-    canvas.addEventListener('mouseleave', _fsMedCanvasMoveHandler);
-  })();
 
   // ── Range buttons ─────────────────────────────────────────────────────────
   document.querySelectorAll('.fs-range-btn').forEach(btn => {
@@ -3033,7 +2952,10 @@ function _buildFsMedChart() {
       btn.classList.add('active');
       const days = btn.dataset.days;
       const windowMs = days === 'all' ? (tsMax - tsMin) : parseInt(days)*DAY;
-      _fsChart.options.scales.x.min = days === 'all' ? tsMin : Math.max(tsMin, tsMax - parseInt(days)*DAY);
+      curTension = calcTension(windowMs);     // adaptive: gerade bei >5 Tage
+      _fsChart.data.datasets[0].tension = curTension;           // Chart.js Bezier-CPs neu berechnen
+      _fsChart.options.elements.line.tension = curTension;       // sicherstellen auf options-Ebene
+      _fsChart.options.scales.x.min = days === 'all' ? tsMin : tsMax - parseInt(days)*DAY;
       _fsChart.options.scales.x.max = tsMax;
       _fsChart.update('none');
       _fsSyncScrollbar();
@@ -3239,7 +3161,7 @@ function renderAuswertung() {
           pointBackgroundColor: '#5A8FAA',
           pointBorderColor: '#5A8FAA',
           pointRadius: 4,
-          tension: 0,
+          tension: 0.4,
           fill: true,
           borderWidth: 2,
           spanGaps: false,
@@ -3252,7 +3174,7 @@ function renderAuswertung() {
           pointBackgroundColor: dayColors,
           pointBorderColor: dayColors,
           pointRadius: 4,
-          tension: 0,
+          tension: 0.4,
           fill: true,
           borderWidth: 2,
           spanGaps: false,
