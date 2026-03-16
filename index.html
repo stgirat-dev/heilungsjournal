@@ -1297,7 +1297,7 @@ option { background: var(--surface2); color: var(--text); }
 // ============================================================
 // VERSION
 // ============================================================
-const APP_VERSION = '2.9.1';
+const APP_VERSION = '2.9.2';
 
 // ============================================================
 // DATA
@@ -1533,17 +1533,17 @@ const PHASES = [
 
 // Pain level reference: emoji, label, description and example per level 0–10
 const PAIN_INFO = [
-  { emoji:'😊', label:'Kein Schmerz',     desc:'Vollständig schmerzfrei, normaler Alltag',           example:'Kein Schmerz — volle Leistungsfähigkeit',                                         color:'#5A9068' },
-  { emoji:'🙂', label:'Minimal',           desc:'Kaum bemerkbar, keine Einschränkung',                example:'Wie ein leises Kribbeln oder Muskelzucken',                                        color:'#6EA870' },
-  { emoji:'🙂', label:'Sehr leicht',       desc:'Spürbar aber nicht störend',                         example:'Wie leichtes Druckgefühl nach längerem Sitzen',                                    color:'#90B860' },
-  { emoji:'😐', label:'Leicht',            desc:'Leicht störend, Alltag gut möglich',                 example:'Wie leichter Kopfschmerz oder Muskelkater',                                        color:'#C8C850' },
-  { emoji:'😐', label:'Mässig leicht',     desc:'Deutlich spürbar, leichte Einschränkung',            example:'Wie Spannungskopfschmerz nach langer Bildschirmarbeit',                            color:'#E0B040' },
-  { emoji:'😕', label:'Mässig',            desc:'Störend, Konzentration beeinträchtigt',              example:'Wie starke Menstruationsschmerzen oder heftiger Muskelkater',                      color:'#E09030' },
-  { emoji:'😟', label:'Mässig stark',      desc:'Deutliche Einschränkung, Ruhebedarf',               example:'Wie Grippe-Gliederschmerzen oder starke Zahnschmerzen',                            color:'#D07020' },
-  { emoji:'😖', label:'Stark',             desc:'Schwer zu ignorieren, starke Einschränkung',        example:'Wie Nierenkolik oder starke Migräne — kaum normal funktionieren',                  color:'#C05018' },
-  { emoji:'😣', label:'Sehr stark',        desc:'Dominiert den Alltag, kaum Aktivitäten möglich',    example:'Wie ein Knochenbruch — sofortige medizinische Hilfe erwünscht',                    color:'#A83010' },
-  { emoji:'😩', label:'Extrem',            desc:'Unerträglich, sofortige Massnahmen nötig',          example:'Wie Verbrennungen 2. Grades oder starke Wehen — kaum erträglich',                  color:'#882010' },
-  { emoji:'🆘', label:'Maximum — NOTFALL', desc:'Schlimmster vorstellbarer Schmerz → sofort USZ!',  example:'Schlimmster vorstellbarer Schmerz — sofortige Notfallversorgung zwingend',          color:'#601008' },
+  { emoji:'😊', label:'Kein Schmerz',     desc:'Vollständig schmerzfrei, normaler Alltag',           example:'Kein Schmerz — volle Leistungsfähigkeit',                                         color:'#3D7EC8' },
+  { emoji:'🙂', label:'Minimal',           desc:'Kaum bemerkbar, keine Einschränkung',                example:'Wie ein leises Kribbeln oder Muskelzucken',                                        color:'#5590CC' },
+  { emoji:'🙂', label:'Sehr leicht',       desc:'Spürbar aber nicht störend',                         example:'Wie leichtes Druckgefühl nach längerem Sitzen',                                    color:'#78A8D8' },
+  { emoji:'😐', label:'Leicht',            desc:'Leicht störend, Alltag gut möglich',                 example:'Wie leichter Kopfschmerz oder Muskelkater',                                        color:'#9DC0E0' },
+  { emoji:'😐', label:'Mässig leicht',     desc:'Deutlich spürbar, leichte Einschränkung',            example:'Wie Spannungskopfschmerz nach langer Bildschirmarbeit',                            color:'#C0D5E8' },
+  { emoji:'😕', label:'Mässig',            desc:'Störend, Konzentration beeinträchtigt',              example:'Wie starke Menstruationsschmerzen oder heftiger Muskelkater',                      color:'#E0C8B8' },
+  { emoji:'😟', label:'Mässig stark',      desc:'Deutliche Einschränkung, Ruhebedarf',               example:'Wie Grippe-Gliederschmerzen oder starke Zahnschmerzen',                            color:'#E0A060' },
+  { emoji:'😖', label:'Stark',             desc:'Schwer zu ignorieren, starke Einschränkung',        example:'Wie Nierenkolik oder starke Migräne — kaum normal funktionieren',                  color:'#D07030' },
+  { emoji:'😣', label:'Sehr stark',        desc:'Dominiert den Alltag, kaum Aktivitäten möglich',    example:'Wie ein Knochenbruch — sofortige medizinische Hilfe erwünscht',                    color:'#C04820' },
+  { emoji:'😩', label:'Extrem',            desc:'Unerträglich, sofortige Massnahmen nötig',          example:'Wie Verbrennungen 2. Grades oder starke Wehen — kaum erträglich',                  color:'#AA2810' },
+  { emoji:'🆘', label:'Maximum — NOTFALL', desc:'Schlimmster vorstellbarer Schmerz → sofort USZ!',  example:'Schlimmster vorstellbarer Schmerz — sofortige Notfallversorgung zwingend',          color:'#8A0800' },
 ];
 
 const QUOTES = [
@@ -2797,7 +2797,7 @@ function _buildFsMedChart() {
         ctx.fillStyle = getPainColor(lv);
         ctx.beginPath(); ctx.arc(el.x, el.y, 11, 0, Math.PI*2); ctx.fill();
         ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.stroke();
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = lv >= 7 ? '#FFFFFF' : '#1a2a3a';
         ctx.font = 'bold 9px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(String(lv), el.x, el.y);
@@ -4133,7 +4133,7 @@ function renderMedCharts() {
         ctx.lineWidth = 1;
         ctx.stroke();
         // Level number centered in circle
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = level >= 7 ? '#FFFFFF' : '#1a2a3a';
         ctx.font = 'bold 9px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
