@@ -1670,12 +1670,6 @@ function getPainColor(level) {
   return PAIN_INFO[level]?.color || '#999';
 }
 
-// Hex-Farbe → [r, g, b] — für Canvas-Gradienten (keine CSS-Vars erlaubt!)
-function hexToRGB(hex) {
-  const h = (hex || '#999999').replace('#', '');
-  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
-}
-
 function avgPainForDay(dateKey) {
   const entries = STATE.painLogs.filter(l => l.date === dateKey);
   if (!entries.length) return null;
@@ -3816,84 +3810,6 @@ function renderMedCharts() {
     });
   });
 
-  // Plugin: Gradient fill — bezier-accurate, segment-weise Schmerzfarben
-  const medGradFillPlugin = {
-    id: 'medGradFill',
-    beforeDatasetsDraw(chart) {
-      const { ctx, chartArea: ca } = chart;
-      if (!ca) return;
-      const meta = chart.getDatasetMeta(0);
-      const els  = meta.data;
-      const data = chart.data.datasets[0].data;
-      if (!els || els.length < 2) return;
-      const useBezier = (chart.data.datasets[0].tension || 0) > 0;
-      ctx.save();
-      ctx.beginPath(); ctx.rect(ca.left, ca.top, ca.width, ca.height); ctx.clip();
-      for (let i = 0; i < els.length - 1; i++) {
-        const el0 = els[i], el1 = els[i+1];
-        const v0  = data[i], v1  = data[i+1];
-        if (v0 == null || v1 == null) continue;
-        if (el1.x < ca.left || el0.x > ca.right) continue;
-        const [r0,g0,b0] = hexToRGB(getPainColor(Math.round(v0)));
-        const [r1,g1,b1] = hexToRGB(getPainColor(Math.round(v1)));
-        const gx0 = Math.max(el0.x, ca.left), gx1 = Math.min(el1.x, ca.right);
-        const grad = ctx.createLinearGradient(gx0, 0, gx1, 0);
-        grad.addColorStop(0, `rgba(${r0},${g0},${b0},0.35)`);
-        grad.addColorStop(1, `rgba(${r1},${g1},${b1},0.35)`);
-        ctx.beginPath();
-        ctx.moveTo(el0.x, ca.bottom);
-        ctx.lineTo(el0.x, el0.y);
-        if (useBezier && el0.cp2x != null && el1.cp1x != null) {
-          ctx.bezierCurveTo(el0.cp2x, el0.cp2y, el1.cp1x, el1.cp1y, el1.x, el1.y);
-        } else {
-          ctx.lineTo(el1.x, el1.y);
-        }
-        ctx.lineTo(el1.x, ca.bottom);
-        ctx.closePath();
-        ctx.fillStyle = grad; ctx.fill();
-      }
-      ctx.restore();
-    }
-  };
-
-  // Plugin: Gradient stroke line — segment-weise Schmerzfarben, bezier-accurate
-  const medGradLinePlugin = {
-    id: 'medGradLine',
-    afterDatasetsDraw(chart) {
-      const { ctx, chartArea: ca } = chart;
-      if (!ca) return;
-      const meta = chart.getDatasetMeta(0);
-      const els  = meta.data;
-      const data = chart.data.datasets[0].data;
-      if (!els || els.length < 2) return;
-      const useBezier = (chart.data.datasets[0].tension || 0) > 0;
-      ctx.save();
-      ctx.beginPath(); ctx.rect(ca.left, ca.top, ca.width, ca.height); ctx.clip();
-      ctx.lineWidth = 2; ctx.lineJoin = 'round';
-      for (let i = 0; i < els.length - 1; i++) {
-        const el0 = els[i], el1 = els[i+1];
-        const v0  = data[i], v1  = data[i+1];
-        if (v0 == null || v1 == null) continue;
-        if (el1.x < ca.left || el0.x > ca.right) continue;
-        const [r0,g0,b0] = hexToRGB(getPainColor(Math.round(v0)));
-        const [r1,g1,b1] = hexToRGB(getPainColor(Math.round(v1)));
-        const gx0 = Math.max(el0.x, ca.left), gx1 = Math.min(el1.x, ca.right);
-        const grad = ctx.createLinearGradient(gx0, 0, gx1, 0);
-        grad.addColorStop(0, `rgba(${r0},${g0},${b0},0.95)`);
-        grad.addColorStop(1, `rgba(${r1},${g1},${b1},0.95)`);
-        ctx.beginPath();
-        ctx.moveTo(el0.x, el0.y);
-        if (useBezier && el0.cp2x != null && el1.cp1x != null) {
-          ctx.bezierCurveTo(el0.cp2x, el0.cp2y, el1.cp1x, el1.cp1y, el1.x, el1.y);
-        } else {
-          ctx.lineTo(el1.x, el1.y);
-        }
-        ctx.strokeStyle = grad; ctx.stroke();
-      }
-      ctx.restore();
-    }
-  };
-
   const medVerticalLinesPlugin = {
     id: 'medVerticalLines',
     beforeDraw(chart) {
@@ -3959,21 +3875,21 @@ function renderMedCharts() {
 
   _charts['med-timeline'] = createAndStoreChart('med-timeline', fresh.getContext('2d'), {
     type: 'line',
-    plugins: [medVerticalLinesPlugin, medGradFillPlugin, medGradLinePlugin, painLabelPlugin],
+    plugins: [medVerticalLinesPlugin, painLabelPlugin],
     data: {
       labels,
       datasets: [
         {
           label: 'Schmerzniveau',
           data: painData,
-          borderColor: 'transparent',        // Linie via medGradLinePlugin
-          backgroundColor: 'transparent',    // Fill via medGradFillPlugin
+          borderColor: '#00D4AA',
+          backgroundColor: 'rgba(0,212,170,0.07)',
           pointBackgroundColor: painColors,
           pointBorderColor: painColors,
           pointRadius: 0,       // drawn custom by painLabelPlugin
           pointHoverRadius: 11, // match custom circle radius for hover detection
-          tension: 0,           // Alles-Ansicht → gerade Linien, kein Spline
-          fill: false,
+          tension: 0.3,
+          fill: true,
           borderWidth: 2,
           spanGaps: true,
           order: 1,
