@@ -829,7 +829,7 @@ option { background: var(--surface2); color: var(--text); }
         <button class="chart-tool-btn" onclick="openChartFullscreen('daily14','📅 Tages-Statistiken — 14 Tage')">⛶</button>
       </div>
     </div>
-    <div style="font-size:0.82rem; color:var(--text-sub); margin-bottom:0.75rem;">Tages-Durchschnitt — letzte 14 Tage</div>
+    <div style="font-size:0.82rem; color:var(--text-sub); margin-bottom:0.75rem;">Tages-Durchschnitt — ab erstem Eintrag</div>
     <div style="position:relative;height:160px;margin-bottom:1.25rem;"><canvas id="chart-daily14"></canvas></div>
     <div style="overflow-x:auto; max-height:400px; overflow-y:auto;">
       <table id="daily-table" style="width:100%; border-collapse:collapse; font-size:0.82rem;"></table>
@@ -3234,12 +3234,23 @@ function renderDailyStats() {
     const fresh = document.getElementById('chart-daily14');
     if (!fresh) return;
 
+    // Start from earliest log entry (pain or med), fallback to 14 days ago
+    const allLogDates = [...STATE.painLogs, ...STATE.medLogs].map(l => l.date).sort();
+    const startDs = allLogDates.length
+      ? allLogDates[0]
+      : dateStr((() => { const d = new Date(); d.setDate(d.getDate() - 13); return d; })());
+    const startD = new Date(startDs + 'T00:00:00');
+    const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
+    const msPerDay = 86400000;
+    const dayCount = Math.max(1, Math.round((todayD - startD) / msPerDay) + 1);
+
     const labels14 = [], data14 = [], colors14 = [];
-    for (let i = 13; i >= 0; i--) {
-      const d  = new Date(); d.setDate(d.getDate() - i);
+    for (let i = 0; i < dayCount; i++) {
+      const d  = new Date(startD.getTime() + i * msPerDay);
       const ds = dateStr(d);
+      const [, mm, dd] = ds.split('-');
       const avg = avgPainForDay(ds);
-      labels14.push(ds.slice(5));
+      labels14.push(dd + '.' + mm);
       data14.push(avg !== null ? avg : null);
       colors14.push(avg !== null ? getPainColor(Math.round(avg)) : 'rgba(255,255,255,0.08)');
     }
@@ -3255,7 +3266,7 @@ function renderDailyStats() {
         maintainAspectRatio: false,
         scales: {
           y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 9 }, color: '#8A8AA0' } },
-          x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#8A8AA0' } }
+          x: { grid: { display: false }, ticks: { font: { size: 8 }, color: '#8A8AA0', maxTicksLimit: 18, maxRotation: 45 } }
         },
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? ctx.parsed.y + '/10' : 'kein Eintrag' } }, ...zoomPanConfig('daily14') }
       }
