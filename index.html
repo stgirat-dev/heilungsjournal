@@ -2944,9 +2944,9 @@ function _buildFsMedChart() {
     }
   };
 
-  // Plugin: OP-Fenster-Balken (19.03.2026 08:00–10:00)
-  const OP_TS_S = new Date(2026, 2, 19, 8, 0, 0).getTime();
-  const OP_TS_E = new Date(2026, 2, 19, 10, 0, 0).getTime();
+  // Plugin: OP-Fenster-Balken (19.03.2026 00:00–12:00)
+  const OP_TS_S = new Date(2026, 2, 19, 0, 0, 0).getTime();
+  const OP_TS_E = new Date(2026, 2, 19, 12, 0, 0).getTime();
   const plugOpBand = {
     id: 'fsOpBand',
     beforeDatasetsDraw(chart) {
@@ -2978,7 +2978,7 @@ function _buildFsMedChart() {
       ctx.fillText('🔩 OP 🔩', midX, ca.top + 9);
       ctx.font = '400 9px "DM Sans", sans-serif';
       ctx.fillStyle = 'rgba(255,107,138,0.65)';
-      ctx.fillText('08:00–10:00', midX, ca.top + 20);
+      ctx.fillText('00:00–12:00', midX, ca.top + 20);
       ctx.restore();
     }
   };
@@ -4243,7 +4243,7 @@ function renderMedCharts() {
     }
   };
 
-  // Plugin: OP-Fenster-Balken (19.03 08:00–10:00)
+  // Plugin: OP-Fenster-Balken (19.03 00:00–12:00)
   function _opLabelPx(chart, targetLabel) {
     const lbls = chart.data.labels;
     const xsc  = chart.scales.x;
@@ -4262,8 +4262,8 @@ function renderMedCharts() {
     beforeDatasetsDraw(chart) {
       const { ctx, chartArea: ca, scales: { x } } = chart;
       if (!ca || !x) return;
-      const px0 = _opLabelPx(chart, '19.03 08:00');
-      const px1 = _opLabelPx(chart, '19.03 10:00');
+      const px0 = _opLabelPx(chart, '19.03 00:00');
+      const px1 = _opLabelPx(chart, '19.03 12:00');
       if (px0 >= ca.right || px1 <= ca.left) return;
       const bx0 = Math.max(px0, ca.left), bx1 = Math.min(px1, ca.right);
       ctx.save();
@@ -4278,8 +4278,8 @@ function renderMedCharts() {
     afterDatasetsDraw(chart) {
       const { ctx, chartArea: ca } = chart;
       if (!ca) return;
-      const px0 = _opLabelPx(chart, '19.03 08:00');
-      const px1 = _opLabelPx(chart, '19.03 10:00');
+      const px0 = _opLabelPx(chart, '19.03 00:00');
+      const px1 = _opLabelPx(chart, '19.03 12:00');
       if (px0 >= ca.right || px1 <= ca.left) return;
       const midX = Math.max(ca.left + 2, Math.min(ca.right - 2, (px0 + px1) / 2));
       ctx.save(); ctx.setLineDash([]);
@@ -4288,7 +4288,7 @@ function renderMedCharts() {
       ctx.fillText('🔩 OP 🔩', midX, ca.top + 9);
       ctx.font = '400 9px "DM Sans", sans-serif';
       ctx.fillStyle = 'rgba(255,107,138,0.65)';
-      ctx.fillText('08:00–10:00', midX, ca.top + 20);
+      ctx.fillText('00:00–12:00', midX, ca.top + 20);
       ctx.restore();
     }
   };
