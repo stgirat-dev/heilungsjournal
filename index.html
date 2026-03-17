@@ -389,6 +389,72 @@ option { background: var(--surface2); color: var(--text); }
   .phase-info-grid { grid-template-columns: 1fr; }
   .header-text h1 { font-size: 0.92rem; }
 }
+
+/* ─── JOURNAL CSS ──────────────────────────────── */
+.main-grid { display: grid; grid-template-columns: 340px 1fr; gap: 1.25rem; align-items: stretch; }
+.main-grid > div { display: flex; flex-direction: column; }
+.main-grid > div > .card { flex: 1; }
+@media (max-width: 760px) { .main-grid { grid-template-columns: 1fr; } }
+
+.cal-num { font-weight: 700; font-size: 0.78rem; line-height: 1; }
+.cal-mood { font-size: 0.55rem; line-height: 1; }
+.cal-day.has-entry::after { content: ''; position: absolute; bottom: 2px; right: 2px; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 5px rgba(255,179,71,0.7); }
+
+.journal-panel { display: none; }
+.journal-panel.open { display: block; }
+.jp-header { background: var(--surface2); border-bottom: 1px solid var(--border-bright); border-radius: 14px 14px 0 0; padding: 0.9rem 1.25rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.jp-date { font-size: 1rem; font-weight: 600; font-family: 'Lora', serif; }
+.jp-tag { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 20px; margin-top: 0.25rem; }
+.jp-close { background: var(--surface3); border: 1px solid var(--border-bright); color: var(--text-sub); width: 26px; height: 26px; border-radius: 7px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+.jp-close:hover { color: var(--text); border-color: var(--text-sub); }
+.jp-body { border: 1px solid var(--border-bright); border-top: none; border-radius: 0 0 14px 14px; padding: 1.1rem 1.25rem; display: flex; flex-direction: column; gap: 0.85rem; }
+@media (max-width: 700px) { .jp-body > div[style*="grid"] { display: flex !important; flex-direction: column; } }
+
+.jp-pain { display: flex; align-items: center; gap: 0.65rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 0.5rem 0.8rem; }
+.jp-pain-lbl { font-size: 0.73rem; color: var(--text-sub); flex: 1; }
+.jp-pain-val { font-size: 1rem; font-weight: 700; }
+.jp-pain-tag { font-size: 0.66rem; padding: 0.12rem 0.45rem; background: var(--gold-dim); color: var(--gold); border-radius: 7px; }
+
+.lbl { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.35rem; }
+.mood-row { display: flex; gap: 0.4rem; }
+.mood-btn { flex: 1; padding: 0.5rem 0.3rem; border: 1px solid var(--border-bright); border-radius: 9px; background: var(--surface2); cursor: pointer; text-align: center; font-size: 0.72rem; color: var(--text-sub); font-family: inherit; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.mood-btn .me { font-size: 1.25rem; }
+.mood-btn:hover { border-color: var(--border-bright); background: var(--surface3); }
+.mood-gut.sel { border-color: var(--primary); background: var(--primary-dim); color: var(--primary); }
+.mood-ok.sel { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); }
+.mood-hard.sel { border-color: var(--red); background: var(--red-dim); color: var(--red); }
+
+.jp-ta { width: 100%; background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 9px; padding: 0.7rem 0.85rem; color: var(--text); font-family: 'Lora', serif; font-size: 0.86rem; line-height: 1.75; resize: vertical; min-height: 100px; transition: border-color 0.15s; }
+.jp-ta:focus { outline: none; border-color: var(--primary); }
+.jp-ta::placeholder { color: var(--text-dim); font-style: italic; }
+
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.tag { padding: 0.22rem 0.6rem; border-radius: 20px; border: 1px solid var(--border-bright); background: var(--surface2); color: var(--text-sub); font-size: 0.69rem; cursor: pointer; transition: all 0.12s; user-select: none; }
+.tag:hover { border-color: var(--primary); color: var(--primary); }
+.tag.sel { border-color: var(--primary); background: var(--primary-dim); color: var(--primary); }
+
+.jp-foot { display: flex; gap: 0.65rem; align-items: center; }
+.btn-save { background: var(--primary); color: #020204; border: none; border-radius: 9px; padding: 0.6rem 1.4rem; font-size: 0.82rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+.btn-save:hover { background: #00f0c0; }
+.btn-del { background: transparent; border: 1px solid var(--border-bright); color: var(--text-dim); border-radius: 9px; padding: 0.6rem 0.85rem; font-size: 0.8rem; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+.btn-del:hover { border-color: var(--red); color: var(--red); }
+.save-ok { font-size: 0.75rem; color: var(--primary); margin-left: auto; opacity: 0; transition: opacity 0.3s; }
+.save-ok.show { opacity: 1; }
+
+.jl-row { display: flex; flex-direction: column; gap: 0.5rem; }
+.jl-entry { background: var(--surface2); border: 1px solid var(--border); border-radius: 11px; padding: 0.75rem 0.9rem; cursor: pointer; transition: all 0.15s; display: flex; align-items: flex-start; gap: 0.7rem; }
+.jl-entry:hover { border-color: var(--border-bright); background: var(--surface3); }
+.jl-em { font-size: 1.15rem; flex-shrink: 0; margin-top: 1px; }
+.jl-main { flex: 1; min-width: 0; }
+.jl-meta { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.25rem; }
+.jl-date { font-size: 0.77rem; font-weight: 600; }
+.jl-ppill { font-size: 0.62rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 8px; }
+.jl-txt { font-size: 0.78rem; color: var(--text-sub); font-family: 'Lora', serif; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jl-tags { display: flex; gap: 0.25rem; flex-wrap: wrap; margin-top: 0.3rem; }
+.jl-t { font-size: 0.63rem; padding: 0.1rem 0.38rem; background: var(--primary-dim); color: var(--primary); border-radius: 7px; }
+.jl-pval { font-size: 0.68rem; padding: 0.15rem 0.4rem; background: var(--gold-dim); color: var(--gold); border-radius: 7px; flex-shrink: 0; align-self: center; }
+.empty-jl { text-align: center; padding: 1.75rem 1rem; color: var(--text-dim); font-size: 0.83rem; }
+.empty-jl .ei { font-size: 1.8rem; margin-bottom: 0.4rem; }
 </style>
 </head>
 <body>
@@ -632,7 +698,8 @@ option { background: var(--surface2); color: var(--text); }
 
 <!-- ======================== KALENDER ======================== -->
 <div class="tab" id="tab-kalender">
-  <div class="g2" style="align-items:start; gap:1.5rem;">
+  <div class="main-grid">
+    <!-- LINKS: Kalender -->
     <div>
       <div class="card">
         <div class="month-nav">
@@ -641,33 +708,85 @@ option { background: var(--surface2); color: var(--text); }
           <button class="month-btn" onclick="nextMonth()">›</button>
         </div>
         <div class="cal-grid" id="cal-grid"></div>
-        <div class="divider"></div>
-        <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
-          <div class="legend-item"><div class="legend-dot" style="background:#E08070"></div>OP-Tag</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#FFB347"></div>Spital</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#00D4AA"></div>Frühe Erholung</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#8B8BFF"></div>Zunehmende Aktivität</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#B08BFF"></div>Rehabilitation</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#00D4AA"></div>Volle Rückkehr</div>
-        </div>
+        <p style="font-size:0.7rem;color:var(--text-dim);text-align:center;margin-top:0.4rem;font-style:italic;">☝️ Klick auf einen Tag öffnet den Tagebuch-Editor</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding-top:0.75rem;margin-top:0.5rem;border-top:1px solid var(--border);" id="cal-legend"></div>
       </div>
     </div>
 
+    <!-- RECHTS: Phasenübersicht (gleiche Höhe wie Kalender) -->
     <div>
-      <div class="card section-gap">
+      <div class="card">
         <div class="card-title">📋 Phasenübersicht</div>
         <div id="phase-summary-list"></div>
       </div>
+    </div>
+  </div>
 
-      <div class="card special-note" style="display:flex; flex-direction:column; gap:0;">
-        <div style="font-size:0.88rem; font-weight:600; color:#D4C070; margin-bottom:0.4rem;">🌿 Ferien Meran — ab 25. April</div>
-        <div style="font-size:0.8rem; color:#A09050;">
-          Wellness & Spaziergänge ✓ &nbsp;·&nbsp; Als Beifahrer ✓<br>
-          Sauna: erst nach 6-Wochen-Kontrolle &amp; Freigabe Dr. Mica<br>
-          Thermalbad (bis 38°C): möglich wenn Wunde verheilt ✓
+  <!-- JOURNAL EDITOR (full-width, unter dem Grid) -->
+  <div class="journal-panel" id="journal-panel" style="margin-top:1.25rem;">
+    <div class="jp-header">
+      <div>
+        <div class="jp-date" id="jp-date-text">—</div>
+        <span class="jp-tag" id="jp-day-tag">—</span>
+      </div>
+      <button class="jp-close" onclick="closeJournalPanel()" title="Schliessen">×</button>
+    </div>
+    <div class="jp-body" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <!-- LINKS: Schmerz + Mood + Text -->
+      <div style="display:flex;flex-direction:column;gap:0.85rem;">
+        <div class="jp-pain">
+          <span style="font-size:0.85rem;">🎚</span>
+          <span class="jp-pain-lbl">Ø Schmerz (Schmerztracker)</span>
+          <span class="jp-pain-val" id="jp-pain-val">—</span>
+          <span class="jp-pain-tag" id="jp-pain-badge" style="display:none;"></span>
+        </div>
+        <div>
+          <div class="lbl">Wie war der Tag?</div>
+          <div class="mood-row">
+            <button class="mood-btn mood-gut"  onclick="selectJournalMood(this,'gut')"><span class="me">😊</span><span>Gut</span></button>
+            <button class="mood-btn mood-ok"   onclick="selectJournalMood(this,'ok')"><span class="me">😐</span><span>Okay</span></button>
+            <button class="mood-btn mood-hard" onclick="selectJournalMood(this,'hard')"><span class="me">😞</span><span>Schwer</span></button>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div class="lbl">Tagebucheintrag</div>
+          <textarea class="jp-ta" id="journal-textarea" style="flex:1;min-height:120px;"
+            placeholder="Wie war der Tag? Was habe ich gemacht?&#10;Was hat gut funktioniert, was war schwierig?"></textarea>
+        </div>
+      </div>
+      <!-- RECHTS: Tags + Footer -->
+      <div style="display:flex;flex-direction:column;gap:0.85rem;">
+        <div>
+          <div class="lbl">Aktivitäten & Stichworte</div>
+          <div class="tags-wrap" id="journal-tags-wrap">
+            <span class="tag" onclick="this.classList.toggle('sel')">🦵 Physiotherapie</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">🚶 Spaziergang</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">😴 Schlechter Schlaf</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">👥 Besuch</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">🚗 Arzttermin</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">💊 Medikament geändert</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">🧊 Kühlen</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">🛁 Duschen möglich</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">📺 Erholt</span>
+            <span class="tag" onclick="this.classList.toggle('sel')">😤 Frustration</span>
+          </div>
+        </div>
+        <div class="jp-foot" style="margin-top:auto;">
+          <button class="btn-save" onclick="saveJournalEntry()">💾 Speichern</button>
+          <button class="btn-del" id="journal-btn-delete" onclick="deleteJournalEntry()" style="display:none;">Löschen</button>
+          <span class="save-ok" id="journal-save-ok">✓ Gespeichert</span>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- JOURNAL LIST -->
+  <div class="card" style="margin-top:1.25rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+      <div class="card-title" style="margin:0;">📖 Tagebucheinträge</div>
+      <span style="font-size:0.7rem;color:var(--text-dim);" id="journal-entry-count">0 Einträge</span>
+    </div>
+    <div class="jl-row" id="journal-list"></div>
   </div>
 </div>
 
@@ -1130,6 +1249,10 @@ option { background: var(--surface2); color: var(--text); }
           <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
             <span style="color:var(--text-muted);">Abgehakte Tage:</span>
             <span id="import-checked-count" style="color:var(--text); font-weight:600;">0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+            <span style="color:var(--text-muted);">Journal-Einträge:</span>
+            <span id="import-journal-count" style="color:var(--text); font-weight:600;">0</span>
           </div>
           <div style="display:flex; justify-content:space-between;">
             <span style="color:var(--text-muted);">Zeitraum:</span>
@@ -1648,6 +1771,7 @@ let STATE = {
   checkedDays: {},
   painLogs: [],
   medLogs: [],
+  journalEntries: {},     // NEW: date-string -> {mood, text, tags, pain, savedAt}
   reminderEnabled: false,
   reminderTimes: ['08:00', '12:00', '16:00', '20:00'],
   backupMode: null,       // 'folder' | 'gdrive' | null
@@ -1655,13 +1779,14 @@ let STATE = {
   isTestData: false,       // true when test data is loaded
 };
 
-// Load state from localStorage; ensure medLogs exists for backward compatibility
+// Load state from localStorage; ensure medLogs and journalEntries exist for backward compatibility
 function loadState() {
   try {
     const raw = localStorage.getItem('heilungsjournal_v1');
     if (raw) STATE = { ...STATE, ...JSON.parse(raw) };
-    // Always ensure medLogs exists (backward compat)
+    // Always ensure medLogs and journalEntries exist (backward compat)
     if (!STATE.medLogs) STATE.medLogs = [];
+    if (!STATE.journalEntries) STATE.journalEntries = {};
   } catch(e) {}
 }
 
@@ -2038,12 +2163,15 @@ function renderCalendar() {
     const isChecked = STATE.checkedDays[dStr];
     const dayPost = getDayPostOP(dObj);
     const avgPain = avgPainForDay(dStr);
+    const hasEntry = STATE.journalEntries && STATE.journalEntries[dStr];
+    const moodEmoji = hasEntry ? (hasEntry.mood === 'gut' ? '😊' : hasEntry.mood === 'ok' ? '😐' : hasEntry.mood === 'hard' ? '😞' : '📝') : '';
 
     const el = document.createElement('div');
     let classes = 'cal-day';
     if (isFuture && dayPost >= 0) classes += ' future';
     if (isToday) classes += ' today';
     if (isChecked) classes += ' checked';
+    if (hasEntry) classes += ' has-entry';
 
     if (phase) {
       el.style.background = isChecked ? phase.bg : phase.bg;
@@ -2059,47 +2187,54 @@ function renderCalendar() {
 
     el.className = classes;
     el.innerHTML = `
-      <span>${day}</span>
+      <span class="cal-num" style="color:${phase ? phase.color : (isToday ? 'var(--primary)' : 'var(--text-dim)')};">${day}</span>
       ${isChecked ? '<span class="cal-check">✓</span>' : ''}
+      ${moodEmoji ? `<span class="cal-mood">${moodEmoji}</span>` : ''}
       ${avgPain !== null ? `<div class="cal-pain-dot" style="background:${getPainColor(Math.round(avgPain))}"></div>` : ''}
     `;
-    el.title = phase ? phase.name + (avgPain !== null ? ` · Ø Schmerz: ${avgPain}` : '') : '';
+    el.title = [phase ? phase.name : '', hasEntry ? 'Tagebucheintrag ✏️' : '', avgPain !== null ? `Ø Schmerz: ${avgPain}` : ''].filter(Boolean).join(' · ');
 
-    if (!isFuture || dayPost < 0) {
-      el.onclick = () => {
-        if (dayPost < 0) return;
+    // Click handler: toggle check AND open journal panel
+    el.onclick = () => {
+      if (dayPost < 0) return;
+      if (!isFuture || dayPost < 0) {
         STATE.checkedDays[dStr] = !STATE.checkedDays[dStr];
         saveState();
         renderCalendar();
         if (dStr === td) renderToday();
         updateAchievements();
-      };
-    }
+      }
+      // Always open journal panel
+      openJournalPanel(dStr, dObj, phase);
+    };
 
     grid.appendChild(el);
   }
 
-  // Phase summary list
-  const psl = document.getElementById('phase-summary-list');
-  psl.innerHTML = PHASES.map(ph => {
-    const phStart = parseDate(ph.start);
-    const phEnd   = parseDate(ph.end);
-    const now = new Date();
-    const isCurrent = now >= phStart && now <= phEnd;
-    const isPast = now > phEnd;
-    return `
-      <div style="display:flex; align-items:center; gap:0.75rem; padding:0.55rem 0; border-bottom:1px solid #12121A;">
-        <div style="width:10px; height:10px; border-radius:3px; background:${ph.color}; flex-shrink:0;"></div>
-        <div style="flex:1;">
-          <div style="font-size:0.85rem; font-weight:${isCurrent?'600':'400'}; color:${isCurrent?ph.color:'#F2F2F8'};">
-            ${ph.icon} ${ph.name} <span style="font-size:0.75rem; color:#8A8AA0;">(${ph.week})</span>
-          </div>
-          <div style="font-size:0.72rem; color:#8A8AA0;">${ph.dates}</div>
-        </div>
-        ${isCurrent ? `<span style="font-size:0.72rem; font-weight:600; color:${ph.color}; background:${ph.bg}; padding:0.15rem 0.5rem; border-radius:8px;">Aktiv</span>` : ''}
-        ${isPast ? '<span style="font-size:0.9rem;">✅</span>' : ''}
-      </div>`;
-  }).join('');
+  // Calendar legend: phases in this month + journal entry indicator
+  const legEl = document.getElementById('cal-legend');
+  if (legEl) {
+    const seenPhases = new Set();
+    const legItems = [];
+    for (let day = 1; day <= last.getDate(); day++) {
+      const dObj = new Date(calYear, calMonth, day);
+      const ph = journalGetPhase(dObj);
+      if (ph && !seenPhases.has(ph.name)) {
+        seenPhases.add(ph.name);
+        legItems.push({ type: 'phase', color: ph.color, label: ph.name });
+      }
+    }
+    legItems.push({ type: 'journal', color: '#FFB347', label: 'Tagebucheintrag' });
+    legEl.innerHTML = legItems.map(i => `
+      <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.73rem; color:var(--text-sub);">
+        <div style="width:8px; height:8px; border-radius:3px; background:${i.color}; flex-shrink:0;${i.type==='journal' ? 'box-shadow:0 0 3px rgba(255,179,71,0.6);' : ''}"></div>
+        <span>${i.label}</span>
+      </div>`).join('');
+  }
+
+  // Render phase summary and journal list
+  renderPhaseSummary();
+  renderJournalList();
 }
 
 function prevMonth() {
@@ -4674,7 +4809,8 @@ function createBackupPayload() {
       painLogs: STATE.painLogs || [],
       medLogs: STATE.medLogs || [],
       reminderEnabled: STATE.reminderEnabled || false,
-      reminderTimes: STATE.reminderTimes || ['08:00','12:00','16:00','20:00']
+      reminderTimes: STATE.reminderTimes || ['08:00','12:00','16:00','20:00'],
+      journalEntries: STATE.journalEntries || {}
     }
   };
 }
@@ -4902,7 +5038,8 @@ function processImportJSON(jsonText) {
         painLogs: importData.painLogs || [],
         medLogs: importData.medLogs || [],
         reminderEnabled: importData.reminderEnabled || false,
-        reminderTimes: importData.reminderTimes || ['08:00','12:00','16:00','20:00']
+        reminderTimes: importData.reminderTimes || ['08:00','12:00','16:00','20:00'],
+        journalEntries: importData.journalEntries || {}
       }
     };
 
@@ -4913,6 +5050,7 @@ function processImportJSON(jsonText) {
     document.getElementById('import-pain-count').textContent = _pendingImport.data.painLogs.length;
     document.getElementById('import-med-count').textContent = _pendingImport.data.medLogs.length;
     document.getElementById('import-checked-count').textContent = Object.keys(_pendingImport.data.checkedDays).length;
+    document.getElementById('import-journal-count').textContent = Object.keys(_pendingImport.data.journalEntries).length;
 
     const allDates = [
       ..._pendingImport.data.painLogs.map(l => l.date),
@@ -4944,6 +5082,7 @@ function executeImport(mode) {
     STATE.medLogs = imp.medLogs;
     STATE.reminderEnabled = imp.reminderEnabled;
     STATE.reminderTimes = imp.reminderTimes;
+    STATE.journalEntries = imp.journalEntries;
   } else {
     Object.assign(STATE.checkedDays, imp.checkedDays);
     const painKey = (l) => `${l.date}|${l.time}|${l.level}`;
@@ -4964,6 +5103,14 @@ function executeImport(mode) {
       }
     }
     STATE.medLogs.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    // Merge journal entries: at conflicts, newer savedAt timestamp wins
+    for (const dateStr in imp.journalEntries) {
+      if (!STATE.journalEntries[dateStr] || (imp.journalEntries[dateStr].savedAt && STATE.journalEntries[dateStr].savedAt && imp.journalEntries[dateStr].savedAt > STATE.journalEntries[dateStr].savedAt)) {
+        STATE.journalEntries[dateStr] = imp.journalEntries[dateStr];
+      } else if (!STATE.journalEntries[dateStr]) {
+        STATE.journalEntries[dateStr] = imp.journalEntries[dateStr];
+      }
+    }
   }
 
   // Importing real data clears the test data flag
@@ -5453,6 +5600,175 @@ function initPWA() {
   } else {
     updateInstallStatus('manual');
   }
+}
+
+// ============================================================
+// JOURNAL — Tagebuch-Funktionen
+// ============================================================
+let _journalSelectedDay = null;
+let _journalCurrentMood = null;
+
+const JOURNAL_PHASES = [
+  { start:'2026-03-19', end:'2026-03-19', color:'#FF6B8A', bg:'rgba(255,107,138,0.18)', name:'OP-Tag',              icon:'🔩', week:'Wo. 0' },
+  { start:'2026-03-20', end:'2026-03-21', color:'#FFB347', bg:'rgba(255,179,71,0.15)',  name:'Spital',               icon:'🏥', week:'Wo. 0' },
+  { start:'2026-03-22', end:'2026-04-04', color:'#00D4AA', bg:'rgba(0,212,170,0.12)',   name:'Frühe Erholung',       icon:'🌿', week:'Wo. 1–2' },
+  { start:'2026-04-05', end:'2026-05-16', color:'#8B8BFF', bg:'rgba(139,139,255,0.14)', name:'Zunehmende Aktivität', icon:'🏃', week:'Wo. 3–6' },
+  { start:'2026-05-17', end:'2026-12-31', color:'#B08BFF', bg:'rgba(176,139,255,0.12)', name:'Rehabilitation',       icon:'🔄', week:'ab Wo. 7' },
+];
+
+function journalGetPhase(dObj) {
+  for (const p of JOURNAL_PHASES) {
+    const s = p.start.split('-').map(Number); const e = p.end.split('-').map(Number);
+    const sd = new Date(s[0],s[1]-1,s[2]); const ed = new Date(e[0],e[1]-1,e[2]);
+    if (dObj >= sd && dObj <= ed) return p;
+  }
+  return null;
+}
+
+function journalDayPostOp(dObj) {
+  return Math.round((dObj - OP_DATE) / 86400000);
+}
+
+function openJournalPanel(dStr, dObj, phase) {
+  _journalSelectedDay = dStr;
+  _journalCurrentMood = null;
+
+  const panel = document.getElementById('journal-panel');
+  panel.classList.add('open');
+
+  // Header
+  const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  document.getElementById('jp-date-text').textContent = `${dObj.getDate()}. ${MONTHS[dObj.getMonth()]} ${dObj.getFullYear()}`;
+
+  const dp = journalDayPostOp(dObj);
+  const tag = document.getElementById('jp-day-tag');
+  const ph = phase || journalGetPhase(dObj);
+  if (dp === 0) { tag.textContent='🔩 OP-Tag'; tag.style.color='#FF6B8A'; tag.style.background='rgba(255,107,138,0.15)'; }
+  else if (dp > 0) { tag.textContent=`🩹 Tag ${dp} nach OP`; tag.style.color=ph?ph.color:'var(--primary)'; tag.style.background=ph?ph.bg:'var(--primary-dim)'; }
+  else { tag.textContent=`📅 Tag ${Math.abs(dp)} vor OP`; tag.style.color='var(--text-sub)'; tag.style.background='var(--surface3)'; }
+
+  // Pain: Ø aus painLogs für diesen Tag
+  const dayLogs = (STATE.painLogs || []).filter(l => l.date === dStr);
+  const painEl = document.getElementById('jp-pain-val');
+  const painBadge = document.getElementById('jp-pain-badge');
+  if (dayLogs.length) {
+    const avg = dayLogs.reduce((s,l) => s + l.level, 0) / dayLogs.length;
+    painEl.textContent = avg.toFixed(1);
+    painEl.style.color = avg <= 3 ? '#00D4AA' : avg <= 6 ? '#FFB347' : '#FF6B8A';
+    const labels = ['—','Minimal','Mild','Leicht','Mässig','Mittel','Deutlich','Stark','Sehr stark','Heftig','Extrem'];
+    painBadge.textContent = labels[Math.round(avg)] || '';
+    painBadge.style.display = '';
+  } else { painEl.textContent = '—'; painBadge.style.display = 'none'; }
+
+  // Load existing entry
+  const en = STATE.journalEntries[dStr];
+  document.getElementById('journal-textarea').value = en ? en.text || '' : '';
+
+  // Mood
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('sel'));
+  if (en && en.mood) {
+    const cls = en.mood === 'gut' ? 'mood-gut' : en.mood === 'ok' ? 'mood-ok' : 'mood-hard';
+    const mb = document.querySelector(`.${cls}`);
+    if (mb) { mb.classList.add('sel'); _journalCurrentMood = en.mood; }
+  }
+
+  // Tags
+  document.querySelectorAll('#journal-tags-wrap .tag').forEach(t => {
+    t.classList.remove('sel');
+    if (en && en.tags && en.tags.includes(t.textContent.trim())) t.classList.add('sel');
+  });
+
+  document.getElementById('journal-btn-delete').style.display = en ? '' : 'none';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeJournalPanel() {
+  document.getElementById('journal-panel').classList.remove('open');
+  _journalSelectedDay = null;
+  renderCalendar();
+}
+
+function selectJournalMood(btn, mood) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  _journalCurrentMood = mood;
+}
+
+function saveJournalEntry() {
+  if (!_journalSelectedDay) return;
+  const text = document.getElementById('journal-textarea').value.trim();
+  const tags = [...document.querySelectorAll('#journal-tags-wrap .tag.sel')].map(t => t.textContent.trim());
+  const dayLogs = (STATE.painLogs || []).filter(l => l.date === _journalSelectedDay);
+  const pain = dayLogs.length ? dayLogs.reduce((s,l) => s + l.level, 0) / dayLogs.length : null;
+  if (!STATE.journalEntries) STATE.journalEntries = {};
+  STATE.journalEntries[_journalSelectedDay] = { mood: _journalCurrentMood, text, tags, pain, savedAt: new Date().toISOString() };
+  saveState();
+  document.getElementById('journal-btn-delete').style.display = '';
+  const s = document.getElementById('journal-save-ok');
+  s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 2200);
+  renderCalendar();
+  renderJournalList();
+}
+
+function deleteJournalEntry() {
+  if (!_journalSelectedDay) return;
+  delete STATE.journalEntries[_journalSelectedDay];
+  saveState();
+  closeJournalPanel();
+  renderJournalList();
+}
+
+function renderJournalList() {
+  if (!STATE.journalEntries) STATE.journalEntries = {};
+  const entries = Object.entries(STATE.journalEntries).sort(([a],[b]) => b.localeCompare(a));
+  const countEl = document.getElementById('journal-entry-count');
+  if (countEl) countEl.textContent = `${entries.length} Einträge`;
+  const list = document.getElementById('journal-list');
+  if (!list) return;
+  if (!entries.length) {
+    list.innerHTML = `<div class="empty-jl"><div style="font-size:1.8rem;margin-bottom:0.4rem;">📖</div>Noch keine Einträge — klicke auf einen Kalendertag.</div>`;
+    return;
+  }
+  const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  list.innerHTML = entries.map(([dStr, en]) => {
+    const parts = dStr.split('-').map(Number);
+    const dObj = new Date(parts[0], parts[1]-1, parts[2]);
+    const ph = journalGetPhase(dObj);
+    const me = en.mood === 'gut' ? '😊' : en.mood === 'ok' ? '😐' : en.mood === 'hard' ? '😞' : '📝';
+    const exc = en.text ? (en.text.length > 75 ? en.text.substring(0,75)+'…' : en.text) : '(kein Text)';
+    const pill = ph ? `<span class="jl-ppill" style="color:${ph.color};background:${ph.bg};">${ph.name}</span>` : '';
+    const tags = (en.tags||[]).map(t=>`<span class="jl-t">${t}</span>`).join('');
+    const pval = en.pain != null ? `<span class="jl-pval">${en.pain.toFixed(1)}</span>` : '';
+    return `<div class="jl-entry" onclick="openJournalPanel('${dStr}',new Date(${parts[0]},${parts[1]-1},${parts[2]}),${JSON.stringify(ph)})">
+      <div class="jl-em">${me}</div>
+      <div class="jl-main">
+        <div class="jl-meta"><span class="jl-date">${dObj.getDate()}. ${MONTHS[dObj.getMonth()]}</span>${pill}</div>
+        <div class="jl-txt">${exc}</div>
+        ${tags ? `<div class="jl-tags">${tags}</div>` : ''}
+      </div>${pval}</div>`;
+  }).join('');
+}
+
+function renderPhaseSummary() {
+  const el = document.getElementById('phase-summary-list');
+  if (!el) return;
+  const todayStr = today();
+  el.innerHTML = JOURNAL_PHASES.map((p, i) => {
+    const isActive = todayStr >= p.start && todayStr <= p.end;
+    const sd = p.start.split('-').map(Number); const ed = p.end.split('-').map(Number);
+    const sf = `${sd[2]}.${sd[1]}.${sd[0]}`;
+    const ef = `${ed[2]}.${ed[1]}.${ed[0]}`;
+    const range = sf === ef ? sf : `${sf} – ${ef}`;
+    const borderStyle = i < JOURNAL_PHASES.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
+    return `<div style="display:flex;align-items:center;gap:0.7rem;padding:0.5rem 0;${borderStyle}">
+      <div style="width:10px;height:10px;border-radius:3px;background:${p.color};flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="font-size:0.82rem;font-weight:600;color:${p.color};">${p.icon} ${p.name} <span style="font-size:0.7rem;color:var(--text-sub);font-weight:400;">(${p.week})</span></div>
+        <div style="font-size:0.7rem;color:var(--text-sub);">${range}</div>
+      </div>
+      ${isActive ? `<span style="font-size:0.65rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:8px;color:${p.color};background:${p.bg};">Aktiv</span>` : ''}
+    </div>`;
+  }).join('');
 }
 
 init();
