@@ -455,6 +455,43 @@ option { background: var(--surface2); color: var(--text); }
 .jl-pval { font-size: 0.68rem; padding: 0.15rem 0.4rem; background: var(--gold-dim); color: var(--gold); border-radius: 7px; flex-shrink: 0; align-self: center; }
 .empty-jl { text-align: center; padding: 1.75rem 1rem; color: var(--text-dim); font-size: 0.83rem; }
 .empty-jl .ei { font-size: 1.8rem; margin-bottom: 0.4rem; }
+
+/* ---- Packliste Komponente ---- */
+.packliste-wrap { font-family: 'DM Sans', system-ui, sans-serif; max-width: 640px; padding: 1.5rem 0; color: var(--text); }
+.packliste-wrap h2 { font-size: 18px; font-weight: 600; margin-bottom: 1.25rem; color: var(--text); letter-spacing: -0.01em; }
+.pl-progress-bar-wrap { background: var(--surface3); border-radius: 100px; height: 5px; margin-bottom: .35rem; overflow: hidden; }
+.pl-progress-bar { height: 5px; border-radius: 100px; background: var(--primary); transition: width .3s ease; width: 0%; }
+.pl-progress-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-dim); margin-bottom: 1.5rem; }
+.pl-section { margin-bottom: 1.25rem; }
+.pl-section-title { font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: .09em; margin-bottom: .4rem; padding-bottom: .4rem; border-bottom: 1px solid var(--border); }
+.pl-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.pl-item:last-child { border-bottom: none; }
+.pl-checkbox { width: 18px; height: 18px; border: 1px solid var(--border-bright); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--surface2); cursor: pointer; transition: background .15s, border-color .15s; }
+.pl-item.checked .pl-checkbox { background: var(--primary); border-color: var(--primary); }
+.pl-checkmark { width: 10px; height: 10px; display: none; }
+.pl-item.checked .pl-checkmark { display: block; }
+.pl-label { font-size: 14px; flex: 1; line-height: 1.4; cursor: pointer; color: var(--text); }
+.pl-item.checked .pl-label { color: var(--text-dim); text-decoration: line-through; }
+.pl-item.strikethrough .pl-label { color: var(--text-dim); text-decoration: line-through; }
+.pl-note { font-size: 11px; color: var(--text-dim); }
+.pl-btn-icon { background: none; border: none; cursor: pointer; padding: 3px 5px; border-radius: 4px; color: var(--text-dim); font-size: 13px; line-height: 1; transition: color .15s, background .15s; }
+.pl-btn-icon:hover { color: var(--text-sub); background: var(--surface2); }
+.pl-edit-input { flex: 1; font-size: 14px; padding: 4px 10px; border: 1px solid var(--border-bright); border-radius: 6px; background: var(--surface2); color: var(--text); outline: none; font-family: inherit; }
+.pl-edit-input:focus { border-color: var(--primary); }
+.pl-edit-note { width: 90px; flex-shrink: 0; font-size: 12px; padding: 4px 8px; border: 1px solid var(--border-bright); border-radius: 6px; background: var(--surface2); color: var(--text-sub); outline: none; font-family: inherit; }
+.pl-edit-note:focus { border-color: var(--primary); }
+.pl-edit-note::placeholder { color: var(--text-dim); }
+.pl-add-row { display: flex; gap: 8px; margin-top: .75rem; align-items: center; flex-wrap: wrap; }
+.pl-add-row input[type="text"] { flex: 1; min-width: 180px; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border-bright); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; font-family: inherit; }
+.pl-add-row input[type="text"]:focus { border-color: var(--primary); }
+.pl-add-row input[type="text"]::placeholder { color: var(--text-dim); }
+.pl-add-row select { font-size: 12px; padding: 8px 10px; border: 1px solid var(--border-bright); border-radius: 8px; background: var(--surface2); color: var(--text-sub); cursor: pointer; font-family: inherit; }
+.pl-add-row button { font-size: 12px; font-weight: 600; padding: 8px 16px; border: 1px solid var(--primary); border-radius: 8px; background: var(--primary-dim); color: var(--primary); cursor: pointer; white-space: nowrap; font-family: inherit; transition: background .15s; }
+.pl-add-row button:hover { background: rgba(0,212,170,0.2); }
+.pl-bottom-row { display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap; }
+.pl-reset-btn { font-size: 12px; color: var(--text-dim); background: none; border: 1px solid var(--border-bright); border-radius: 8px; padding: 6px 14px; cursor: pointer; font-family: inherit; transition: color .15s, background .15s; }
+.pl-reset-btn:hover { color: var(--text-sub); background: var(--surface2); }
+/* ---- Ende Packliste ---- */
 </style>
 </head>
 <body>
@@ -479,6 +516,7 @@ option { background: var(--surface2); color: var(--text); }
   <button class="nav-btn" onclick="showTab('schmerz')">📊 Schmerztracker</button>
   <button class="nav-btn" onclick="showTab('auswertung')">📈 Auswertung</button>
   <button class="nav-btn" onclick="showTab('erfolge')">🏅 Erfolge</button>
+  <button class="nav-btn" onclick="showTab('packliste')">🧳 Packliste</button>
   <button class="nav-btn" onclick="showTab('install')" id="install-nav-btn" style="color:var(--sage); font-weight:600;">⚙️ App-Manager</button>
 </nav>
 
@@ -1138,6 +1176,28 @@ option { background: var(--surface2); color: var(--text); }
       </div>
     </div>
     <div class="ach-grid" id="ach-grid"></div>
+  </div>
+</div>
+
+<!-- ======================== PACKLISTE ======================== -->
+<div class="tab" id="tab-packliste">
+  <div class="packliste-wrap" id="packliste-root">
+    <h2>🧳 Spitalpäckli – 4–5 Tage</h2>
+    <div class="pl-progress-bar-wrap">
+      <div class="pl-progress-bar" id="pl-bar"></div>
+    </div>
+    <div class="pl-progress-label" id="pl-prog">0 von 0 erledigt</div>
+    <div id="pl-list"></div>
+    <div class="pl-add-row">
+      <input type="text" id="pl-new-item" placeholder="Neuer Eintrag..."
+        onkeydown="if(event.key==='Enter')plAddItem()"/>
+      <select id="pl-new-cat"></select>
+      <button onclick="plAddItem()">+ Hinzufügen</button>
+    </div>
+    <div class="pl-bottom-row">
+      <button class="pl-reset-btn" onclick="plResetChecks()">Häkchen zurücksetzen</button>
+      <button class="pl-reset-btn" onclick="plResetAll()">Alles zurücksetzen</button>
+    </div>
   </div>
 </div>
 
@@ -5773,6 +5833,201 @@ function renderPhaseSummary() {
 
 init();
 initPWA();
+</script>
+
+<!-- ======================== PACKLISTE SCRIPT ======================== -->
+<script>
+(function() {
+  const PL_DEFAULT = [
+    {cat:"Dokumente & Admin", items:[
+      {l:"Krankenversicherungskarte (KK)",n:""},
+      {l:"Personalausweis / Pass",n:""},
+      {l:"Vorsorgeauftrag / Patientenverfügung",n:"wichtig"},
+      {l:"Einweisung & OP-Unterlagen",n:""},
+      {l:"Aktuelle Medikamentenliste",n:""},
+      {l:"Notfallkontakte (ausgedruckt)",n:""},
+      {l:"Krankenkassen-Zusatzversicherungsnachweis",n:""},
+    ]},
+    {cat:"Kleidung", items:[
+      {l:"Pyjama / Schlafanzug",n:"3–4 Stk."},
+      {l:"Unterwäsche",n:"5 Stk."},
+      {l:"Socken",n:"5 Paar"},
+      {l:"Bequeme Hausschuhe mit Halt",n:""},
+      {l:"Bademantel oder leichtes Fleece",n:""},
+      {l:"Jogginghosen oder bequeme Hosen",n:"2 Stk."},
+      {l:"T-Shirts",n:"3 Stk."},
+      {l:"Wechselkleidung für Entlassung",n:""},
+    ]},
+    {cat:"Hygiene & Körperpflege", items:[
+      {l:"Zahnbürste & Zahnpasta",n:""},
+      {l:"Duschgel & Shampoo",n:"Reisegrösse"},
+      {l:"Deo",n:""},
+      {l:"Rasierapparat",n:""},
+      {l:"Haarbürste / Kamm",n:""},
+      {l:"Feuchttücher",n:""},
+      {l:"Lippenpflege",n:""},
+      {l:"Kleines Handtuch",n:"Spital hat oft eigene"},
+      {l:"Ohrstöpsel & Schlafmaske",n:"Nachtruhe"},
+    ]},
+    {cat:"Gesundheit & Medizin", items:[
+      {l:"Eigene Schmerzmedikamente (abgesprochen mit Dr. Mica)",n:""},
+      {l:"Halskrause / Stützkissen für Transport",n:"falls empfohlen"},
+      {l:"Brille & Etui / Kontaktlinsen",n:""},
+      {l:"Hörgeräte & Ersatzbatterien",n:"falls nötig"},
+    ]},
+    {cat:"Elektronik & Entertainment", items:[
+      {l:"Handy + Ladekabel",n:""},
+      {l:"Kopfhörer / Ohrhörer",n:""},
+      {l:"E-Reader oder Tablet",n:""},
+      {l:"Powerbank",n:""},
+      {l:"Adapter / USB-Hub",n:""},
+      {l:"Laptop (optional)",n:"für Arbeit, falls nötig"},
+    ]},
+    {cat:"Freizeit & Verpflegung", items:[
+      {l:"Bücher oder Zeitschriften",n:""},
+      {l:"Notizbuch & Stift",n:"für Fragen an Ärzte"},
+      {l:"Snacks / Lieblingsessen",n:"USZ hat Mensa"},
+      {l:"Eigene Trinkflasche",n:""},
+      {l:"Kopfhörer für Musik / Podcasts",n:""},
+    ]},
+    {cat:"Sonstiges", items:[
+      {l:"Kleine Bargeldmenge",n:"Automaten, Kiosk"},
+      {l:"Plastiktüte für Schmutzwäsche",n:""},
+      {l:"Kleiner Rucksack oder Tasche für Aufenthaltsraum",n:""},
+    ]},
+  ];
+  let plState = JSON.parse(JSON.stringify(PL_DEFAULT));
+  let plEditingKey = null;
+  function plBuildCatSelect() {
+    const sel = document.getElementById('pl-new-cat');
+    if (!sel) return;
+    sel.innerHTML = '';
+    plState.forEach((sec, i) => {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = sec.cat; sel.appendChild(o);
+    });
+    const o = document.createElement('option');
+    o.value = 'new'; o.textContent = '+ Neue Kategorie'; sel.appendChild(o);
+  }
+  window.plAddItem = function() {
+    const input = document.getElementById('pl-new-item');
+    const sel = document.getElementById('pl-new-cat');
+    const label = input.value.trim();
+    if (!label) return;
+    let catIdx = sel.value;
+    if (catIdx === 'new') {
+      const catName = prompt('Name der neuen Kategorie:');
+      if (!catName) return;
+      plState.push({cat: catName, items: []});
+      catIdx = plState.length - 1;
+    } else { catIdx = parseInt(catIdx); }
+    plState[catIdx].items.push({l: label, n: '', checked: false, strikethrough: false});
+    input.value = '';
+    plBuildCatSelect(); plRenderPL();
+  };
+  window.plToggleCheck = function(ci, ii) {
+    const it = plState[ci].items[ii];
+    it.checked = !it.checked;
+    if (it.checked) it.strikethrough = false;
+    plRenderPL();
+  };
+  window.plToggleStrike = function(ci, ii) {
+    const it = plState[ci].items[ii];
+    it.strikethrough = !it.strikethrough;
+    if (it.strikethrough) it.checked = false;
+    plRenderPL();
+  };
+  window.plDeleteItem = function(ci, ii) {
+    plState[ci].items.splice(ii, 1);
+    if (plState[ci].items.length === 0) plState.splice(ci, 1);
+    plEditingKey = null; plBuildCatSelect(); plRenderPL();
+  };
+  window.plStartEdit = function(ci, ii) {
+    plEditingKey = ci + '-' + ii;
+    plRenderPL();
+    const inp = document.getElementById('pl-edit-' + ci + '-' + ii);
+    if (inp) { inp.focus(); inp.select(); }
+  };
+  window.plCommitEdit = function(ci, ii) {
+    const key = ci + '-' + ii;
+    if (plEditingKey !== key) return;
+    const inp = document.getElementById('pl-edit-' + key);
+    const inpNote = document.getElementById('pl-edit-note-' + key);
+    if (inp) { const val = inp.value.trim(); if (val) plState[ci].items[ii].l = val; }
+    if (inpNote) { plState[ci].items[ii].n = inpNote.value.trim(); }
+    plEditingKey = null; plRenderPL();
+  };
+  function plRenderPL() {
+    const container = document.getElementById('pl-list');
+    if (!container) return;
+    container.innerHTML = '';
+    let total = 0, done = 0;
+    plState.forEach((sec, ci) => {
+      if (!sec.items.length) return;
+      const div = document.createElement('div');
+      div.className = 'pl-section';
+      div.innerHTML = `<div class="pl-section-title">${sec.cat}</div>`;
+      sec.items.forEach((it, ii) => {
+        total++;
+        if (it.checked) done++;
+        const row = document.createElement('div');
+        let cls = 'pl-item';
+        if (it.checked) cls += ' checked';
+        else if (it.strikethrough) cls += ' strikethrough';
+        row.className = cls;
+        const key = ci + '-' + ii;
+        const isEditing = plEditingKey === key;
+        if (isEditing) {
+          row.innerHTML = `
+            <div class="pl-checkbox" onclick="plToggleCheck(${ci},${ii})">
+              <svg class="pl-checkmark" viewBox="0 0 10 10" fill="none">
+                <polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#020204" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <input class="pl-edit-input" id="pl-edit-${key}" type="text"
+              value="${it.l.replace(/"/g, '&quot;')}"
+              onkeydown="if(event.key==='Enter')plCommitEdit(${ci},${ii});if(event.key==='Escape'){plEditingKey=null;plRenderPL();}"
+              onblur="if(!(event.relatedTarget&&event.relatedTarget.id==='pl-edit-note-${key}'))plCommitEdit(${ci},${ii})"/>
+            <input class="pl-edit-note" id="pl-edit-note-${key}" type="text"
+              value="${it.n.replace(/"/g, '&quot;')}" placeholder="Menge / Hinweis"
+              onkeydown="if(event.key==='Enter')plCommitEdit(${ci},${ii});if(event.key==='Escape'){plEditingKey=null;plRenderPL();}"
+              onblur="if(!(event.relatedTarget&&event.relatedTarget.id==='pl-edit-${key}'))plCommitEdit(${ci},${ii})"/>
+            <button class="pl-btn-icon" title="Speichern" onclick="plCommitEdit(${ci},${ii})">&#10003;</button>
+            <button class="pl-btn-icon" title="Löschen" onclick="plDeleteItem(${ci},${ii})">&#x2715;</button>
+          `;
+        } else {
+          row.innerHTML = `
+            <div class="pl-checkbox" onclick="plToggleCheck(${ci},${ii})">
+              <svg class="pl-checkmark" viewBox="0 0 10 10" fill="none">
+                <polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#020204" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="pl-label" onclick="plToggleCheck(${ci},${ii})">${it.l}${it.n ? ' <span class="pl-note">' + it.n + '</span>' : ''}</span>
+            <button class="pl-btn-icon" title="Bearbeiten" onclick="plStartEdit(${ci},${ii})">&#9998;</button>
+            <button class="pl-btn-icon" title="Durchstreichen" onclick="plToggleStrike(${ci},${ii})">&#9135;</button>
+            <button class="pl-btn-icon" title="Löschen" onclick="plDeleteItem(${ci},${ii})">&#x2715;</button>
+          `;
+        }
+        div.appendChild(row);
+      });
+      container.appendChild(div);
+    });
+    const bar = document.getElementById('pl-bar');
+    const prog = document.getElementById('pl-prog');
+    if (bar) bar.style.width = total > 0 ? (done / total * 100) + '%' : '0%';
+    if (prog) prog.textContent = `${done} von ${total} erledigt`;
+  }
+  window.plResetChecks = function() {
+    plState.forEach(sec => sec.items.forEach(it => { it.checked = false; it.strikethrough = false; }));
+    plEditingKey = null; plRenderPL();
+  };
+  window.plResetAll = function() {
+    plState = JSON.parse(JSON.stringify(PL_DEFAULT));
+    plEditingKey = null; plBuildCatSelect(); plRenderPL();
+  };
+  plBuildCatSelect();
+  plRenderPL();
+})();
 </script>
 </body>
 </html>
