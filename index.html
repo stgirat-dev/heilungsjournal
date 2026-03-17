@@ -365,6 +365,20 @@ option { background: var(--surface2); color: var(--text); }
 .toggle.on { background: var(--green); }
 .toggle.on::after { transform: translateX(18px); }
 
+/* VERSICHERUNGEN BOX */
+.ins-row { display:flex; align-items:flex-start; gap:0.7rem; padding:0.55rem 0; border-bottom:1px solid var(--border); }
+.ins-row:last-child { border-bottom:none; padding-bottom:0; }
+.ins-icon { font-size:1.1rem; line-height:1; flex-shrink:0; margin-top:0.05rem; }
+.ins-body { flex:1; min-width:0; }
+.ins-label { font-size:0.63rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin-bottom:0.1rem; }
+.ins-name  { font-size:0.85rem; font-weight:600; color:var(--text); }
+.ins-nr    { font-size:0.76rem; color:var(--text-sub); font-family:'Courier New',monospace; margin-top:0.06rem; }
+.ins-nr span { color:var(--primary); font-weight:600; }
+.ins-extra { font-size:0.71rem; color:var(--text-dim); margin-top:0.04rem; }
+.ins-copy  { padding:0.2rem 0.5rem; border-radius:6px; border:1px solid var(--border-bright); background:transparent; color:var(--text-dim); font-family:'DM Sans',sans-serif; font-size:0.67rem; cursor:pointer; transition:all 0.12s; flex-shrink:0; margin-top:0.15rem; }
+.ins-copy:hover  { border-color:var(--primary); color:var(--primary); background:var(--primary-dim); }
+.ins-copy.copied { border-color:var(--primary); color:var(--primary); background:var(--primary-dim); }
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   main { padding: 0.85rem 0.9rem; }
@@ -565,6 +579,53 @@ option { background: var(--surface2); color: var(--text); }
           🏥 USZ Notfall: +41 44 255 11 11 &nbsp;|&nbsp; Notfall Europa: 112
         </div>
       </div>
+
+      <!-- Versicherungen -->
+      <div class="card section-gap" style="margin-top:1rem;">
+        <div class="card-title">🪪 Versicherungen</div>
+
+        <div class="ins-row">
+          <div class="ins-icon">🇨🇭</div>
+          <div class="ins-body">
+            <div class="ins-label">AHV</div>
+            <div class="ins-name">AHV-Nummer</div>
+            <div class="ins-nr"><span>756.0509.2764.10</span></div>
+          </div>
+          <button class="ins-copy" onclick="insCopy(this,'756.0509.2764.10')">📋 Copy</button>
+        </div>
+
+        <div class="ins-row">
+          <div class="ins-icon">🏥</div>
+          <div class="ins-body">
+            <div class="ins-label">Krankenversicherung</div>
+            <div class="ins-name">Helsana</div>
+            <div class="ins-nr">Vers.-Nr. <span>101639698</span></div>
+          </div>
+          <button class="ins-copy" onclick="insCopy(this,'101639698')">📋 Copy</button>
+        </div>
+
+        <div class="ins-row">
+          <div class="ins-icon">🦺</div>
+          <div class="ins-body">
+            <div class="ins-label">Unfallversicherung</div>
+            <div class="ins-name">SUVA Ost</div>
+            <div class="ins-nr">Unfall-Nr. <span>28.015.75.25.3</span></div>
+          </div>
+          <button class="ins-copy" onclick="insCopy(this,'28.015.75.25.3')">📋 Copy</button>
+        </div>
+
+        <div class="ins-row">
+          <div class="ins-icon">🔒</div>
+          <div class="ins-body">
+            <div class="ins-label">UV Zusatz Privat</div>
+            <div class="ins-name">dieMobiliar</div>
+            <div class="ins-nr">Dossier <span>90.25.049873</span></div>
+            <div class="ins-extra">Police Terradata AG: G-1555-1924</div>
+          </div>
+          <button class="ins-copy" onclick="insCopy(this,'90.25.049873')">📋 Copy</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1297,7 +1358,7 @@ option { background: var(--surface2); color: var(--text); }
 // ============================================================
 // VERSION
 // ============================================================
-const APP_VERSION = '2.9.2';
+const APP_VERSION = '2.9.3';
 
 // ============================================================
 // DATA
@@ -2883,10 +2944,49 @@ function _buildFsMedChart() {
     }
   };
 
+  // Plugin: OP-Fenster-Balken (19.03.2026 08:00–10:00)
+  const OP_TS_S = new Date(2026, 2, 19, 8, 0, 0).getTime();
+  const OP_TS_E = new Date(2026, 2, 19, 10, 0, 0).getTime();
+  const plugOpBand = {
+    id: 'fsOpBand',
+    beforeDatasetsDraw(chart) {
+      const { ctx, chartArea: ca, scales: { x } } = chart;
+      if (!ca || !x) return;
+      const px0 = x.getPixelForValue(OP_TS_S);
+      const px1 = x.getPixelForValue(OP_TS_E);
+      if (px0 >= ca.right || px1 <= ca.left) return;
+      const bx0 = Math.max(px0, ca.left), bx1 = Math.min(px1, ca.right);
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,107,138,0.10)';
+      ctx.fillRect(bx0, ca.top, bx1 - bx0, ca.height);
+      ctx.strokeStyle = 'rgba(255,107,138,0.50)';
+      ctx.lineWidth = 1.5; ctx.setLineDash([]);
+      if (px0 >= ca.left && px0 <= ca.right) { ctx.beginPath(); ctx.moveTo(px0, ca.top); ctx.lineTo(px0, ca.bottom); ctx.stroke(); }
+      if (px1 >= ca.left && px1 <= ca.right) { ctx.beginPath(); ctx.moveTo(px1, ca.top); ctx.lineTo(px1, ca.bottom); ctx.stroke(); }
+      ctx.restore();
+    },
+    afterDatasetsDraw(chart) {
+      const { ctx, chartArea: ca, scales: { x } } = chart;
+      if (!ca || !x) return;
+      const px0 = x.getPixelForValue(OP_TS_S);
+      const px1 = x.getPixelForValue(OP_TS_E);
+      if (px0 >= ca.right || px1 <= ca.left) return;
+      const midX = Math.max(ca.left + 2, Math.min(ca.right - 2, (px0 + px1) / 2));
+      ctx.save(); ctx.setLineDash([]);
+      ctx.font = '600 11px "DM Sans", sans-serif';
+      ctx.fillStyle = '#FF6B8A'; ctx.textAlign = 'center';
+      ctx.fillText('🔩 OP 🔩', midX, ca.top + 9);
+      ctx.font = '400 9px "DM Sans", sans-serif';
+      ctx.fillStyle = 'rgba(255,107,138,0.65)';
+      ctx.fillText('08:00–10:00', midX, ca.top + 20);
+      ctx.restore();
+    }
+  };
+
   // ── Chart ─────────────────────────────────────────────────────────────────
   _fsChart = new Chart(document.getElementById('fs-canvas').getContext('2d'), {
     type: 'line',
-    plugins: [plugDayBg, plugMedLines, plugDayLines, plugGradFill, plugGradLine, plugMedMarkers, plugPainCircles],
+    plugins: [plugOpBand, plugDayBg, plugMedLines, plugDayLines, plugGradFill, plugGradLine, plugMedMarkers, plugPainCircles],
     data: {
       datasets: [{
         data: painPts,
@@ -4143,9 +4243,59 @@ function renderMedCharts() {
     }
   };
 
+  // Plugin: OP-Fenster-Balken (19.03 08:00–10:00)
+  function _opLabelPx(chart, targetLabel) {
+    const lbls = chart.data.labels;
+    const xsc  = chart.scales.x;
+    let lo = -1, hi = -1;
+    for (let i = 0; i < lbls.length; i++) {
+      if (lbls[i] <= targetLabel) lo = i;
+      if (hi === -1 && lbls[i] >= targetLabel) hi = i;
+    }
+    if (lo === -1) return xsc.getPixelForValue(0);
+    if (hi === -1) return xsc.getPixelForValue(lbls.length - 1);
+    if (lo === hi)  return xsc.getPixelForValue(lo);
+    return (xsc.getPixelForValue(lo) + xsc.getPixelForValue(hi)) / 2;
+  }
+  const opBandPlugin = {
+    id: 'opBand',
+    beforeDatasetsDraw(chart) {
+      const { ctx, chartArea: ca, scales: { x } } = chart;
+      if (!ca || !x) return;
+      const px0 = _opLabelPx(chart, '19.03 08:00');
+      const px1 = _opLabelPx(chart, '19.03 10:00');
+      if (px0 >= ca.right || px1 <= ca.left) return;
+      const bx0 = Math.max(px0, ca.left), bx1 = Math.min(px1, ca.right);
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,107,138,0.10)';
+      ctx.fillRect(bx0, ca.top, bx1 - bx0, ca.height);
+      ctx.strokeStyle = 'rgba(255,107,138,0.50)';
+      ctx.lineWidth = 1.5; ctx.setLineDash([]);
+      if (px0 >= ca.left && px0 <= ca.right) { ctx.beginPath(); ctx.moveTo(px0, ca.top); ctx.lineTo(px0, ca.bottom); ctx.stroke(); }
+      if (px1 >= ca.left && px1 <= ca.right) { ctx.beginPath(); ctx.moveTo(px1, ca.top); ctx.lineTo(px1, ca.bottom); ctx.stroke(); }
+      ctx.restore();
+    },
+    afterDatasetsDraw(chart) {
+      const { ctx, chartArea: ca } = chart;
+      if (!ca) return;
+      const px0 = _opLabelPx(chart, '19.03 08:00');
+      const px1 = _opLabelPx(chart, '19.03 10:00');
+      if (px0 >= ca.right || px1 <= ca.left) return;
+      const midX = Math.max(ca.left + 2, Math.min(ca.right - 2, (px0 + px1) / 2));
+      ctx.save(); ctx.setLineDash([]);
+      ctx.font = '600 11px "DM Sans", sans-serif';
+      ctx.fillStyle = '#FF6B8A'; ctx.textAlign = 'center';
+      ctx.fillText('🔩 OP 🔩', midX, ca.top + 9);
+      ctx.font = '400 9px "DM Sans", sans-serif';
+      ctx.fillStyle = 'rgba(255,107,138,0.65)';
+      ctx.fillText('08:00–10:00', midX, ca.top + 20);
+      ctx.restore();
+    }
+  };
+
   _charts['med-timeline'] = createAndStoreChart('med-timeline', fresh.getContext('2d'), {
     type: 'line',
-    plugins: [medVerticalLinesPlugin, medGradFillPlugin, medGradLinePlugin, painLabelPlugin],
+    plugins: [opBandPlugin, medVerticalLinesPlugin, medGradFillPlugin, medGradLinePlugin, painLabelPlugin],
     data: {
       labels,
       datasets: [
@@ -5010,6 +5160,25 @@ function restoreFromJSON(input) {
 function nowTime() {
   const n = new Date();
   return n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+}
+
+function insCopy(btn, text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Kopiert';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 1800);
+    }).catch(() => { showToast('Kopieren nicht verfügbar'); });
+  } else {
+    // Fallback für ältere Browser
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); btn.textContent = '✓ Kopiert'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 1800);
+    } catch(e) { showToast('Kopieren nicht verfügbar'); }
+    document.body.removeChild(ta);
+  }
 }
 
 function showToast(msg) {
