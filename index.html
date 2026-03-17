@@ -2181,8 +2181,8 @@ function renderCalendar() {
         el.style.fontWeight = '700';
       }
     } else if (dayPost < 0) {
-      el.style.background = '#F4F4F4';
-      el.style.color = '#AAA';
+      el.style.background = 'var(--surface2)';
+      el.style.color = 'var(--text-dim)';
     }
 
     el.className = classes;
@@ -2194,18 +2194,18 @@ function renderCalendar() {
     `;
     el.title = [phase ? phase.name : '', hasEntry ? 'Tagebucheintrag ✏️' : '', avgPain !== null ? `Ø Schmerz: ${avgPain}` : ''].filter(Boolean).join(' · ');
 
-    // Click handler: toggle check AND open journal panel
+    // Click handler: journal für ALLE Tage; check-toggle nur für post-OP nicht-future Tage
     el.onclick = () => {
-      if (dayPost < 0) return;
-      if (!isFuture || dayPost < 0) {
+      // Tagebuch-Panel für alle Tage öffnen (auch pre-OP)
+      openJournalPanel(dStr, dObj, phase);
+      // Check-Toggle nur für nicht-future post-OP Tage
+      if (!isFuture && dayPost >= 0) {
         STATE.checkedDays[dStr] = !STATE.checkedDays[dStr];
         saveState();
-        renderCalendar();
         if (dStr === td) renderToday();
         updateAchievements();
+        renderCalendar();
       }
-      // Always open journal panel
-      openJournalPanel(dStr, dObj, phase);
     };
 
     grid.appendChild(el);
