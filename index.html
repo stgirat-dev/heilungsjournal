@@ -1358,7 +1358,7 @@ option { background: var(--surface2); color: var(--text); }
 // ============================================================
 // VERSION
 // ============================================================
-const APP_VERSION = '2.9.3';
+const APP_VERSION = '2.9.4';
 
 // ============================================================
 // DATA
@@ -4300,23 +4300,38 @@ function renderMedCharts() {
       const { ctx, chartArea: ca } = chart;
       if (!ca) return;
       const r = _opBandPxCat(chart);
-      if (!r || r.x0 >= ca.right || r.x1 <= ca.left || r.x0 >= r.x1) return;
-      const bx0 = Math.max(r.x0, ca.left), bx1 = Math.min(r.x1, ca.right);
+      if (!r) return;
+      let { x0, x1 } = r;
+      // Fallback: OP liegt rechts ausserhalb (noch keine 19.03-Daten) → Band an rechten Rand pinnen
+      if (x0 >= ca.right || x1 <= x0) {
+        x1 = ca.right;
+        x0 = ca.right - Math.min(40, (ca.right - ca.left) * 0.12);
+      }
+      if (x1 <= ca.left) return;
+      const bx0 = Math.max(x0, ca.left), bx1 = Math.min(x1, ca.right);
+      if (bx1 <= bx0) return;
       ctx.save();
       ctx.fillStyle = 'rgba(255,107,138,0.10)';
       ctx.fillRect(bx0, ca.top, bx1 - bx0, ca.height);
       ctx.strokeStyle = 'rgba(255,107,138,0.50)';
       ctx.lineWidth = 1.5; ctx.setLineDash([]);
-      if (r.x0 >= ca.left && r.x0 <= ca.right) { ctx.beginPath(); ctx.moveTo(r.x0, ca.top); ctx.lineTo(r.x0, ca.bottom); ctx.stroke(); }
-      if (r.x1 >= ca.left && r.x1 <= ca.right) { ctx.beginPath(); ctx.moveTo(r.x1, ca.top); ctx.lineTo(r.x1, ca.bottom); ctx.stroke(); }
+      if (x0 >= ca.left && x0 <= ca.right) { ctx.beginPath(); ctx.moveTo(x0, ca.top); ctx.lineTo(x0, ca.bottom); ctx.stroke(); }
+      if (x1 >= ca.left && x1 <= ca.right) { ctx.beginPath(); ctx.moveTo(x1, ca.top); ctx.lineTo(x1, ca.bottom); ctx.stroke(); }
       ctx.restore();
     },
     afterDatasetsDraw(chart) {
       const { ctx, chartArea: ca } = chart;
       if (!ca) return;
       const r = _opBandPxCat(chart);
-      if (!r || r.x0 >= ca.right || r.x1 <= ca.left || r.x0 >= r.x1) return;
-      const midX = Math.max(ca.left + 2, Math.min(ca.right - 2, (r.x0 + r.x1) / 2));
+      if (!r) return;
+      let { x0, x1 } = r;
+      // Fallback: OP liegt rechts ausserhalb (noch keine 19.03-Daten) → Band an rechten Rand pinnen
+      if (x0 >= ca.right || x1 <= x0) {
+        x1 = ca.right;
+        x0 = ca.right - Math.min(40, (ca.right - ca.left) * 0.12);
+      }
+      if (x1 <= ca.left) return;
+      const midX = Math.max(ca.left + 2, Math.min(ca.right - 2, (x0 + x1) / 2));
       ctx.save(); ctx.setLineDash([]);
       ctx.font = '600 11px "DM Sans", sans-serif';
       ctx.fillStyle = '#FF6B8A'; ctx.textAlign = 'center';
