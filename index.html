@@ -1541,7 +1541,7 @@ option { background: var(--surface2); color: var(--text); }
 // ============================================================
 // VERSION
 // ============================================================
-const APP_VERSION = '2.9.5';
+const APP_VERSION = '2.9.6';
 
 // ============================================================
 // DATA
@@ -1861,11 +1861,12 @@ function saveState() {
 // HELPERS
 // ============================================================
 function today() {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
 function dateStr(d) {
-  return d.toISOString().split('T')[0];
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
 function parseDate(str) {
@@ -4485,7 +4486,7 @@ function renderMedCharts() {
         : xsc.getPixelForValue(fPM) - halfTick;
       x1 = Math.max(x0, x1);
     } else {
-      x1 = x0;  // keine 19.03-Einträge → Breite 0 (korrekt)
+      x1 = x0;  // keine 19.03-Einträge → Breite 0
     }
     return { x0, x1 };
   }
@@ -4497,12 +4498,9 @@ function renderMedCharts() {
       const r = _opBandPxCat(chart);
       if (!r) return;
       let { x0, x1 } = r;
-      // Fallback: OP liegt rechts ausserhalb (noch keine 19.03-Daten) → Band an rechten Rand pinnen
-      if (x0 >= ca.right || x1 <= x0) {
-        x1 = ca.right;
-        x0 = ca.right - Math.min(40, (ca.right - ca.left) * 0.12);
-      }
-      if (x1 <= ca.left) return;
+      // Noch keine 19.03-Daten → Band nicht zeichnen (kein Fallback an rechten Rand)
+      if (x1 <= x0) return;
+      if (x0 >= ca.right || x1 <= ca.left) return;
       const bx0 = Math.max(x0, ca.left), bx1 = Math.min(x1, ca.right);
       if (bx1 <= bx0) return;
       ctx.save();
@@ -4520,12 +4518,9 @@ function renderMedCharts() {
       const r = _opBandPxCat(chart);
       if (!r) return;
       let { x0, x1 } = r;
-      // Fallback: OP liegt rechts ausserhalb (noch keine 19.03-Daten) → Band an rechten Rand pinnen
-      if (x0 >= ca.right || x1 <= x0) {
-        x1 = ca.right;
-        x0 = ca.right - Math.min(40, (ca.right - ca.left) * 0.12);
-      }
-      if (x1 <= ca.left) return;
+      // Noch keine 19.03-Daten → Label nicht zeichnen
+      if (x1 <= x0) return;
+      if (x0 >= ca.right || x1 <= ca.left) return;
       const midX = Math.max(ca.left + 2, Math.min(ca.right - 2, (x0 + x1) / 2));
       ctx.save(); ctx.setLineDash([]);
       ctx.font = '600 11px "DM Sans", sans-serif';
@@ -5259,7 +5254,7 @@ async function executeLoadTestData() {
   for (let d = 0; d < 14; d++) {
     const date = new Date(baseDate);
     date.setDate(baseDate.getDate() + d);
-    const ds = date.toISOString().split('T')[0];
+    const ds = dateStr(date);
 
     const basePain = Math.max(1, Math.round(7 - (d * 0.35) + (Math.random() * 2 - 1)));
     const nPain = 2 + Math.floor(Math.random() * 3);
