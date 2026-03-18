@@ -182,6 +182,24 @@ main { max-width: 1080px; margin: 0 auto; padding: 1.4rem 1.75rem; }
 .chart-tool-btn:hover { border-color: #00D4AA; color: #00D4AA; background: #0A2A22; }
 .chart-tool-btn.zoom-reset { display: none; }
 
+/* CHART TOGGLE PILLS */
+.chart-toggle-pill {
+  padding: 0.22rem 0.6rem; border-radius: 20px; border: 1.5px solid;
+  font-size: 0.68rem; font-weight: 600; cursor: pointer; transition: all 0.18s;
+  font-family: 'DM Sans',sans-serif; user-select: none; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+}
+.chart-toggle-pill.active { opacity: 1; }
+.chart-toggle-pill.inactive { opacity: 0.35; filter: grayscale(0.6); }
+.chart-toggle-pill:hover { opacity: 0.85; filter: none; }
+.chart-toggle-pill .pill-dot {
+  width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+}
+.chart-toggle-pill.pill-global {
+  border-color: #555; background: #1a1a26; color: #bbb;
+}
+.chart-toggle-pill.pill-global.active { border-color: #888; background: #222; color: #ddd; }
+
 /* GLASSMORPHISM TOOLTIP */
 #glassmorphism-tooltip {
   position: absolute; pointer-events: none; z-index: 50;
@@ -1007,7 +1025,8 @@ option { background: var(--surface2); color: var(--text); }
     <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:0.5rem;">
       Alle Schmerzeinträge chronologisch &nbsp;·&nbsp; ▼ Dreiecke = Medikamenteneinnahme &nbsp;·&nbsp; Scroll-Zoom / Pinch zum Zoomen
     </div>
-    <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem; font-size:0.72rem; color:var(--text-sub);"></div>
+    <div id="med-timeline-legend" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.5rem; font-size:0.72rem; color:var(--text-sub);"></div>
+    <div id="med-timeline-toggles" style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.75rem;"></div>
     <div style="position:relative;height:240px;">
       <canvas id="chart-med-timeline"></canvas>
     </div>
@@ -1541,7 +1560,7 @@ option { background: var(--surface2); color: var(--text); }
 // ============================================================
 // VERSION
 // ============================================================
-const APP_VERSION = '2.9.6';
+const APP_VERSION = '2.10.0';
 
 // ============================================================
 // DATA
@@ -1837,6 +1856,7 @@ let STATE = {
   backupMode: null,       // 'folder' | 'gdrive' | null
   backupFolderName: null,  // display name of chosen folder
   isTestData: false,       // true when test data is loaded
+  packItems: null,         // Packliste state — null = use PL_DEFAULT on first load
 };
 
 // Load state from localStorage; ensure medLogs and journalEntries exist for backward compatibility
@@ -1844,9 +1864,10 @@ function loadState() {
   try {
     const raw = localStorage.getItem('heilungsjournal_v1');
     if (raw) STATE = { ...STATE, ...JSON.parse(raw) };
-    // Always ensure medLogs and journalEntries exist (backward compat)
+    // Always ensure medLogs, journalEntries, packItems exist (backward compat)
     if (!STATE.medLogs) STATE.medLogs = [];
     if (!STATE.journalEntries) STATE.journalEntries = {};
+    // packItems: null means "never saved yet" → will be initialized from PL_DEFAULT
   } catch(e) {}
 }
 
@@ -3011,6 +3032,7 @@ function _buildFsMedChart() {
       if (!ca) return;
       ctx.save(); ctx.lineWidth = 1;
       for (const m of medPts) {
+        if (_medChartToggle.meds[m.med] === false) continue; // respect toggle
         if (m.x < x.min || m.x > x.max) continue;
         ctx.setLineDash([3,4]);
         ctx.strokeStyle = (MED_COLORS_FS[m.med]||'#888888') + '50';
@@ -3029,6 +3051,7 @@ function _buildFsMedChart() {
       const SZ=6, Y0=ca.top+7;
       ctx.save();
       for (const m of medPts) {
+        if (_medChartToggle.meds[m.med] === false) continue; // respect toggle
         if (m.x < x.min || m.x > x.max) continue;
         ctx.fillStyle = MED_COLORS_FS[m.med]||'#888888';
         const px = x.getPixelForValue(m.x);
@@ -3043,6 +3066,7 @@ function _buildFsMedChart() {
   const plugPainCircles = {
     id: 'fsPainCircles',
     afterDatasetsDraw(chart) {
+      if (!_medChartToggle.pain) return; // respect toggle
       const { ctx } = chart;
       const meta = chart.getDatasetMeta(0);
       if (!meta || !meta.data) return;
@@ -3067,6 +3091,7 @@ function _buildFsMedChart() {
   const plugGradFill = {
     id: 'fsGradFill',
     beforeDatasetsDraw(chart) {
+      if (!_medChartToggle.pain) return; // respect toggle
       const { ctx, chartArea: ca } = chart;
       if (!ca) return;
       const meta = chart.getDatasetMeta(0);
@@ -3106,6 +3131,7 @@ function _buildFsMedChart() {
   const plugGradLine = {
     id: 'fsGradLine',
     afterDatasetsDraw(chart) {
+      if (!_medChartToggle.pain) return; // respect toggle
       const { ctx, chartArea: ca } = chart;
       if (!ca) return;
       const meta = chart.getDatasetMeta(0);
@@ -4114,6 +4140,9 @@ function toggleDayDetail(ds) {
 // Renders the medication timeline using Chart.js — modelled on the working
 // Verlaufschart. Labels = "DD.MM HH:MM" per entry. Med intakes shown as
 // downward-triangle scatter points at y=10.6 (just above the pain scale).
+// Toggle state for med-timeline chart (persists across re-renders)
+const _medChartToggle = { pain: true, meds: {} /* medName → bool */, allMeds: true };
+
 function renderMedCharts() {
   const MED_COLORS = {
     'Tramadol':    '#B08BFF',
@@ -4281,6 +4310,7 @@ function renderMedCharts() {
     if (idx === -1) return;
     medLineData.push({
       idx,
+      med: l.med,
       color: MED_COLORS[l.med] || '#888888',
       dash: MED_DASHES[l.med] || [6, 4],
     });
@@ -4290,6 +4320,7 @@ function renderMedCharts() {
   const medGradFillPlugin = {
     id: 'medGradFill',
     beforeDatasetsDraw(chart) {
+      if (!_medChartToggle.pain) return; // respect toggle
       const { ctx, chartArea: ca } = chart;
       if (!ca) return;
       const meta = chart.getDatasetMeta(0);
@@ -4336,6 +4367,7 @@ function renderMedCharts() {
   const medGradLinePlugin = {
     id: 'medGradLine',
     afterDatasetsDraw(chart) {
+      if (!_medChartToggle.pain) return; // respect toggle
       const { ctx, chartArea: ca } = chart;
       if (!ca) return;
       const meta = chart.getDatasetMeta(0);
@@ -4379,6 +4411,9 @@ function renderMedCharts() {
   const medVerticalLinesPlugin = {
     id: 'medVerticalLines',
     beforeDraw(chart) {
+      // Skip if ALL meds are toggled off
+      const anyMedOn = Object.values(_medChartToggle.meds).some(v => v !== false);
+      if (!anyMedOn) return;
       const { ctx, chartArea, scales } = chart;
       if (!chartArea || !scales.x) return;
       const xScale = scales.x;
@@ -4389,7 +4424,9 @@ function renderMedCharts() {
       ctx.lineWidth = 1.5;
       ctx.globalAlpha = 0.35;
 
-      medLineData.forEach(({ idx, color, dash }) => {
+      medLineData.forEach(({ idx, med, color, dash }) => {
+        // Skip lines for toggled-off meds
+        if (med && _medChartToggle.meds[med] === false) return;
         const x = xScale.getPixelForValue(idx);
         if (x < chartArea.left || x > chartArea.right) return;
         ctx.strokeStyle = color;
@@ -4408,6 +4445,7 @@ function renderMedCharts() {
   const painLabelPlugin = {
     id: 'painLabels',
     afterDatasetsDraw(chart) {
+      if (!_medChartToggle.pain) return; // respect toggle
       const { ctx, scales, chartArea } = chart;
       if (!chartArea || !scales.x || !scales.y) return;
       const painDataset = chart.data.datasets[0]; // index 0 = Schmerzniveau
@@ -4610,6 +4648,77 @@ function renderMedCharts() {
           `<span>${med}</span></div>`;
       }),
     ].join('');
+  }
+
+  // ── Toggle pills for showing/hiding datasets ──
+  const toggleWrap = document.getElementById('med-timeline-toggles');
+  if (toggleWrap && _charts['med-timeline']) {
+    const chart = _charts['med-timeline'];
+    // Ensure toggle state is initialized for all used meds
+    usedMeds.forEach(m => { if (_medChartToggle.meds[m] === undefined) _medChartToggle.meds[m] = true; });
+
+    function applyToggleState() {
+      const c = _charts['med-timeline'];
+      if (!c) return;
+      // Dataset 0 = Schmerzniveau
+      c.data.datasets[0].hidden = !_medChartToggle.pain;
+      // Datasets 1..n = medications
+      for (let i = 1; i < c.data.datasets.length; i++) {
+        const medName = c.data.datasets[i].label;
+        c.data.datasets[i].hidden = !(_medChartToggle.meds[medName] !== false);
+      }
+      c.update('none');
+      renderTogglePills();
+    }
+
+    function renderTogglePills() {
+      const anyMedOn = usedMeds.some(m => _medChartToggle.meds[m] !== false);
+      const allMedsOn = usedMeds.every(m => _medChartToggle.meds[m] !== false);
+      _medChartToggle.allMeds = allMedsOn;
+
+      let html = '';
+      // Pain toggle
+      const painActive = _medChartToggle.pain;
+      html += `<button class="chart-toggle-pill ${painActive ? 'active' : 'inactive'}"
+        style="border-color:${painActive ? '#00D4AA' : '#333'};background:${painActive ? 'rgba(0,212,170,0.12)' : '#0E0E14'};color:${painActive ? '#00D4AA' : '#666'};"
+        onclick="_medChartTogglePain()">
+        <span class="pill-dot" style="background:${painActive ? '#00D4AA' : '#333'};"></span>Schmerzlevel</button>`;
+
+      // Global med toggle
+      html += `<button class="chart-toggle-pill pill-global ${allMedsOn ? 'active' : 'inactive'}"
+        onclick="_medChartToggleAllMeds()" title="Alle Medikamente ein/aus">
+        <span style="font-size:0.8rem;">💊</span>${allMedsOn ? 'Alle aus' : 'Alle ein'}</button>`;
+
+      // Per-med toggles
+      usedMeds.forEach(med => {
+        const on = _medChartToggle.meds[med] !== false;
+        const col = MED_COLORS[med] || '#888';
+        html += `<button class="chart-toggle-pill ${on ? 'active' : 'inactive'}"
+          style="border-color:${on ? col : '#333'};background:${on ? col + '18' : '#0E0E14'};color:${on ? col : '#666'};"
+          onclick="_medChartToggleMed('${med}')">
+          <span class="pill-dot" style="background:${on ? col : '#333'};"></span>${med}</button>`;
+      });
+      toggleWrap.innerHTML = html;
+    }
+
+    // Global toggle functions
+    window._medChartTogglePain = function() {
+      _medChartToggle.pain = !_medChartToggle.pain;
+      applyToggleState();
+    };
+    window._medChartToggleMed = function(medName) {
+      _medChartToggle.meds[medName] = !(_medChartToggle.meds[medName] !== false);
+      applyToggleState();
+    };
+    window._medChartToggleAllMeds = function() {
+      const allOn = usedMeds.every(m => _medChartToggle.meds[m] !== false);
+      usedMeds.forEach(m => { _medChartToggle.meds[m] = !allOn; });
+      applyToggleState();
+    };
+
+    renderTogglePills();
+    // Apply initial state (in case toggles were already set before re-render)
+    applyToggleState();
   }
 }
 function formatDateDE(ds) {
@@ -5891,13 +6000,25 @@ initPWA();
       {l:"Kleiner Rucksack oder Tasche für Aufenthaltsraum",n:""},
     ]},
   ];
-  let plState = JSON.parse(JSON.stringify(PL_DEFAULT));
+
+  // ── Persistence: use STATE.packItems (saved to localStorage) ──
+  function plGetState() {
+    if (!STATE.packItems) {
+      STATE.packItems = JSON.parse(JSON.stringify(PL_DEFAULT));
+      saveState();
+    }
+    return STATE.packItems;
+  }
+  function plSave() { saveState(); }
+
   let plEditingKey = null;
+
   function plBuildCatSelect() {
     const sel = document.getElementById('pl-new-cat');
     if (!sel) return;
     sel.innerHTML = '';
-    plState.forEach((sec, i) => {
+    const ps = plGetState();
+    ps.forEach((sec, i) => {
       const o = document.createElement('option');
       o.value = i; o.textContent = sec.cat; sel.appendChild(o);
     });
@@ -5909,33 +6030,35 @@ initPWA();
     const sel = document.getElementById('pl-new-cat');
     const label = input.value.trim();
     if (!label) return;
+    const ps = plGetState();
     let catIdx = sel.value;
     if (catIdx === 'new') {
       const catName = prompt('Name der neuen Kategorie:');
       if (!catName) return;
-      plState.push({cat: catName, items: []});
-      catIdx = plState.length - 1;
+      ps.push({cat: catName, items: []});
+      catIdx = ps.length - 1;
     } else { catIdx = parseInt(catIdx); }
-    plState[catIdx].items.push({l: label, n: '', checked: false, strikethrough: false});
+    ps[catIdx].items.push({l: label, n: '', checked: false, strikethrough: false});
     input.value = '';
-    plBuildCatSelect(); plRenderPL();
+    plSave(); plBuildCatSelect(); plRenderPL();
   };
   window.plToggleCheck = function(ci, ii) {
-    const it = plState[ci].items[ii];
+    const it = plGetState()[ci].items[ii];
     it.checked = !it.checked;
     if (it.checked) it.strikethrough = false;
-    plRenderPL();
+    plSave(); plRenderPL();
   };
   window.plToggleStrike = function(ci, ii) {
-    const it = plState[ci].items[ii];
+    const it = plGetState()[ci].items[ii];
     it.strikethrough = !it.strikethrough;
     if (it.strikethrough) it.checked = false;
-    plRenderPL();
+    plSave(); plRenderPL();
   };
   window.plDeleteItem = function(ci, ii) {
-    plState[ci].items.splice(ii, 1);
-    if (plState[ci].items.length === 0) plState.splice(ci, 1);
-    plEditingKey = null; plBuildCatSelect(); plRenderPL();
+    const ps = plGetState();
+    ps[ci].items.splice(ii, 1);
+    if (ps[ci].items.length === 0) ps.splice(ci, 1);
+    plEditingKey = null; plSave(); plBuildCatSelect(); plRenderPL();
   };
   window.plStartEdit = function(ci, ii) {
     plEditingKey = ci + '-' + ii;
@@ -5946,18 +6069,20 @@ initPWA();
   window.plCommitEdit = function(ci, ii) {
     const key = ci + '-' + ii;
     if (plEditingKey !== key) return;
+    const ps = plGetState();
     const inp = document.getElementById('pl-edit-' + key);
     const inpNote = document.getElementById('pl-edit-note-' + key);
-    if (inp) { const val = inp.value.trim(); if (val) plState[ci].items[ii].l = val; }
-    if (inpNote) { plState[ci].items[ii].n = inpNote.value.trim(); }
-    plEditingKey = null; plRenderPL();
+    if (inp) { const val = inp.value.trim(); if (val) ps[ci].items[ii].l = val; }
+    if (inpNote) { ps[ci].items[ii].n = inpNote.value.trim(); }
+    plEditingKey = null; plSave(); plRenderPL();
   };
   function plRenderPL() {
     const container = document.getElementById('pl-list');
     if (!container) return;
     container.innerHTML = '';
+    const ps = plGetState();
     let total = 0, done = 0;
-    plState.forEach((sec, ci) => {
+    ps.forEach((sec, ci) => {
       if (!sec.items.length) return;
       const div = document.createElement('div');
       div.className = 'pl-section';
@@ -6013,12 +6138,13 @@ initPWA();
     if (prog) prog.textContent = `${done} von ${total} erledigt`;
   }
   window.plResetChecks = function() {
-    plState.forEach(sec => sec.items.forEach(it => { it.checked = false; it.strikethrough = false; }));
-    plEditingKey = null; plRenderPL();
+    plGetState().forEach(sec => sec.items.forEach(it => { it.checked = false; it.strikethrough = false; }));
+    plEditingKey = null; plSave(); plRenderPL();
   };
   window.plResetAll = function() {
-    plState = JSON.parse(JSON.stringify(PL_DEFAULT));
-    plEditingKey = null; plBuildCatSelect(); plRenderPL();
+    if (!confirm('Alle Einträge auf den Standardzustand zurücksetzen?')) return;
+    STATE.packItems = JSON.parse(JSON.stringify(PL_DEFAULT));
+    plEditingKey = null; plSave(); plBuildCatSelect(); plRenderPL();
   };
   plBuildCatSelect();
   plRenderPL();
