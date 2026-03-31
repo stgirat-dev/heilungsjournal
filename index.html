@@ -5249,7 +5249,7 @@ function executeImport(mode) {
     STATE.reminderEnabled = imp.reminderEnabled;
     STATE.reminderTimes = imp.reminderTimes;
     STATE.journalEntries = imp.journalEntries;
-    if (imp.packItems) STATE.packItems = imp.packItems;
+    STATE.packItems = imp.packItems || null;
   } else {
     Object.assign(STATE.checkedDays, imp.checkedDays);
     const painKey = (l) => `${l.date}|${l.time}|${l.level}`;
