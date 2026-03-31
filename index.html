@@ -4974,7 +4974,8 @@ function createBackupPayload() {
       medLogs: STATE.medLogs || [],
       reminderEnabled: STATE.reminderEnabled || false,
       reminderTimes: STATE.reminderTimes || ['08:00','12:00','16:00','20:00'],
-      journalEntries: STATE.journalEntries || {}
+      journalEntries: STATE.journalEntries || {},
+      packItems: STATE.packItems || null
     }
   };
 }
@@ -5203,7 +5204,8 @@ function processImportJSON(jsonText) {
         medLogs: importData.medLogs || [],
         reminderEnabled: importData.reminderEnabled || false,
         reminderTimes: importData.reminderTimes || ['08:00','12:00','16:00','20:00'],
-        journalEntries: importData.journalEntries || {}
+        journalEntries: importData.journalEntries || {},
+        packItems: importData.packItems || null
       }
     };
 
@@ -5247,6 +5249,7 @@ function executeImport(mode) {
     STATE.reminderEnabled = imp.reminderEnabled;
     STATE.reminderTimes = imp.reminderTimes;
     STATE.journalEntries = imp.journalEntries;
+    if (imp.packItems) STATE.packItems = imp.packItems;
   } else {
     Object.assign(STATE.checkedDays, imp.checkedDays);
     const painKey = (l) => `${l.date}|${l.time}|${l.level}`;
@@ -5275,6 +5278,8 @@ function executeImport(mode) {
         STATE.journalEntries[dateStr] = imp.journalEntries[dateStr];
       }
     }
+    // Merge packItems: only import if no local customization exists yet
+    if (imp.packItems && !STATE.packItems) STATE.packItems = imp.packItems;
   }
 
   // Importing real data clears the test data flag
@@ -5297,7 +5302,8 @@ function executeImport(mode) {
 
 // --- Delete All ---
 function confirmDeleteAll() {
-  const total = (STATE.painLogs || []).length + (STATE.medLogs || []).length + Object.keys(STATE.checkedDays || {}).length;
+  const packCount = STATE.packItems ? STATE.packItems.reduce((sum, cat) => sum + (cat.items || []).length, 0) : 0;
+  const total = (STATE.painLogs || []).length + (STATE.medLogs || []).length + Object.keys(STATE.checkedDays || {}).length + packCount;
   document.getElementById('delete-count-preview').textContent = total + ' Daten-Einträge';
   document.getElementById('delete-confirm-box').style.display = 'block';
 }
@@ -5306,6 +5312,7 @@ function executeDeleteAll() {
   STATE.checkedDays = {};
   STATE.painLogs = [];
   STATE.medLogs = [];
+  STATE.packItems = null;
   STATE.lastBackup = null;
   STATE.isTestData = false;
   saveState();
